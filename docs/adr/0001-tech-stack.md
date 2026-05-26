@@ -115,7 +115,7 @@ PM 요구사항 문서에서 기술 스택은 사실상 명시되어 있으나(N
 
 | 항목                | 잠정 후보             | 우선순위 | 비고                                          |
 |---------------------|-----------------------|----------|-----------------------------------------------|
-| LLM Provider        | Anthropic / OpenAI    | 🔴 높음   | 개발 착수(05-28) 전 결정 필요                  |
+| LLM Provider        | ~~Anthropic / OpenAI~~ → **Anthropic 채택** | ✅ 결정됨 | [ADR-0002](0002-llm-provider.md) 참고 |
 | 스타일링            | Tailwind CSS          | 🟡 중간   | App Router와 친화적, 학습곡선 낮음             |
 | UI 컴포넌트 라이브러리 | shadcn/ui             | 🟡 중간   | 필요 시 점진 도입 가능                         |
 | 테스트 도구         | Vitest + Playwright   | 🟢 낮음   | TEST_PLAN.md에서 다룸                          |
