@@ -5,6 +5,23 @@ D-Connect 팀(2~5명)을 위한 GitHub 협업 규칙입니다.
 
 ---
 
+## 목차
+
+1. [브랜치 전략](#1-브랜치-전략)
+2. [커밋 메시지 규칙 (Conventional Commits)](#2-커밋-메시지-규칙-conventional-commits)
+3. [Issue 규칙](#3-issue-규칙)
+4. [Draft PR 규칙](#4-draft-pr-규칙)
+5. [PR 규칙](#5-pr-규칙)
+6. [GitHub Project 규칙](#6-github-project-규칙)
+7. [main 브랜치 보호 규칙](#7-main-브랜치-보호-규칙)
+8. [CI/CD 규칙](#8-cicd-규칙)
+9. [Worktree 규칙](#9-worktree-규칙)
+10. [AI 협업 규칙](#10-ai-협업-규칙)
+11. [워크플로 예시 (end-to-end)](#11-워크플로-예시-end-to-end)
+- [부록 A: main 브랜치 보호 설정 명령어](#부록-a-main-브랜치-보호-설정-명령어)
+
+---
+
 ## 1. 브랜치 전략
 
 **GitHub Flow** 기반 — 단순하고 작은 팀에 적합합니다.
@@ -16,21 +33,21 @@ D-Connect 팀(2~5명)을 위한 GitHub 협업 규칙입니다.
 ### 브랜치 네이밍 규칙
 
 ```
-<type>/<짧은-설명-kebab-case>
+<type>/<issue-number>-<짧은-설명-kebab-case>
 ```
 
-| type      | 용도                                     | 예시                          |
-|-----------|------------------------------------------|-------------------------------|
-| `feature` | 새 기능 추가                             | `feature/user-login`          |
-| `fix`     | 버그 수정                                | `fix/login-redirect`          |
-| `refactor`| 동작 변경 없이 코드 구조 개선            | `refactor/auth-module`        |
-| `docs`    | 문서만 변경                              | `docs/update-readme`          |
-| `chore`   | 빌드/설정/의존성 등 부수 작업            | `chore/bump-deps`             |
-| `test`    | 테스트만 추가/수정                       | `test/login-edge-cases`       |
-| `hotfix`  | 프로덕션 긴급 수정                       | `hotfix/auth-token-leak`      |
+| type       | 용도                                     | 예시                             |
+|------------|------------------------------------------|----------------------------------|
+| `feature`  | 새 기능 추가                             | `feature/12-user-login`          |
+| `fix`      | 버그 수정                                | `fix/34-login-redirect`          |
+| `refactor` | 동작 변경 없이 코드 구조 개선            | `refactor/45-auth-module`        |
+| `docs`     | 문서만 변경                              | `docs/56-update-readme`          |
+| `chore`    | 빌드/설정/의존성 등 부수 작업            | `chore/67-bump-deps`             |
+| `test`     | 테스트만 추가/수정                       | `test/78-login-edge-cases`       |
 
 - 영문 소문자 + kebab-case
-- 이슈 번호를 포함하고 싶다면: `feature/12-user-login`
+- **Issue 번호는 필수** — 모든 브랜치는 대응되는 Issue에서 시작한다
+- Issue 없이 시작한 작업이라면(트리비얼 예외 제외) 먼저 Issue를 만들고 브랜치를 다시 만든다
 
 ---
 
@@ -81,7 +98,17 @@ chore(deps): vite 5.2로 업데이트
 
 - **모든 작업 전에 Issue 먼저** — 작업 단위가 명확해지고, PR과 자동 연결됩니다.
 - 버그 발견 시 → 즉시 Issue. 본인이 고칠 거여도 기록을 남깁니다.
-- 5분 이내 트리비얼 수정은 생략 가능.
+- 5분 이내 트리비얼 수정은 Issue 생략 가능.
+
+**단, 아래 작업은 작아도 Issue를 반드시 만든다:**
+
+- 기능 동작 변경
+- API 응답 변경
+- DB schema 변경
+- 인증/인가 관련 변경
+- 결제 관련 변경
+- 배포/CI 설정 변경
+- AI 도구가 수행하는 작업
 
 ### 템플릿
 
@@ -138,10 +165,17 @@ chore(deps): vite 5.2로 업데이트
 
 ### 기본 원칙
 
-- **작게 자주** — PR 하나당 ±300줄 이하 권장. 1000줄 넘으면 쪼개기.
 - **하나의 PR = 하나의 목적** — 기능 + 리팩토링 섞지 않기.
 - PR 제목은 커밋 메시지 규칙과 동일 (`feat(auth): ...`)
 - 본문은 `.github/pull_request_template.md` 자동 적용.
+
+### PR 크기 규칙
+
+- PR은 리뷰어가 **15~30분 안에 이해할 수 있는 크기**를 목표로 한다.
+- 일반 코드 변경은 **±300줄 이하**를 권장한다.
+- **1000줄을 넘으면 원칙적으로 쪼갠다.**
+- 단, lockfile, generated file, snapshot, migration은 라인 수 계산에서 제외할 수 있다.
+- 큰 PR이 불가피하면 PR 본문에 **"왜 쪼개기 어려운지"를 설명한다.**
 
 ### 리뷰
 
@@ -248,26 +282,26 @@ GitHub Settings → Branches → Add rule로 설정합니다.
 ### 디렉토리 컨벤션
 
 ```
-~/GitHub/d-connect/         # main worktree (default)
-~/GitHub/d-connect.wt/      # 추가 worktree 모음 디렉토리
-  feature-login/            # 브랜치명 그대로
-  fix-redirect/
+~/GitHub/d-connect/                       # main worktree (default)
+~/GitHub/d-connect.wt/                    # 추가 worktree 모음 디렉토리
+  feature-12-user-login/                  # 브랜치명 그대로 (슬래시 → 하이픈)
+  fix-34-login-redirect/
 ```
 
 ### 기본 명령어
 
 ```bash
 # 새 worktree 추가 (기존 브랜치)
-git worktree add ../d-connect.wt/feature-login feature/login
+git worktree add ../d-connect.wt/feature-12-user-login feature/12-user-login
 
 # 새 브랜치와 함께 worktree 추가
-git worktree add -b feature/login ../d-connect.wt/feature-login
+git worktree add -b feature/12-user-login ../d-connect.wt/feature-12-user-login
 
 # 현재 worktree 목록
 git worktree list
 
 # 작업 끝난 worktree 정리
-git worktree remove ../d-connect.wt/feature-login
+git worktree remove ../d-connect.wt/feature-12-user-login
 ```
 
 ### 주의사항
@@ -278,16 +312,43 @@ git worktree remove ../d-connect.wt/feature-login
 
 ---
 
-## 10. 워크플로 예시 (end-to-end)
+## 10. AI 협업 규칙
 
-새 기능 "사용자 프로필 페이지"를 추가한다고 가정:
+### 사람 승인 필수 항목
+
+AI는 다음 변경을 **임의로 merge하거나 적용하면 안 된다.** 사람이 검토하고 승인한 후에만 진행한다.
+
+- production dependency 추가
+- DB schema 또는 migration 변경
+- 인증/인가 로직 변경
+- 결제 로직 변경
+- 배포 workflow 변경
+- secret, env, token 관련 변경
+- GitHub Actions 권한 변경
+- main branch protection 변경
+
+### AI 리뷰
+
+PR 작성 후 필요하면 다음과 같이 AI 리뷰를 요청한다.
+
+```
+@claude review this PR for correctness and regressions
+```
+
+AI 리뷰는 **보조 수단**이며, 최종 approve와 merge는 사람이 담당한다.
+
+---
+
+## 11. 워크플로 예시 (end-to-end)
+
+새 기능 "사용자 프로필 페이지"를 추가한다고 가정 (Issue #12):
 
 1. **Issue 생성** — `feature_request.md` 템플릿으로 작성. 라벨: `type: feature`, `priority: mid`.
 2. **본인 assign** + Project에서 `Todo` → `In Progress`.
-3. **브랜치 분기**
+3. **브랜치 분기** (Issue 번호를 브랜치명에 포함)
    ```bash
    git checkout main && git pull
-   git checkout -b feature/user-profile
+   git checkout -b feature/12-user-profile
    ```
 4. **작업 + 커밋** — Conventional Commits 규칙 준수.
    ```bash
@@ -295,12 +356,13 @@ git worktree remove ../d-connect.wt/feature-login
    ```
 5. **Draft PR 열기** — 방향성 확인용으로 일찍.
    ```bash
-   git push -u origin feature/user-profile
+   git push -u origin feature/12-user-profile
    gh pr create --draft --title "feat(profile): 사용자 프로필 페이지" --body-file ...
    ```
 6. **작업 완료** → 셀프 리뷰 → "Ready for review" 전환 → 리뷰어 지정.
 7. **리뷰 반영** → 모든 코멘트 해결 → CI green → Approve.
-8. **Squash merge** → 브랜치 자동 삭제 → Issue 자동 close (PR 본문에 `Closes #N` 포함 시).
+   - 필요 시 `@claude review this PR for correctness and regressions`로 AI 리뷰 병행.
+8. **Squash merge** → 브랜치 자동 삭제 → Issue 자동 close (PR 본문에 `Closes #12` 포함 시).
 
 ---
 
@@ -328,3 +390,5 @@ gh api -X PUT repos/dongwandev/d-connect/branches/main/protection \
 ## 변경 이력
 
 - 2026-05-26: 초안 작성.
+- 2026-05-26: 목차 추가, 브랜치명에 Issue 번호 필수화, hotfix 타입 제거,
+  Issue 예외 규칙 보강, PR 크기 규칙 분리, AI 협업 규칙 신설.
