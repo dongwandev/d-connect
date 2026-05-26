@@ -179,8 +179,16 @@ chore(deps): vite 5.2로 업데이트
 
 ### 리뷰
 
-- **리뷰어 최소 1명**. 2~3명 팀이면 한 명, 4~5명이면 두 명 권장.
-- 리뷰어는 24시간 내 1차 응답.
+- 기본 리뷰어는 **최소 1명**.
+- 4명 팀에서는 모든 PR에 2명 리뷰를 강제하지 않는다.
+- 단, 아래 변경은 **2명 리뷰를 권장**한다.
+  - 인증/인가
+  - 결제
+  - DB schema/migration
+  - 배포/CI 설정
+  - 보안 관련 변경
+  - 대규모 리팩토링
+- 리뷰어는 가능하면 **24시간 내 1차 응답**한다.
 - 작성자는 리뷰 코멘트에 모두 응답 (수정/거절 사유/감사 표시 중 하나).
 - `Approve`, `Request changes`, `Comment` 명확히 구분.
 
@@ -310,9 +318,41 @@ git worktree remove ../d-connect.wt/feature-12-user-login
 - worktree 디렉토리는 `.gitignore` 무관 — 각자 로컬에만 존재.
 - 머지/삭제된 브랜치의 worktree는 즉시 정리.
 
+### AI 병렬 작업 시 Worktree 규칙
+
+Codex/Claude Code를 여러 작업에 동시에 사용할 때는 **반드시 worktree 또는 별도 clone**을 사용한다.
+
+- 같은 브랜치에서 두 AI 도구를 동시에 실행하지 않는다.
+- 같은 파일을 여러 AI가 동시에 수정하지 않게 한다.
+- AI 작업 하나당 하나의 worktree를 사용한다.
+- 작업 종료 후 PR merge 또는 branch 삭제가 끝나면 worktree를 정리한다.
+
+예시:
+
+```bash
+git checkout main
+git pull
+
+git worktree add -b feature/23-login-api \
+  ../d-connect.wt/feature-23-login-api main
+git worktree add -b fix/41-login-redirect \
+  ../d-connect.wt/fix-41-login-redirect main
+```
+
 ---
 
 ## 10. AI 협업 규칙
+
+### AI 작업 기본 원칙
+
+Codex, Claude Code 등 AI 도구도 팀원과 동일한 GitHub 규칙을 따른다.
+
+- AI도 main에 직접 push하지 않는다.
+- AI 작업도 반드시 Issue 기준으로 진행한다.
+- 하나의 AI 작업은 하나의 Issue, 하나의 Branch, 하나의 PR로 관리한다.
+- AI가 만든 PR도 사람 리뷰 없이 merge하지 않는다.
+- AI가 만든 변경도 CI를 통과해야 한다.
+- AI에게 큰 작업을 한 번에 맡기지 말고, 작은 Issue 단위로 맡긴다.
 
 ### 사람 승인 필수 항목
 
@@ -326,6 +366,21 @@ AI는 다음 변경을 **임의로 merge하거나 적용하면 안 된다.** 사
 - secret, env, token 관련 변경
 - GitHub Actions 권한 변경
 - main branch protection 변경
+
+### AI 작업 지시 예시
+
+````text
+Issue #23을 구현해줘.
+
+규칙:
+- feature/23-user-login 브랜치에서 작업해.
+- 먼저 구현 계획을 작성해.
+- 기존 코드 스타일을 따라.
+- 테스트를 추가해.
+- lint, typecheck, test를 실행해.
+- 완료 후 Draft PR을 만들어.
+- PR 본문에 변경 요약, 테스트 결과, 리스크를 작성해.
+````
 
 ### AI 리뷰
 
@@ -368,22 +423,50 @@ AI 리뷰는 **보조 수단**이며, 최종 approve와 merge는 사람이 담�
 
 ## 부록 A: main 브랜치 보호 설정 명령어
 
-`gh` CLI로 한 번에 적용:
+`gh` CLI로 적용하려면 JSON body를 명시적으로 전달합니다.
+
+> `<ACTUAL_REQUIRED_CHECK_NAME>`은 PR 화면의 Checks 탭에 표시되는 실제 check 이름으로 바꿉니다.
+> 예: `CI / build`, `build`, `test`
 
 ```bash
-gh api -X PUT repos/dongwandev/d-connect/branches/main/protection \
-  -f required_status_checks.strict=true \
-  -F required_status_checks.contexts='["CI / build"]' \
-  -f enforce_admins=true \
-  -F required_pull_request_reviews.required_approving_review_count=1 \
-  -F required_pull_request_reviews.dismiss_stale_reviews=true \
-  -F required_conversation_resolution=true \
-  -f restrictions= \
-  -F allow_force_pushes=false \
-  -F allow_deletions=false
+gh api \
+  --method PUT \
+  repos/dongwandev/d-connect/branches/main/protection \
+  --input - <<'JSON'
+{
+  "required_status_checks": {
+    "strict": true,
+    "contexts": [],
+    "checks": [
+      {
+        "context": "<ACTUAL_REQUIRED_CHECK_NAME>",
+        "app_id": -1
+      }
+    ]
+  },
+  "enforce_admins": true,
+  "required_pull_request_reviews": {
+    "dismiss_stale_reviews": true,
+    "required_approving_review_count": 1,
+    "require_last_push_approval": true
+  },
+  "restrictions": null,
+  "required_linear_history": true,
+  "allow_force_pushes": false,
+  "allow_deletions": false,
+  "block_creations": false,
+  "required_conversation_resolution": true,
+  "lock_branch": false,
+  "allow_fork_syncing": false
+}
+JSON
 ```
 
-> CI workflow의 job 이름이 변경되면 `contexts` 값도 함께 업데이트해야 합니다.
+### 주의
+
+- `context` 값은 실제 CI check 이름과 정확히 일치해야 한다.
+- workflow/job 이름이 바뀌면 branch protection의 required check도 함께 수정한다.
+- `required_linear_history: true`를 쓰려면 repository에서 squash merge 또는 rebase merge가 허용되어 있어야 한다.
 
 ---
 
@@ -392,3 +475,6 @@ gh api -X PUT repos/dongwandev/d-connect/branches/main/protection \
 - 2026-05-26: 초안 작성.
 - 2026-05-26: 목차 추가, 브랜치명에 Issue 번호 필수화, hotfix 타입 제거,
   Issue 예외 규칙 보강, PR 크기 규칙 분리, AI 협업 규칙 신설.
+- 2026-05-26: 리뷰 규칙(기본 1명, 위험 변경 2명 권장) 명문화,
+  AI 협업 규칙에 작업 기본 원칙/지시 예시 추가, Worktree에 AI 병렬
+  작업 규칙 추가, 부록 A를 JSON body 방식으로 교체.
