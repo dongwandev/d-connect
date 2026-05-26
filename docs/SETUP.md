@@ -278,7 +278,7 @@ gh repo view dongwandev/d-connect --json visibility,defaultBranchRef
 
 ---
 
-## 11. Claude Code 설치 (선택)
+## 11. Claude Code 설치 (선택, 권장)
 
 AI 도구로 작업 효율을 높이고 싶다면 Claude Code를 설치한다. **`CLAUDE.md`를 자동 로딩**하므로 별도 세팅 불필요.
 
@@ -298,7 +298,26 @@ npm install -g @anthropic-ai/claude-code
 claude
 ```
 
-### 첫 사용
+### ⚡ 환경 셋업을 한 줄로 끝내기 — `/setup-env`
+
+Claude Code를 설치한 직후라면 **§1~§10을 수동으로 따라갈 필요 없이** 다음 한 줄로 끝낼 수 있다.
+
+```bash
+cd ~/GitHub/d-connect
+claude
+```
+
+세션이 열리면 입력창에:
+
+```
+/setup-env
+```
+
+→ Claude Code가 OS를 감지하고, Node·Git·pnpm·gh 설치 여부를 확인하며, 누락된 도구는 **사용자 확인 후** 설치한다. 모든 도구가 갖춰지면 `pnpm install`, `.env` 생성, `lint/typecheck/build` 검증까지 자동으로 수행한다.
+
+> 슬래시 명령 구현은 [`.claude/commands/setup-env.md`](../.claude/commands/setup-env.md)에 있다. 시스템 도구 설치는 **반드시 사용자 확인 후**에만 진행하며, 기존 `.env`는 절대 덮어쓰지 않는다.
+
+### 첫 사용 (일반 작업)
 
 ```bash
 cd ~/GitHub/d-connect

@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Claude Code — 사용자별 로컬 설정만 제외. .claude/commands는 팀 공유.
+.claude/settings.local.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
