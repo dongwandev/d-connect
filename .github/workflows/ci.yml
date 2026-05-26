@@ -6,18 +6,42 @@ on:
   pull_request:
     branches: [main]
 
+# 같은 브랜치/PR에서 새 push가 오면 진행 중인 워크플로 취소
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
+    name: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # TODO: 언어/런타임 setup
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # package.json의 packageManager 필드에서 버전을 가져옴
 
-      # TODO: 의존성 설치
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
 
-      # TODO: 린트
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      # TODO: 타입 체크
+      - name: Lint
+        run: pnpm lint
 
-      # TODO: 테스트
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
+        env:
+          # 빌드 단계에서 AI 호출이 필요 없도록 정적 빌드만
+          NEXT_TELEMETRY_DISABLED: 1
