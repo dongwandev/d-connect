@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # TODO: 언어/런타임 setup
+
+      # TODO: 의존성 설치
+
+      # TODO: 린트
+
+      # TODO: 타입 체크
+
+      # TODO: 테스트
