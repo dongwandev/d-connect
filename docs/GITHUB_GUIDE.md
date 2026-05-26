@@ -181,13 +181,7 @@ chore(deps): vite 5.2로 업데이트
 
 - 기본 리뷰어는 **최소 1명**.
 - 4명 팀에서는 모든 PR에 2명 리뷰를 강제하지 않는다.
-- 단, 아래 변경은 **2명 리뷰를 권장**한다.
-  - 인증/인가
-  - 결제
-  - DB schema/migration
-  - 배포/CI 설정
-  - 보안 관련 변경
-  - 대규모 리팩토링
+- 단, **위험 작업**([§10 AI 협업 규칙 - 위험 작업 기준](#10-ai-협업-규칙) 참고)은 **2명 리뷰를 권장**한다.
 - 리뷰어는 가능하면 **24시간 내 1차 응답**한다.
 - 작성자는 리뷰 코멘트에 모두 응답 (수정/거절 사유/감사 표시 중 하나).
 - `Approve`, `Request changes`, `Comment` 명확히 구분.
@@ -223,11 +217,13 @@ GitHub Projects (board view)로 작업을 추적합니다.
 
 ### 운영 규칙
 
-- 모든 Issue/PR은 Project에 자동 추가 (workflow로 설정).
-- 작업 시작 시 본인을 assign + `In Progress`로 이동.
-- PR 올리면 `In Review`로 자동 이동.
-- 머지 시 `Done`으로 자동 이동.
-- 매주 1회 (예: 월요일 스탠드업) Backlog/Todo 우선순위 점검.
+- 모든 Issue/PR은 Project에 추가한다.
+- 가능하면 GitHub Projects workflow로 자동 추가/자동 이동을 설정한다.
+- 자동화가 누락되면 작성자가 직접 상태를 업데이트한다.
+- 작업 시작 시 본인을 assign + `In Progress`로 이동한다.
+- PR을 Ready for review로 전환하면 `In Review`로 이동한다.
+- PR merge 또는 Issue close 시 `Done`으로 이동한다.
+- 매주 1회 (예: 월요일 스탠드업) Backlog/Todo 우선순위를 점검한다.
 
 ---
 
@@ -285,7 +281,7 @@ GitHub Settings → Branches → Add rule로 설정합니다.
 
 - 리뷰 중인 PR을 로컬에서 확인하면서, 본인 작업도 계속 진행하고 싶을 때
 - 긴 빌드/테스트가 도는 동안 다른 브랜치에서 작업하고 싶을 때
-- 핫픽스 작업 시 현재 작업을 stash하지 않고 빠르게 분기
+- 긴급 fix 등 다른 브랜치에서 빠르게 작업해야 하는데, 현재 작업을 stash하지 않고 싶을 때
 
 ### 디렉토리 컨벤션
 
@@ -354,18 +350,23 @@ Codex, Claude Code 등 AI 도구도 팀원과 동일한 GitHub 규칙을 따른�
 - AI가 만든 변경도 CI를 통과해야 한다.
 - AI에게 큰 작업을 한 번에 맡기지 말고, 작은 Issue 단위로 맡긴다.
 
-### 사람 승인 필수 항목
+### 위험 작업 기준
 
-AI는 다음 변경을 **임의로 merge하거나 적용하면 안 된다.** 사람이 검토하고 승인한 후에만 진행한다.
+다음 변경은 **위험 작업**으로 분류한다. 일반 PR보다 엄격한 절차를 따른다.
 
-- production dependency 추가
-- DB schema 또는 migration 변경
-- 인증/인가 로직 변경
-- 결제 로직 변경
-- 배포 workflow 변경
-- secret, env, token 관련 변경
-- GitHub Actions 권한 변경
-- main branch protection 변경
+- production dependency
+- DB schema/migration
+- 인증/인가
+- 결제
+- 배포 workflow
+- secret/env/token
+- GitHub Actions 권한
+- main branch protection
+
+위험 작업에는 다음 규칙이 추가로 적용된다.
+
+- **2명 리뷰 권장** ([§5 PR 규칙 - 리뷰](#5-pr-규칙) 참고)
+- **AI는 임의로 merge하거나 적용하면 안 된다** — 사람이 검토하고 승인한 후에만 진행한다.
 
 ### AI 작업 지시 예시
 
@@ -395,6 +396,29 @@ AI 리뷰는 **보조 수단**이며, 최종 approve와 merge는 사람이 담�
 ---
 
 ## 11. 워크플로 예시 (end-to-end)
+
+### 작업 유형별 표준 흐름
+
+**일반 작업**
+
+```
+Issue → Branch → Draft PR → CI → 1명 리뷰 → Squash merge
+```
+
+**위험 작업** ([기준](#10-ai-협업-규칙))
+
+```
+Issue → Branch → Draft PR → CI → AI 리뷰 → 2명 리뷰 권장 → Squash merge
+```
+
+**AI 작업**
+
+```
+Issue → AI에게 작은 단위로 지시 → 별도 branch/worktree
+      → Draft PR → CI → AI 리뷰 → 사람 리뷰 → Squash merge
+```
+
+### 상세 예시 — 새 기능 추가
 
 새 기능 "사용자 프로필 페이지"를 추가한다고 가정 (Issue #12):
 
@@ -478,3 +502,7 @@ JSON
 - 2026-05-26: 리뷰 규칙(기본 1명, 위험 변경 2명 권장) 명문화,
   AI 협업 규칙에 작업 기본 원칙/지시 예시 추가, Worktree에 AI 병렬
   작업 규칙 추가, 부록 A를 JSON body 방식으로 교체.
+- 2026-05-26: GitHub Project 운영 규칙 보강(자동화 누락 시 수동 업데이트),
+  "사람 승인 필수 항목"을 "위험 작업 기준"으로 일원화하여 리뷰 규칙과
+  공유, 작업 유형별 표준 흐름(일반/위험/AI) 명시, Worktree에서
+  hotfix 문구 제거.
