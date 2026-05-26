@@ -130,6 +130,18 @@ git checkout main && git pull
 
 ---
 
+## 사용 가능한 슬래시 명령 (Claude Code)
+
+프로젝트 루트에서 `claude` 실행 후 사용.
+
+| 명령           | 용도                                                                 | 정의 위치                                              |
+|----------------|----------------------------------------------------------------------|--------------------------------------------------------|
+| `/setup-env`   | 개발 환경 자동 점검·설치·검증 (Node/Git/pnpm/gh, 의존성, .env, 빌드) | [`.claude/commands/setup-env.md`](.claude/commands/setup-env.md) |
+
+> 새 슬래시 명령을 추가하려면 `.claude/commands/<name>.md` 파일을 만든다. 파일명이 명령어가 된다. YAML frontmatter의 `description`이 `/help`에 표시된다.
+
+---
+
 ## 디렉토리 구조
 
 ```
@@ -145,6 +157,8 @@ d-connect/
 │   ├── GITHUB_GUIDE.md       # 협업 가이드
 │   ├── adr/                  # 의사결정 기록
 │   └── (ARCHITECTURE / DB_SCHEMA / API / TEST_PLAN — 스켈레톤)
+├── .claude/
+│   └── commands/             # 슬래시 명령 (예: /setup-env)
 ├── .github/
 │   ├── workflows/ci.yml      # lint / typecheck / build
 │   ├── ISSUE_TEMPLATE/       # bug / feature / task
