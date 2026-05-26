@@ -461,8 +461,8 @@ Issue → AI에게 작은 단위로 지시 → 별도 branch/worktree
 
 `gh` CLI로 적용하려면 JSON body를 명시적으로 전달한다.
 
-> `<ACTUAL_REQUIRED_CHECK_NAME>`은 PR 화면의 Checks 탭에 표시되는 실제 check 이름으로 바꾼다.
-> 예: `CI / build`, `build`, `test`
+> `<CHECK_NAME>`은 PR 화면의 Checks 탭에 표시되는 실제 check 이름으로 바꾼다.
+> 현재 프로젝트의 CI workflow는 `build` 한 개를 사용한다.
 
 ```bash
 gh api \
@@ -472,12 +472,8 @@ gh api \
 {
   "required_status_checks": {
     "strict": true,
-    "contexts": [],
     "checks": [
-      {
-        "context": "<ACTUAL_REQUIRED_CHECK_NAME>",
-        "app_id": -1
-      }
+      { "context": "<CHECK_NAME>" }
     ]
   },
   "enforce_admins": true,
@@ -498,11 +494,30 @@ gh api \
 JSON
 ```
 
+### 솔로 작업 임시 정책
+
+팀이 합류하기 전, collaborator가 1명뿐이라면 본인이 본인 PR을 approve할 수 없어 모든 머지가 막힌다. 이 기간 동안만 `required_approving_review_count`를 **0**으로 두고 운영한 뒤, 팀 합류 시 1로 복원한다.
+
+```bash
+# 솔로 모드: review count 0
+gh api \
+  --method PATCH \
+  repos/dongwandev/d-connect/branches/main/protection/required_pull_request_reviews \
+  -F required_approving_review_count=0
+
+# 팀 합류 시 복원
+gh api \
+  --method PATCH \
+  repos/dongwandev/d-connect/branches/main/protection/required_pull_request_reviews \
+  -F required_approving_review_count=1
+```
+
 ### 주의
 
 - `context` 값은 실제 CI check 이름과 정확히 일치해야 한다.
 - workflow/job 이름이 바뀌면 branch protection의 required check도 함께 수정한다.
 - `required_linear_history: true`를 쓰려면 repository에서 squash merge 또는 rebase merge가 허용되어 있어야 한다.
+- 과거 문서의 `contexts: []` + `checks: [...]` 동시 지정 형태는 API schema 충돌(HTTP 422)을 일으킨다. 위 예시처럼 **`checks`만** 사용한다. `app_id`는 GitHub Actions check의 경우 자동 해결된다.
 
 ---
 
