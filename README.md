@@ -11,7 +11,8 @@
 
 - ⚡ [개발 환경 셋업 가이드](docs/SETUP.md) — 신규 팀원 필독
 - 📋 [PRD — 제품 요구사항](docs/PRD.md)
-- 🏛️ [ADR-0001 — 기술 스택](docs/adr/0001-tech-stack.md) · [ADR-0002 — LLM Provider](docs/adr/0002-llm-provider.md)
+- 🏗️ [ARCHITECTURE — 아키텍처 개요](docs/ARCHITECTURE.md)
+- 🏛️ ADR — [0001 기술 스택](docs/adr/0001-tech-stack.md) · [0002 LLM Provider](docs/adr/0002-llm-provider.md) · [0003 아키텍처](docs/adr/0003-architecture.md)
 - 🤝 [GitHub 협업 가이드](docs/GITHUB_GUIDE.md)
 - 🤖 [CLAUDE.md — AI 협업 컨텍스트](CLAUDE.md)
 - 🗂️ [`docs/`](docs/) 전체 보기
