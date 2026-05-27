@@ -40,6 +40,10 @@ yarn-error.log*
 # Claude Code — 사용자별 로컬 설정만 제외. .claude/commands는 팀 공유.
 .claude/settings.local.json
 
+# Prisma — 로컬 SQLite 파일. 마이그레이션 파일은 커밋함.
+prisma/*.db
+prisma/*.db-journal
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
