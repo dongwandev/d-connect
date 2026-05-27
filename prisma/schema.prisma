@@ -1,7 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// D-Connect DB 스키마
+// 설계 의도는 docs/DB_SCHEMA.md, 의사결정 배경은 docs/adr/0001-tech-stack.md 참고.
 
 generator client {
   provider = "prisma-client"
@@ -10,4 +8,117 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+  // Prisma 7: url은 prisma.config.ts에서 로딩 (dotenv 경유). schema에는 두지 않음.
+}
+
+// -----------------------------------------------------------------------------
+// Enums
+// -----------------------------------------------------------------------------
+
+enum SdgGoal {
+  SDG_8 //  양질의 일자리와 경제성장
+  SDG_11 // 지속가능한 도시와 공동체
+  SDG_12 // 책임 있는 소비와 생산
+  SDG_17 // 목표를 위한 파트너십
+}
+
+enum ContentType {
+  SNS_POST //           SNS 게시글
+  CARD_NEWS //          카드뉴스 문안
+  SHORT_VIDEO_SCRIPT // 숏폼 영상 대본
+  CAMPAIGN_SLOGAN //    캠페인 슬로건
+}
+
+enum SocialCategory {
+  EMPLOYMENT //    고용
+  ENVIRONMENT //   환경
+  LOCAL_ECONOMY // 지역경제
+  COMMUNITY //     공동체
+  COOPERATION //   협력
+}
+
+// -----------------------------------------------------------------------------
+// Models
+// -----------------------------------------------------------------------------
+
+model Company {
+  id        String   @id @default(cuid())
+  name      String
+  industry  String?
+  region    String?
+  product   String?
+  purpose   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activities Activity[]
+  analyses   SdgAnalysis[]
+}
+
+model Activity {
+  id          String         @id @default(cuid())
+  companyId   String
+  category    SocialCategory
+  title       String
+  description String
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@index([companyId])
+}
+
+model SdgAnalysis {
+  id              String   @id @default(cuid())
+  companyId       String
+  /// SocialCategory[] JSON 직렬화 (SQLite 제약 — DB_SCHEMA §5.4)
+  socialFunctions String
+  publicMeaning   String
+  /// mock fallback 발동 여부 (운영 모니터링)
+  usedFallback    Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  company  Company            @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  matches  SdgMatch[]
+  contents GeneratedContent[]
+
+  @@index([companyId])
+  @@index([createdAt])
+}
+
+model SdgMatch {
+  id         String   @id @default(cuid())
+  analysisId String
+  sdg        SdgGoal
+  score      Int
+  /// string[] JSON 직렬화
+  keywords   String
+  rationale  String
+  createdAt  DateTime @default(now())
+
+  analysis SdgAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@unique([analysisId, sdg])
+  @@index([analysisId])
+}
+
+model GeneratedContent {
+  id            String      @id @default(cuid())
+  analysisId    String
+  type          ContentType
+  body          String
+  /// string[] JSON 직렬화
+  hashtags      String
+  imagePrompt   String?
+  editedByUser  Boolean     @default(false)
+  usedFallback  Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  analysis SdgAnalysis @relation(fields: [analysisId], references: [id], onDelete: Cascade)
+
+  @@index([analysisId])
+  @@index([type])
 }
