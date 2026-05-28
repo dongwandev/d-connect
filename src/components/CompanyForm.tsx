@@ -40,8 +40,25 @@ const INDUSTRIES = IndustryCategorySchema.options
 const TARGETS = TargetAudienceSchema.options
 const PROMO_GOALS = PromoGoalSchema.options
 
-export function CompanyForm() {
+interface CompanyFormProps {
+  /**
+   * 편집 모드: companyId가 있으면 PATCH /api/companies/[id] 호출.
+   * 등록 모드: 비어 있으면 POST /api/companies.
+   */
+  mode?: 'create' | 'edit'
+  companyId?: string
+  /** 편집 모드의 초기값. mode='edit'일 때만 의미 있음. */
+  initial?: Partial<CreateCompanyInput>
+}
+
+export function CompanyForm({
+  mode = 'create',
+  companyId,
+  initial,
+}: CompanyFormProps = {}) {
   const router = useRouter()
+  const isEdit = mode === 'edit' && companyId
+
   const {
     register,
     control,
@@ -53,8 +70,19 @@ export function CompanyForm() {
   } = useForm<CreateCompanyInput>({
     resolver: zodResolver(CreateCompanySchema),
     defaultValues: {
-      name: '',
-      activities: [{ category: 'ENVIRONMENT', title: '', description: '' }],
+      name: initial?.name ?? '',
+      foundedYear: initial?.foundedYear,
+      businessType: initial?.businessType,
+      sido: initial?.sido,
+      sigungu: initial?.sigungu ?? '',
+      industryCategory: initial?.industryCategory,
+      product: initial?.product ?? '',
+      targetAudiences: initial?.targetAudiences ?? [],
+      promoGoals: initial?.promoGoals ?? [],
+      activities:
+        initial?.activities && initial.activities.length > 0
+          ? initial.activities
+          : [{ category: 'ENVIRONMENT', title: '', description: '' }],
     },
   })
 
@@ -67,14 +95,33 @@ export function CompanyForm() {
 
   // 단일 선택 카드 버튼용 watch 값
   const industryCategory = watch('industryCategory')
-  const targetAudience = watch('targetAudience')
-  const promoGoal = watch('promoGoal')
+  const targetAudiences = watch('targetAudiences') ?? []
+  const promoGoals = watch('promoGoals') ?? []
+
+  function toggleTarget(t: TargetAudience) {
+    const next = targetAudiences.includes(t)
+      ? targetAudiences.filter((x) => x !== t)
+      : [...targetAudiences, t]
+    setValue('targetAudiences', next, { shouldDirty: true })
+  }
+
+  function togglePromo(g: PromoGoal) {
+    const next = promoGoals.includes(g)
+      ? promoGoals.filter((x) => x !== g)
+      : [...promoGoals, g]
+    setValue('promoGoals', next, { shouldDirty: true })
+  }
 
   async function onSubmit(values: CreateCompanyInput) {
     setState({ kind: 'submitting' })
     try {
-      const res = await fetch('/api/companies', {
-        method: 'POST',
+      const url = isEdit
+        ? `/api/companies/${companyId}`
+        : '/api/companies'
+      const method = isEdit ? 'PATCH' : 'POST'
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       })
@@ -92,7 +139,7 @@ export function CompanyForm() {
       }
 
       setState({ kind: 'success', id: json.data.id, name: json.data.name })
-      reset()
+      if (!isEdit) reset()
       router.push(`/companies/${json.data.id}`)
       router.refresh()
     } catch (e) {
@@ -299,41 +346,33 @@ export function CompanyForm() {
         </div>
       </Section>
 
-      <Section title="타겟 / 목표">
+      <Section title="타겟 / 목표 (다중 선택)">
         <Field
           label="주요 타겟 고객"
-          error={errors.targetAudience?.message}
+          error={errors.targetAudiences?.message}
         >
           <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
             {TARGETS.map((t) => (
               <CardButton
                 key={t}
-                selected={targetAudience === t}
+                selected={targetAudiences.includes(t)}
                 icon=""
                 label={TARGET_AUDIENCE_LABEL[t]}
-                onClick={() =>
-                  setValue('targetAudience', t as TargetAudience, {
-                    shouldDirty: true,
-                  })
-                }
+                onClick={() => toggleTarget(t)}
               />
             ))}
           </div>
         </Field>
 
-        <Field label="홍보 목표" error={errors.promoGoal?.message}>
+        <Field label="홍보 목표" error={errors.promoGoals?.message}>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
             {PROMO_GOALS.map((g) => (
               <CardButton
                 key={g}
-                selected={promoGoal === g}
+                selected={promoGoals.includes(g)}
                 icon=""
                 label={PROMO_GOAL_LABEL[g]}
-                onClick={() =>
-                  setValue('promoGoal', g as PromoGoal, {
-                    shouldDirty: true,
-                  })
-                }
+                onClick={() => togglePromo(g)}
               />
             ))}
           </div>
@@ -345,12 +384,17 @@ export function CompanyForm() {
         disabled={state.kind === 'submitting'}
         className="w-full rounded bg-accent-500 px-4 py-3 font-medium text-white hover:bg-accent-600 disabled:bg-gray-400"
       >
-        {state.kind === 'submitting' ? '저장 중...' : '기업 등록'}
+        {state.kind === 'submitting'
+          ? '저장 중...'
+          : isEdit
+            ? '수정 저장'
+            : '기업 등록'}
       </button>
 
       {state.kind === 'success' && (
         <div className="rounded border border-green-300 bg-green-50 p-4 text-green-800">
-          ✅ 등록 완료 — <strong>{state.name}</strong>
+          ✅ {isEdit ? '수정 완료' : '등록 완료'} —{' '}
+          <strong>{state.name}</strong>
         </div>
       )}
       {state.kind === 'error' && (

@@ -194,8 +194,14 @@ model Company {
   /// 시/군/구 자유 텍스트
   sigungu          String?
   industryCategory IndustryCategory?
+  /// Deprecated — D6에서 다중 선택으로 전환. targetAudiences 사용.
   targetAudience   TargetAudience?
+  /// Deprecated — D6에서 다중 선택으로 전환. promoGoals 사용.
   promoGoal        PromoGoal?
+  /// TargetAudience[] JSON 직렬화 (다중 선택, D6)
+  targetAudiences  String?
+  /// PromoGoal[] JSON 직렬화 (다중 선택, D6)
+  promoGoals       String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

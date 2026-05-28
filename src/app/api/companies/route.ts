@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { requireUserId } from '@/server/auth-guard'
 import { db } from '@/server/db'
 import { withErrorHandler } from '@/server/errors'
+import { serializeJsonArray } from '@/lib/json-array'
 import { CreateCompanySchema } from './schemas'
 
 /**
@@ -24,8 +25,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         sigungu: body.sigungu,
         industryCategory: body.industryCategory,
         product: body.product,
-        targetAudience: body.targetAudience,
-        promoGoal: body.promoGoal,
+        targetAudiences: body.targetAudiences?.length
+          ? serializeJsonArray(body.targetAudiences)
+          : null,
+        promoGoals: body.promoGoals?.length
+          ? serializeJsonArray(body.promoGoals)
+          : null,
         activities: {
           create: body.activities.map((a) => ({
             category: a.category,

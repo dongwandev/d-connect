@@ -1,7 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState, useTransition } from 'react'
 import {
   CONTENT_TYPE_LABEL,
   ContentTypeSchema,
@@ -29,7 +30,30 @@ const TYPES = ContentTypeSchema.options
  * 동작: tab 클릭으로 type 필터링. 0건이면 안내 메시지.
  */
 export function ContentTabs({ contents }: { contents: ContentItem[] }) {
+  const router = useRouter()
   const [tab, setTab] = useState<TabKey>('ALL')
+  const [pending, startTransition] = useTransition()
+  const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  async function deleteContent(id: string) {
+    if (!confirm('이 콘텐츠를 삭제하시겠습니까? 삭제 후 복구할 수 없습니다.')) {
+      return
+    }
+    setDeletingId(id)
+    try {
+      const res = await fetch(`/api/contents/${id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        const json = (await res.json().catch(() => ({}))) as {
+          error?: { message?: string }
+        }
+        alert(`삭제 실패: ${json.error?.message ?? `HTTP ${res.status}`}`)
+        return
+      }
+      startTransition(() => router.refresh())
+    } finally {
+      setDeletingId(null)
+    }
+  }
 
   const filtered =
     tab === 'ALL' ? contents : contents.filter((c) => c.type === tab)
@@ -79,12 +103,22 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
                     </span>
                   )}
                 </h3>
-                <Link
-                  href={`/contents/${c.id}`}
-                  className="text-sm text-accent-500 hover:underline"
-                >
-                  편집 →
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href={`/contents/${c.id}`}
+                    className="rounded border border-border bg-white px-3 py-1 text-xs font-medium text-gray-700 transition-colors hover:border-accent-500 hover:bg-accent-500/5 hover:text-accent-500"
+                  >
+                    편집
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => deleteContent(c.id)}
+                    disabled={pending || deletingId === c.id}
+                    className="rounded border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {deletingId === c.id ? '삭제 중...' : '삭제'}
+                  </button>
+                </div>
               </div>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-800">
                 {c.body}

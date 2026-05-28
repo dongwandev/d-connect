@@ -11,6 +11,31 @@ interface Params {
 }
 
 /**
+ * DELETE /api/contents/[id] — 콘텐츠 삭제.
+ * D6 사용자 요청. 본인 소유 검증 후 hard delete.
+ */
+export async function DELETE(
+  _req: NextRequest,
+  { params }: Params,
+): Promise<NextResponse> {
+  return withErrorHandler(async () => {
+    const userId = await requireUserId()
+    const { id } = await params
+
+    const existing = await db.generatedContent.findFirst({
+      where: { id, analysis: { company: { userId } } },
+      select: { id: true },
+    })
+    if (!existing) {
+      throw new ApiError('NOT_FOUND', `Content not found: ${id}`, 404)
+    }
+
+    await db.generatedContent.delete({ where: { id } })
+    return { id }
+  })
+}
+
+/**
  * PATCH /api/contents/[id] — 콘텐츠 초안 수정.
  * 사양: docs/API.md §5.3, ADR-0005
  *
