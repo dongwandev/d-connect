@@ -1,6 +1,7 @@
 import 'server-only'
 import { type NextRequest, type NextResponse } from 'next/server'
 import { analyzeSdg } from '@/server/ai'
+import { requireUserId } from '@/server/auth-guard'
 import { db } from '@/server/db'
 import { ApiError, withErrorHandler } from '@/server/errors'
 import type { SocialCategory } from '@/lib/enums'
@@ -11,8 +12,8 @@ interface Params {
 }
 
 /**
- * POST /api/companies/[id]/sdg-analysis — SDGs 분석 요청 (AI).
- * 사양: docs/API.md §4.1
+ * POST /api/companies/[id]/sdg-analysis — 본인 기업의 SDGs 분석 요청 (AI).
+ * 사양: docs/API.md §4.1, ADR-0005
  *
  * 응답에 usedFallback은 노출하지 않는다 (API.md §6 — DB에만 저장).
  */
@@ -21,10 +22,11 @@ export async function POST(
   { params }: Params,
 ): Promise<NextResponse> {
   return withErrorHandler(async () => {
+    const userId = await requireUserId()
     const { id } = await params
 
-    const company = await db.company.findUnique({
-      where: { id },
+    const company = await db.company.findFirst({
+      where: { id, userId },
       include: { activities: { orderBy: { createdAt: 'asc' } } },
     })
     if (!company) {
@@ -67,8 +69,6 @@ export async function POST(
       include: { matches: { orderBy: { score: 'desc' } } },
     })
 
-    // API.md §4.1 응답 — JSON-string 컬럼은 배열로 풀어서 반환.
-    // usedFallback은 응답에 포함하지 않는다.
     return {
       id: created.id,
       companyId: created.companyId,
@@ -88,18 +88,19 @@ export async function POST(
 }
 
 /**
- * GET /api/companies/[id]/sdg-analysis — 분석 이력 요약 목록.
- * 사양: docs/API.md §4.2
+ * GET /api/companies/[id]/sdg-analysis — 본인 기업의 분석 이력 요약.
+ * 사양: docs/API.md §4.2, ADR-0005
  */
 export async function GET(
   _req: NextRequest,
   { params }: Params,
 ): Promise<NextResponse> {
   return withErrorHandler(async () => {
+    const userId = await requireUserId()
     const { id } = await params
 
-    const exists = await db.company.findUnique({
-      where: { id },
+    const exists = await db.company.findFirst({
+      where: { id, userId },
       select: { id: true },
     })
     if (!exists) {

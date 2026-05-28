@@ -1,5 +1,6 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
+import { auth } from '@/auth'
 import { AnalyzeButton } from '@/components/AnalyzeButton'
 import { db } from '@/server/db'
 import { SOCIAL_CATEGORY_LABEL, type SocialCategory } from '@/lib/enums'
@@ -11,15 +12,22 @@ interface PageProps {
 /**
  * 기업 상세 페이지.
  *
- * 서버 컴포넌트가 DB를 직접 호출한다 (ARCHITECTURE §3 3-layer).
- * Route Handler를 거치지 않고 같은 데이터를 가져오므로 한 번의 round-trip
- * 으로 페이지를 렌더한다.
+ * 권한 (ADR-0005):
+ *   - 비로그인 → /login
+ *   - 본인 소유가 아닌 기업 id → 404 (존재 자체를 노출하지 않음)
+ *
+ * Server component가 DB를 직접 호출 (ARCHITECTURE §3 3-layer).
  */
+export const dynamic = 'force-dynamic'
+
 export default async function CompanyDetailPage({ params }: PageProps) {
+  const session = await auth()
+  if (!session?.user?.id) redirect('/login')
+
   const { id } = await params
 
-  const company = await db.company.findUnique({
-    where: { id },
+  const company = await db.company.findFirst({
+    where: { id, userId: session.user.id },
     include: {
       activities: { orderBy: { createdAt: 'asc' } },
       analyses: {
@@ -37,8 +45,8 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
       <nav>
-        <Link href="/" className="text-sm text-blue-600 hover:underline">
-          ← 홈으로
+        <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
+          ← 대시보드
         </Link>
       </nav>
 

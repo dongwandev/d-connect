@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
+import { auth } from '@/auth'
 import { db } from '@/server/db'
 import {
   SDG_GOAL_LABEL,
@@ -15,13 +16,21 @@ interface PageProps {
 
 /**
  * 분석 상세 페이지 (API.md §4.3 사양).
- * SDG 매칭은 score 내림차순으로 정렬해 표시한다.
+ *
+ * 권한 (ADR-0005):
+ *   - 비로그인 → /login
+ *   - 본인 소유 기업의 분석이 아니면 → 404
  */
+export const dynamic = 'force-dynamic'
+
 export default async function AnalysisPage({ params }: PageProps) {
+  const session = await auth()
+  if (!session?.user?.id) redirect('/login')
+
   const { id } = await params
 
-  const analysis = await db.sdgAnalysis.findUnique({
-    where: { id },
+  const analysis = await db.sdgAnalysis.findFirst({
+    where: { id, company: { userId: session.user.id } },
     include: {
       company: { select: { id: true, name: true } },
       matches: { orderBy: { score: 'desc' } },
@@ -35,8 +44,8 @@ export default async function AnalysisPage({ params }: PageProps) {
   return (
     <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
       <nav className="space-x-3 text-sm">
-        <Link href="/" className="text-blue-600 hover:underline">
-          ← 홈
+        <Link href="/dashboard" className="text-blue-600 hover:underline">
+          ← 대시보드
         </Link>
         <Link
           href={`/companies/${analysis.company.id}`}

@@ -67,9 +67,32 @@ export default async function LoginPage() {
             label="이메일 매직 링크로 시작하기"
             reason="준비 중 (SMTP 호스팅 결정 후 활성화)"
           />
+
+          {providers.demo && (
+            <>
+              <div className="my-2 flex items-center gap-2">
+                <span className="h-px flex-1 bg-gray-200" />
+                <span className="text-xs text-gray-400">DEV ONLY</span>
+                <span className="h-px flex-1 bg-gray-200" />
+              </div>
+              <form
+                action={async () => {
+                  'use server'
+                  await signIn('demo', { redirectTo: '/dashboard' })
+                }}
+              >
+                <button
+                  type="submit"
+                  className="w-full rounded border border-dashed border-purple-300 bg-purple-50 px-4 py-3 text-sm text-purple-800 hover:bg-purple-100"
+                >
+                  데모 계정으로 로그인 (demo@d-connect.kr)
+                </button>
+              </form>
+            </>
+          )}
         </div>
 
-        {!providers.kakao && !providers.google && (
+        {!providers.kakao && !providers.google && !providers.demo && (
           <p className="rounded border border-yellow-300 bg-yellow-50 p-3 text-xs text-yellow-800">
             ⚠️ Provider 환경 변수가 설정되지 않았습니다. <br />
             <code>.env.example</code>의 <code>KAKAO_*</code> 또는{' '}
