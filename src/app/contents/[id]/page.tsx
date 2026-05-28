@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { AppShell } from '@/components/AppShell'
 import { ContentEditForm } from '@/components/ContentEditForm'
 import { db } from '@/server/db'
 import { CONTENT_TYPE_LABEL, type ContentType } from '@/lib/enums'
@@ -40,8 +41,9 @@ export default async function ContentEditPage({ params }: PageProps) {
   const hashtags = parseJsonArray<string>(content.hashtags)
 
   return (
-    <main className="mx-auto max-w-3xl space-y-6 px-6 py-10">
-      <nav className="space-x-3 text-sm">
+    <AppShell>
+      <div className="mx-auto max-w-3xl space-y-6 px-6 py-10">
+        <nav className="space-x-3 text-sm">
         <Link href="/dashboard" className="text-blue-600 hover:underline">
           ← 대시보드
         </Link>
@@ -81,7 +83,8 @@ export default async function ContentEditPage({ params }: PageProps) {
           hashtags,
           imagePrompt: content.imagePrompt,
         }}
-      />
-    </main>
+        />
+      </div>
+    </AppShell>
   )
 }

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { auth, signOut } from '@/auth'
+import { auth } from '@/auth'
+import { AppShell } from '@/components/AppShell'
 import { db } from '@/server/db'
 
 /**
@@ -28,30 +29,16 @@ export default async function DashboardPage() {
   })
 
   return (
-    <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
-      <header className="flex items-baseline justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">대시보드</h1>
+    <AppShell>
+      <div className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+        <header>
+          <h1 className="text-3xl font-bold text-gray-900">대시보드</h1>
           <p className="mt-1 text-sm text-gray-500">
             {session.user.name ?? session.user.email ?? '사용자'}님, 환영합니다.
           </p>
-        </div>
-        <form
-          action={async () => {
-            'use server'
-            await signOut({ redirectTo: '/login' })
-          }}
-        >
-          <button
-            type="submit"
-            className="text-sm text-gray-500 hover:text-gray-900"
-          >
-            로그아웃 →
-          </button>
-        </form>
-      </header>
+        </header>
 
-      <section className="space-y-3">
+        <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-semibold">
             내 기업 ({companies.length})
@@ -103,7 +90,8 @@ export default async function DashboardPage() {
             ))}
           </ul>
         )}
-      </section>
-    </main>
+        </section>
+      </div>
+    </AppShell>
   )
 }

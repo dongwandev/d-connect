@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { AppShell } from '@/components/AppShell'
 import { ContentGenerationButtons } from '@/components/ContentGenerationButtons'
 import { db } from '@/server/db'
 import {
@@ -46,8 +47,9 @@ export default async function AnalysisPage({ params }: PageProps) {
   const socialFunctions = parseJsonArray<SocialCategory>(analysis.socialFunctions)
 
   return (
-    <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
-      <nav className="space-x-3 text-sm">
+    <AppShell>
+      <div className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+        <nav className="space-x-3 text-sm">
         <Link href="/dashboard" className="text-blue-600 hover:underline">
           ← 대시보드
         </Link>
@@ -190,7 +192,8 @@ export default async function AnalysisPage({ params }: PageProps) {
             })}
           </ul>
         )}
-      </section>
-    </main>
+        </section>
+      </div>
+    </AppShell>
   )
 }

@@ -2,6 +2,7 @@ import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import { auth } from '@/auth'
 import { AnalyzeButton } from '@/components/AnalyzeButton'
+import { AppShell } from '@/components/AppShell'
 import { db } from '@/server/db'
 import { SOCIAL_CATEGORY_LABEL, type SocialCategory } from '@/lib/enums'
 
@@ -43,12 +44,13 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   const latestAnalysis = company.analyses[0] ?? null
 
   return (
-    <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
-      <nav>
-        <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
-          ← 대시보드
-        </Link>
-      </nav>
+    <AppShell>
+      <div className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+        <nav>
+          <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
+            ← 대시보드
+          </Link>
+        </nav>
 
       <header className="space-y-2">
         <h1 className="text-3xl font-bold">{company.name}</h1>
@@ -121,7 +123,8 @@ export default async function CompanyDetailPage({ params }: PageProps) {
             <AnalyzeButton companyId={company.id} />
           </div>
         )}
-      </section>
-    </main>
+        </section>
+      </div>
+    </AppShell>
   )
 }
