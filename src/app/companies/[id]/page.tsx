@@ -1,0 +1,112 @@
+import { notFound } from 'next/navigation'
+import Link from 'next/link'
+import { db } from '@/server/db'
+import { SOCIAL_CATEGORY_LABEL, type SocialCategory } from '@/lib/enums'
+
+interface PageProps {
+  params: Promise<{ id: string }>
+}
+
+/**
+ * 기업 상세 페이지.
+ *
+ * 서버 컴포넌트가 DB를 직접 호출한다 (ARCHITECTURE §3 3-layer).
+ * Route Handler를 거치지 않고 같은 데이터를 가져오므로 한 번의 round-trip
+ * 으로 페이지를 렌더한다.
+ */
+export default async function CompanyDetailPage({ params }: PageProps) {
+  const { id } = await params
+
+  const company = await db.company.findUnique({
+    where: { id },
+    include: {
+      activities: { orderBy: { createdAt: 'asc' } },
+      analyses: {
+        orderBy: { createdAt: 'desc' },
+        take: 1,
+        select: { id: true, createdAt: true },
+      },
+    },
+  })
+
+  if (!company) notFound()
+
+  const latestAnalysis = company.analyses[0] ?? null
+
+  return (
+    <main className="mx-auto max-w-3xl space-y-8 px-6 py-10">
+      <nav>
+        <Link href="/" className="text-sm text-blue-600 hover:underline">
+          ← 홈으로
+        </Link>
+      </nav>
+
+      <header className="space-y-2">
+        <h1 className="text-3xl font-bold">{company.name}</h1>
+        <p className="text-sm text-gray-500">
+          {company.industry ?? '업종 미입력'} · {company.region ?? '지역 미입력'}
+        </p>
+        <p className="text-xs text-gray-400">
+          등록: {company.createdAt.toLocaleString('ko-KR')}
+        </p>
+      </header>
+
+      <section className="space-y-2">
+        <h2 className="text-lg font-semibold">기본 정보</h2>
+        <dl className="grid grid-cols-[120px_1fr] gap-y-2 text-sm">
+          <dt className="text-gray-500">제품·서비스</dt>
+          <dd>{company.product ?? <span className="text-gray-400">—</span>}</dd>
+          <dt className="text-gray-500">홍보 목적</dt>
+          <dd>{company.purpose ?? <span className="text-gray-400">—</span>}</dd>
+        </dl>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">
+          활동 ({company.activities.length})
+        </h2>
+        <ul className="space-y-3">
+          {company.activities.map((a) => (
+            <li
+              key={a.id}
+              className="rounded border border-gray-200 p-4"
+            >
+              <div className="mb-1 flex items-center gap-2">
+                <span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
+                  {SOCIAL_CATEGORY_LABEL[a.category as SocialCategory]}
+                </span>
+                <h3 className="font-medium">{a.title}</h3>
+              </div>
+              <p className="text-sm text-gray-700">{a.description}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold">SDGs 분석</h2>
+        {latestAnalysis ? (
+          <div className="rounded border border-green-300 bg-green-50 p-4">
+            <p className="text-sm text-gray-700">
+              최신 분석: {latestAnalysis.createdAt.toLocaleString('ko-KR')}
+            </p>
+            <p className="mt-2 text-sm text-gray-500">
+              {/* 상세 페이지는 PR 3에서 구현 예정 */}
+              분석 결과 상세 페이지는 곧 추가됩니다.
+            </p>
+          </div>
+        ) : (
+          <div className="rounded border border-gray-200 bg-gray-50 p-4">
+            <p className="text-sm text-gray-600">
+              아직 분석된 결과가 없습니다.
+            </p>
+            <p className="mt-2 text-sm text-gray-500">
+              {/* 분석 트리거는 PR 3에서 구현 예정 */}
+              SDGs 분석 기능은 곧 추가됩니다.
+            </p>
+          </div>
+        )}
+      </section>
+    </main>
+  )
+}
