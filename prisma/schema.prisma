@@ -37,6 +37,65 @@ enum SocialCategory {
   COOPERATION //   협력
 }
 
+// --- D2 풍부한 폼 필드용 enum 5종 ---------------------------------------------
+
+enum BusinessType {
+  INDIVIDUAL //         개인사업자
+  CORPORATION //        법인사업자
+  SOCIAL_ENTERPRISE //  사회적기업
+  COOPERATIVE //        협동조합
+  OTHER //              기타
+}
+
+enum Sido {
+  SEOUL //    서울특별시
+  BUSAN //    부산광역시
+  DAEGU //    대구광역시
+  INCHEON //  인천광역시
+  GWANGJU //  광주광역시
+  DAEJEON //  대전광역시
+  ULSAN //    울산광역시
+  SEJONG //   세종특별자치시
+  GYEONGGI // 경기도
+  GANGWON //  강원특별자치도
+  CHUNGBUK // 충청북도
+  CHUNGNAM // 충청남도
+  JEONBUK //  전북특별자치도
+  JEONNAM //  전라남도
+  GYEONGBUK// 경상북도
+  GYEONGNAM// 경상남도
+  JEJU //     제주특별자치도
+}
+
+enum IndustryCategory {
+  FOOD_BEVERAGE //  식품·음료
+  RETAIL //         소매·유통
+  SERVICE //        서비스
+  EDUCATION //      교육
+  CULTURE_ARTS //   문화·예술
+  ENVIRONMENT_IND// 환경 (산업 카테고리, SocialCategory.ENVIRONMENT와 별개)
+  MANUFACTURING //  제조
+  OTHER //          기타
+}
+
+enum TargetAudience {
+  ALL //            전체
+  YOUTH //          청년
+  FAMILY //         가족
+  SENIOR //         시니어
+  LOCAL_RESIDENT // 지역주민
+  OTHER //          기타
+}
+
+enum PromoGoal {
+  BRAND_AWARENESS // 브랜드 인지도 향상
+  PRODUCT_PROMO //   제품·서비스 홍보
+  SALES_GROWTH //    판매·매출 증대
+  LOCAL_AWARENESS // 지역사회 인식 개선
+  INVESTMENT //      투자·후원 유치
+  OTHER //           기타
+}
+
 // -----------------------------------------------------------------------------
 // Auth.js (NextAuth v5) 표준 모델 — ADR-0004 / ADR-0005
 // -----------------------------------------------------------------------------
@@ -119,10 +178,25 @@ model Company {
   /// 레이어에서 항상 채워서 사용. 향후 NOT NULL로 알터 검토.
   userId    String?
   name      String
+  /// 자유 텍스트 (deprecated — industryCategory로 대체. 기존 데이터 보존용)
   industry  String?
+  /// 자유 텍스트 (deprecated — sido/sigungu로 대체)
   region    String?
   product   String?
+  /// 자유 텍스트 (deprecated — promoGoal로 대체)
   purpose   String?
+
+  // D2 신규 — 디자인 폼 필드
+  foundedYear      Int?
+  businessType     BusinessType?
+  /// 시/도 enum
+  sido             Sido?
+  /// 시/군/구 자유 텍스트
+  sigungu          String?
+  industryCategory IndustryCategory?
+  targetAudience   TargetAudience?
+  promoGoal        PromoGoal?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
