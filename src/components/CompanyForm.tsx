@@ -138,8 +138,11 @@ export function CompanyForm() {
             + 활동 추가
           </button>
         </div>
-        {errors.activities?.root?.message && (
-          <p className="text-sm text-red-600">{errors.activities.root.message}</p>
+        {(errors.activities?.message ||
+          errors.activities?.root?.message) && (
+          <p className="text-sm text-red-600">
+            {errors.activities?.message ?? errors.activities?.root?.message}
+          </p>
         )}
 
         {fields.map((field, idx) => (
