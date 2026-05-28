@@ -9,9 +9,10 @@
 
 - **DB**: SQLite (파일 기반, `prisma/dev.db`) — [ADR-0001](adr/0001-tech-stack.md)
 - **ORM**: Prisma 7 (`prisma-client` generator, `src/generated/prisma/`)
-- **엔티티 수**: 5종
+- **엔티티 수**: 5종 도메인 + 4종 인증(Auth.js 표준)
 - **관계 구조**: 모두 1:N. M:N 없음. (MVP 단순화)
-- **인증·권한**: 없음 (MVP 범위 외 — [PRD §6](PRD.md#6-범위-외-out-of-scope))
+- **인증·권한**: NextAuth.js v5 + Prisma adapter — [ADR-0004](adr/0004-auth.md), [ADR-0005](adr/0005-multitenancy.md)
+- **멀티테넌시**: `Company.userId`로 회원당 본인 기업 모델 — ADR-0005
 
 ---
 
@@ -48,20 +49,37 @@
 
 ## 3. 엔티티 정의
 
+### 3.0 인증 모델 (Auth.js v5 표준)
+
+NextAuth Prisma adapter가 요구하는 4개 모델. 본 문서는 도메인 모델 중심이라 인증
+모델은 표준 형태 그대로이며 상세는 [Auth.js 공식 문서](https://authjs.dev/getting-started/adapters/prisma)와 [ADR-0004](adr/0004-auth.md)를 참고한다.
+
+| 모델 | 역할 |
+|------|------|
+| `User` | 회원. `email`(unique) / `name` / `image` / `emailVerified` |
+| `Account` | OAuth provider별 외부 식별자 + 토큰 (사용자 1:N) |
+| `Session` | 활성 세션 (DB session 정책 — ADR-0004) |
+| `VerificationToken` | Magic Link 토큰 (Magic Link 추후 도입 시 사용) |
+
+User → Company는 1:N. 자식 리소스(Activity / SdgAnalysis / SdgMatch / GeneratedContent)는 Company를 통해 간접 소유 (ADR-0005).
+
+
 ### 3.1 `Company` — 기업 기본 정보
 
-| 필드        | 타입       | 제약               | 설명                                       |
-|-------------|------------|--------------------|--------------------------------------------|
-| `id`        | String     | PK, `cuid()`       | URL-safe 고유 ID                           |
-| `name`      | String     | required           | 기업명                                     |
-| `industry`  | String?    | optional           | 업종 (자유 텍스트)                         |
-| `region`    | String?    | optional           | 소재 지역 (대전 / 세종 / 충남 등)         |
-| `product`   | String?    | optional           | 제품·서비스 (자유 텍스트)                  |
-| `purpose`   | String?    | optional           | 홍보 목적                                  |
-| `createdAt` | DateTime   | `@default(now())`  |                                            |
-| `updatedAt` | DateTime   | `@updatedAt`       |                                            |
+| 필드        | 타입       | 제약               | 설명                                                |
+|-------------|------------|--------------------|-----------------------------------------------------|
+| `id`        | String     | PK, `cuid()`       | URL-safe 고유 ID                                    |
+| `userId`    | String?    | FK → User.id, cascade | 소유 사용자 (멀티테넌시 - ADR-0005). 일시 optional, application 레이어에서 항상 채움 |
+| `name`      | String     | required           | 기업명                                              |
+| `industry`  | String?    | optional           | 업종 (자유 텍스트)                                  |
+| `region`    | String?    | optional           | 소재 지역 (대전 / 세종 / 충남 등)                   |
+| `product`   | String?    | optional           | 제품·서비스 (자유 텍스트)                           |
+| `purpose`   | String?    | optional           | 홍보 목적                                           |
+| `createdAt` | DateTime   | `@default(now())`  |                                                     |
+| `updatedAt` | DateTime   | `@updatedAt`       |                                                     |
 
-**관계:** `activities Activity[]`, `analyses SdgAnalysis[]`
+**관계:** `user User?`, `activities Activity[]`, `analyses SdgAnalysis[]`
+**인덱스:** `userId` (소유자별 조회 빈번)
 
 ---
 
