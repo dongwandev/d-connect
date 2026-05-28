@@ -12,7 +12,7 @@
 - ⚡ [개발 환경 셋업 가이드](docs/SETUP.md) — 신규 팀원 필독
 - 📋 [PRD — 제품 요구사항](docs/PRD.md)
 - 🏗️ [ARCHITECTURE — 아키텍처 개요](docs/ARCHITECTURE.md) · [DB_SCHEMA — DB 설계](docs/DB_SCHEMA.md) · [API — 엔드포인트 명세](docs/API.md)
-- 🏛️ ADR — [0001 기술 스택](docs/adr/0001-tech-stack.md) · [0002 LLM Provider](docs/adr/0002-llm-provider.md) · [0003 아키텍처](docs/adr/0003-architecture.md)
+- 🏛️ ADR — [0001 기술 스택](docs/adr/0001-tech-stack.md) · [0002 LLM Provider](docs/adr/0002-llm-provider.md) · [0003 아키텍처](docs/adr/0003-architecture.md) · [0004 인증](docs/adr/0004-auth.md) · [0005 멀티테넌시](docs/adr/0005-multitenancy.md)
 - 🤝 [GitHub 협업 가이드](docs/GITHUB_GUIDE.md)
 - 🤖 [CLAUDE.md — AI 협업 컨텍스트](CLAUDE.md)
 - 🗂️ [`docs/`](docs/) 전체 보기
