@@ -4,7 +4,20 @@ import { auth } from '@/auth'
 import { AnalyzeButton } from '@/components/AnalyzeButton'
 import { AppShell } from '@/components/AppShell'
 import { db } from '@/server/db'
-import { SOCIAL_CATEGORY_LABEL, type SocialCategory } from '@/lib/enums'
+import {
+  BUSINESS_TYPE_LABEL,
+  INDUSTRY_CATEGORY_LABEL,
+  PROMO_GOAL_LABEL,
+  SIDO_LABEL,
+  SOCIAL_CATEGORY_LABEL,
+  TARGET_AUDIENCE_LABEL,
+  type BusinessType,
+  type IndustryCategory,
+  type PromoGoal,
+  type Sido,
+  type SocialCategory,
+  type TargetAudience,
+} from '@/lib/enums'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -53,22 +66,57 @@ export default async function CompanyDetailPage({ params }: PageProps) {
         </nav>
 
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold">{company.name}</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
         <p className="text-sm text-gray-500">
-          {company.industry ?? '업종 미입력'} · {company.region ?? '지역 미입력'}
+          {company.industryCategory
+            ? INDUSTRY_CATEGORY_LABEL[
+                company.industryCategory as IndustryCategory
+              ]
+            : company.industry ?? '업종 미입력'}
+          {' · '}
+          {company.sido
+            ? `${SIDO_LABEL[company.sido as Sido]}${
+                company.sigungu ? ` ${company.sigungu}` : ''
+              }`
+            : company.region ?? '지역 미입력'}
+          {company.foundedYear && ` · ${company.foundedYear}년 설립`}
         </p>
         <p className="text-xs text-gray-400">
           등록: {company.createdAt.toLocaleString('ko-KR')}
         </p>
       </header>
 
-      <section className="space-y-2">
-        <h2 className="text-lg font-semibold">기본 정보</h2>
+      <section className="space-y-3 rounded-lg border border-border bg-surface p-5">
+        <h2 className="text-sm font-semibold text-gray-700">기본 정보</h2>
         <dl className="grid grid-cols-[120px_1fr] gap-y-2 text-sm">
+          {company.businessType && (
+            <>
+              <dt className="text-gray-500">사업자 형태</dt>
+              <dd>
+                {BUSINESS_TYPE_LABEL[company.businessType as BusinessType]}
+              </dd>
+            </>
+          )}
           <dt className="text-gray-500">제품·서비스</dt>
           <dd>{company.product ?? <span className="text-gray-400">—</span>}</dd>
-          <dt className="text-gray-500">홍보 목적</dt>
-          <dd>{company.purpose ?? <span className="text-gray-400">—</span>}</dd>
+          {company.targetAudience && (
+            <>
+              <dt className="text-gray-500">주요 타겟 고객</dt>
+              <dd>
+                {
+                  TARGET_AUDIENCE_LABEL[
+                    company.targetAudience as TargetAudience
+                  ]
+                }
+              </dd>
+            </>
+          )}
+          {company.promoGoal && (
+            <>
+              <dt className="text-gray-500">홍보 목표</dt>
+              <dd>{PROMO_GOAL_LABEL[company.promoGoal as PromoGoal]}</dd>
+            </>
+          )}
         </dl>
       </section>
 
