@@ -18,10 +18,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       data: {
         userId,
         name: body.name,
-        industry: body.industry,
-        region: body.region,
+        foundedYear: body.foundedYear,
+        businessType: body.businessType,
+        sido: body.sido,
+        sigungu: body.sigungu,
+        industryCategory: body.industryCategory,
         product: body.product,
-        purpose: body.purpose,
+        targetAudience: body.targetAudience,
+        promoGoal: body.promoGoal,
         activities: {
           create: body.activities.map((a) => ({
             category: a.category,

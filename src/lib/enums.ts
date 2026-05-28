@@ -55,3 +55,129 @@ export const CONTENT_TYPE_LABEL: Record<ContentType, string> = {
   SHORT_VIDEO_SCRIPT: '숏폼 영상 대본',
   CAMPAIGN_SLOGAN: '캠페인 슬로건',
 }
+
+// --- D2 enum 라벨 (디자인 이미지 2 기반) -------------------------------------
+
+export const BusinessTypeSchema = z.enum([
+  'INDIVIDUAL',
+  'CORPORATION',
+  'SOCIAL_ENTERPRISE',
+  'COOPERATIVE',
+  'OTHER',
+])
+export type BusinessType = z.infer<typeof BusinessTypeSchema>
+export const BUSINESS_TYPE_LABEL: Record<BusinessType, string> = {
+  INDIVIDUAL: '개인사업자',
+  CORPORATION: '법인사업자',
+  SOCIAL_ENTERPRISE: '사회적기업',
+  COOPERATIVE: '협동조합',
+  OTHER: '기타',
+}
+
+export const SidoSchema = z.enum([
+  'SEOUL',
+  'BUSAN',
+  'DAEGU',
+  'INCHEON',
+  'GWANGJU',
+  'DAEJEON',
+  'ULSAN',
+  'SEJONG',
+  'GYEONGGI',
+  'GANGWON',
+  'CHUNGBUK',
+  'CHUNGNAM',
+  'JEONBUK',
+  'JEONNAM',
+  'GYEONGBUK',
+  'GYEONGNAM',
+  'JEJU',
+])
+export type Sido = z.infer<typeof SidoSchema>
+export const SIDO_LABEL: Record<Sido, string> = {
+  SEOUL: '서울특별시',
+  BUSAN: '부산광역시',
+  DAEGU: '대구광역시',
+  INCHEON: '인천광역시',
+  GWANGJU: '광주광역시',
+  DAEJEON: '대전광역시',
+  ULSAN: '울산광역시',
+  SEJONG: '세종특별자치시',
+  GYEONGGI: '경기도',
+  GANGWON: '강원특별자치도',
+  CHUNGBUK: '충청북도',
+  CHUNGNAM: '충청남도',
+  JEONBUK: '전북특별자치도',
+  JEONNAM: '전라남도',
+  GYEONGBUK: '경상북도',
+  GYEONGNAM: '경상남도',
+  JEJU: '제주특별자치도',
+}
+
+export const IndustryCategorySchema = z.enum([
+  'FOOD_BEVERAGE',
+  'RETAIL',
+  'SERVICE',
+  'EDUCATION',
+  'CULTURE_ARTS',
+  'ENVIRONMENT_IND',
+  'MANUFACTURING',
+  'OTHER',
+])
+export type IndustryCategory = z.infer<typeof IndustryCategorySchema>
+export const INDUSTRY_CATEGORY_LABEL: Record<IndustryCategory, string> = {
+  FOOD_BEVERAGE: '식품·음료',
+  RETAIL: '소매·유통',
+  SERVICE: '서비스',
+  EDUCATION: '교육',
+  CULTURE_ARTS: '문화·예술',
+  ENVIRONMENT_IND: '환경',
+  MANUFACTURING: '제조',
+  OTHER: '기타',
+}
+export const INDUSTRY_CATEGORY_ICON: Record<IndustryCategory, string> = {
+  FOOD_BEVERAGE: '🍴',
+  RETAIL: '🛒',
+  SERVICE: '🧑‍💼',
+  EDUCATION: '📘',
+  CULTURE_ARTS: '🎨',
+  ENVIRONMENT_IND: '🌿',
+  MANUFACTURING: '🏭',
+  OTHER: '⋯',
+}
+
+export const TargetAudienceSchema = z.enum([
+  'ALL',
+  'YOUTH',
+  'FAMILY',
+  'SENIOR',
+  'LOCAL_RESIDENT',
+  'OTHER',
+])
+export type TargetAudience = z.infer<typeof TargetAudienceSchema>
+export const TARGET_AUDIENCE_LABEL: Record<TargetAudience, string> = {
+  ALL: '전체',
+  YOUTH: '청년',
+  FAMILY: '가족',
+  SENIOR: '시니어',
+  LOCAL_RESIDENT: '지역주민',
+  OTHER: '기타',
+}
+
+export const PromoGoalSchema = z.enum([
+  'BRAND_AWARENESS',
+  'PRODUCT_PROMO',
+  'SALES_GROWTH',
+  'LOCAL_AWARENESS',
+  'INVESTMENT',
+  'OTHER',
+])
+export type PromoGoal = z.infer<typeof PromoGoalSchema>
+export const PROMO_GOAL_LABEL: Record<PromoGoal, string> = {
+  BRAND_AWARENESS: '브랜드 인지도 향상',
+  PRODUCT_PROMO: '제품·서비스 홍보',
+  SALES_GROWTH: '판매·매출 증대',
+  LOCAL_AWARENESS: '지역사회 인식 개선',
+  INVESTMENT: '투자·후원 유치',
+  OTHER: '기타',
+}
