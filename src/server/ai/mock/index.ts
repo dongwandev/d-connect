@@ -28,7 +28,7 @@ export function mockSdgAnalysis(): SdgAnalysisResult {
         rationale: '지역 단위 캠페인이 도시 지속가능성·공동체 인식에 기여한다.',
       },
     ],
-    socialFunctions: ['환경', '공동체'],
+    socialFunctions: ['ENVIRONMENT', 'COMMUNITY'],
     publicMeaning:
       '지역 소상공인이 시민 인식 변화를 유도하는 환경 캠페인 사례로, 공공기관·지자체 카드뉴스·캠페인 자료에 활용 가능하다.',
   }
