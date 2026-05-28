@@ -43,10 +43,25 @@ enum SocialCategory {
 
 model User {
   id            String    @id @default(cuid())
+  /// 표시명(닉네임). 콘텐츠·댓글 등에 노출. 비어 있으면 realName 사용.
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  /// bcrypt 해시. 이메일/패스워드 회원만 채워짐 (OAuth/dev demo 회원은 NULL).
+  password      String?
+
+  /// 회원가입 시 받는 실명. KYC·결제 도입 시 활용.
+  realName      String?
+  /// 연락처 (010-xxxx-xxxx 형식 검증은 application 레이어).
+  phone         String?
+  /// 소속 단체/회사 (선택).
+  organization  String?
+  /// 이용약관·개인정보 처리방침 동의 시점 (필수 입력이므로 일반적으로 가입 시 설정됨).
+  acceptedTermsAt DateTime?
+  /// 마케팅 수신 동의 (선택).
+  marketingOptIn  Boolean   @default(false)
+
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
