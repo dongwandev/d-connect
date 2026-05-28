@@ -14,6 +14,15 @@ const schema = z.object({
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
+
+  // --- 인증 (ADR-0004). 모두 optional — 미설정 provider는 자동 비활성화. ---
+  // production에서는 NEXTAUTH_SECRET 필수 (NextAuth가 런타임에 검증).
+  NEXTAUTH_SECRET: z.string().optional(),
+  NEXTAUTH_URL: z.string().url().optional(),
+  KAKAO_CLIENT_ID: z.string().optional(),
+  KAKAO_CLIENT_SECRET: z.string().optional(),
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
 })
 
 export const env = schema.parse(process.env)
