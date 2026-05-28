@@ -1,12 +1,19 @@
 import 'server-only'
-import { hasApiKey } from './client'
+import { anthropic, hasApiKey } from './client'
 import { mockGeneratedContent, mockSdgAnalysis } from './mock'
 import type { CompanyInput } from './prompts'
+import {
+  SDG_ANALYSIS_SYSTEM_PROMPT,
+  buildSdgAnalysisPrompt,
+} from './prompts/sdg-analysis'
 import {
   type ContentType,
   type GeneratedContent,
   type SdgAnalysisResult,
+  SdgAnalysisResultSchema,
 } from './schemas'
+import { ANALYZE_SDG_TOOL } from './tools'
+import { env } from '../env'
 
 /**
  * AI 통합의 단일 진입점.
@@ -74,14 +81,30 @@ export async function analyzeSdg(
 }
 
 async function callAnthropicForSdgAnalysis(
-  _company: CompanyInput,
+  company: CompanyInput,
 ): Promise<SdgAnalysisResult> {
-  // TODO(PR 4): 후속 PR에서 채움
-  //   1) buildSdgAnalysisPrompt(company)로 프롬프트 구성
-  //   2) anthropic.messages.create({ model: env.LLM_MODEL_DEFAULT, ... })
-  //   3) SdgAnalysisResultSchema.parse(response)로 검증
-  //   4) 성공 시 결과 반환, 실패 시 throw → caller가 mock으로 폴백
-  throw new Error('NOT_IMPLEMENTED')
+  const response = await anthropic.messages.create({
+    model: env.LLM_MODEL_DEFAULT,
+    max_tokens: 1024,
+    system: SDG_ANALYSIS_SYSTEM_PROMPT,
+    tools: [ANALYZE_SDG_TOOL],
+    tool_choice: { type: 'tool', name: ANALYZE_SDG_TOOL.name },
+    messages: [{ role: 'user', content: buildSdgAnalysisPrompt(company) }],
+  })
+
+  const toolUse = response.content.find((b) => b.type === 'tool_use')
+  if (!toolUse || toolUse.type !== 'tool_use') {
+    throw new Error('AI_NO_TOOL_USE')
+  }
+
+  // tool_choice 강제로 항상 analyze_sdg가 와야 하지만 방어적으로 검증
+  if (toolUse.name !== ANALYZE_SDG_TOOL.name) {
+    throw new Error(`AI_UNEXPECTED_TOOL: ${toolUse.name}`)
+  }
+
+  // SdgAnalysisResultSchema가 enum / 길이 / score 범위까지 함께 검증.
+  // 실패 시 throw → 호출자(analyzeSdg)가 mock으로 폴백.
+  return SdgAnalysisResultSchema.parse(toolUse.input)
 }
 
 // --- 콘텐츠 생성 -------------------------------------------------------------
