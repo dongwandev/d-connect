@@ -211,10 +211,21 @@ export function CompanyForm() {
       </button>
 
       {state.kind === 'success' && (
-        <div className="rounded border border-green-300 bg-green-50 p-4 text-green-800">
-          ✅ 등록 완료 — <strong>{state.name}</strong>
-          <br />
-          <code className="text-sm">id: {state.id}</code>
+        <div className="space-y-2 rounded border border-green-300 bg-green-50 p-4 text-green-800">
+          <p>
+            ✅ 등록 완료 — <strong>{state.name}</strong>
+          </p>
+          <p>
+            <a
+              href={`/companies/${state.id}`}
+              className="font-medium text-green-900 underline hover:text-green-700"
+            >
+              상세 보기 →
+            </a>
+          </p>
+          <p className="text-xs text-green-700">
+            <code>id: {state.id}</code>
+          </p>
         </div>
       )}
 
