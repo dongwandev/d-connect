@@ -93,7 +93,7 @@ MVP에서는 적용하지 않는다. 모든 목록 응답은 `createdAt DESC`로
 | 5 | GET    | `/api/companies/{id}/sdg-analysis` | 분석 이력 목록 | — |
 | 6 | GET    | `/api/sdg-analysis/{id}` | 분석 상세 (매칭 + 콘텐츠 포함) | — |
 | 7 | POST   | `/api/sdg-analysis/{id}/content` | 콘텐츠 초안 생성 | ✅ |
-| 8 | GET    | `/api/sdg-analysis/{id}/contents` | 콘텐츠 목록 | — |
+| 8 | GET    | `/api/sdg-analysis/{id}/content` | 콘텐츠 목록 (동일 경로, 메서드만 차이) | — |
 | 9 | PATCH  | `/api/contents/{id}` | 콘텐츠 초안 수정 | — |
 
 ---
@@ -332,7 +332,7 @@ const CreateCompanySchema = z.object({
 }
 ```
 
-`contents[]`는 요약만 (id + type + createdAt). 본문 조회는 [§5.1](#51-get-apisdg-analysisidcontents--콘텐츠-목록) 또는 콘텐츠 상세 (필요시 추가).
+`contents[]`는 요약만 (id + type + createdAt). 본문 조회는 [§5.1](#51-get-apisdg-analysisidcontent--콘텐츠-목록) 또는 콘텐츠 상세 (필요시 추가).
 
 **에러:** `404 NOT_FOUND`
 
@@ -340,7 +340,7 @@ const CreateCompanySchema = z.object({
 
 ## 5. Contents
 
-### 5.1 GET `/api/sdg-analysis/{id}/contents` — 콘텐츠 목록
+### 5.1 GET `/api/sdg-analysis/{id}/content` — 콘텐츠 목록
 
 분석에 속한 모든 콘텐츠 (본문 포함).
 
@@ -387,7 +387,7 @@ const CreateContentSchema = z.object({
 
 > **참고:** 사용자 톤 힌트(`toneHint`)는 MVP 범위 외 — 결정 #7. 시스템 프롬프트가 톤을 결정한다.
 
-**Response 201:** [§5.1](#51-get-apisdg-analysisidcontents--콘텐츠-목록)의 단일 객체와 동일 구조.
+**Response 201:** [§5.1](#51-get-apisdg-analysisidcontent--콘텐츠-목록)의 단일 객체와 동일 구조.
 
 **에러:**
 

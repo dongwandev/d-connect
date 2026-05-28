@@ -3,16 +3,21 @@ import { anthropic, hasApiKey } from './client'
 import { mockGeneratedContent, mockSdgAnalysis } from './mock'
 import type { CompanyInput } from './prompts'
 import {
+  CONTENT_GENERATION_SYSTEM_PROMPT,
+  buildContentGenerationPrompt,
+} from './prompts/content-generation'
+import {
   SDG_ANALYSIS_SYSTEM_PROMPT,
   buildSdgAnalysisPrompt,
 } from './prompts/sdg-analysis'
 import {
+  GeneratedContentSchema,
   type ContentType,
   type GeneratedContent,
   type SdgAnalysisResult,
   SdgAnalysisResultSchema,
 } from './schemas'
-import { ANALYZE_SDG_TOOL } from './tools'
+import { ANALYZE_SDG_TOOL, GENERATE_CONTENT_TOOL } from './tools'
 import { env } from '../env'
 
 /**
@@ -132,12 +137,38 @@ export async function generateContent(
 }
 
 async function callAnthropicForContent(
-  _company: CompanyInput,
-  _analysis: SdgAnalysisResult,
-  _contentType: ContentType,
+  company: CompanyInput,
+  analysis: SdgAnalysisResult,
+  contentType: ContentType,
 ): Promise<GeneratedContent> {
-  // TODO(PR 4): 후속 PR에서 채움 (analyzeSdg와 동일 패턴)
-  throw new Error('NOT_IMPLEMENTED')
+  const response = await anthropic.messages.create({
+    model: env.LLM_MODEL_DEFAULT,
+    max_tokens: 1500,
+    system: CONTENT_GENERATION_SYSTEM_PROMPT,
+    tools: [GENERATE_CONTENT_TOOL],
+    tool_choice: { type: 'tool', name: GENERATE_CONTENT_TOOL.name },
+    messages: [
+      {
+        role: 'user',
+        content: buildContentGenerationPrompt(company, analysis, contentType),
+      },
+    ],
+  })
+
+  const toolUse = response.content.find((b) => b.type === 'tool_use')
+  if (!toolUse || toolUse.type !== 'tool_use') {
+    throw new Error('AI_NO_TOOL_USE')
+  }
+  if (toolUse.name !== GENERATE_CONTENT_TOOL.name) {
+    throw new Error(`AI_UNEXPECTED_TOOL: ${toolUse.name}`)
+  }
+
+  // 모델이 type을 다른 값으로 반환할 수 있어 호출 측에서 강제 덮어쓰기.
+  const raw = toolUse.input as Record<string, unknown>
+  return GeneratedContentSchema.parse({
+    ...raw,
+    type: contentType,
+  })
 }
 
 // --- Public types (re-export) -----------------------------------------------
