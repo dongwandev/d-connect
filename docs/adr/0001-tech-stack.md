@@ -116,11 +116,12 @@ PM 요구사항 문서에서 기술 스택은 사실상 명시되어 있으나(N
 | 항목                | 잠정 후보             | 우선순위 | 비고                                          |
 |---------------------|-----------------------|----------|-----------------------------------------------|
 | LLM Provider        | ~~Anthropic / OpenAI~~ → **Anthropic 채택** | ✅ 결정됨 | [ADR-0002](0002-llm-provider.md) 참고 |
-| 스타일링            | Tailwind CSS          | 🟡 중간   | App Router와 친화적, 학습곡선 낮음             |
-| UI 컴포넌트 라이브러리 | shadcn/ui             | 🟡 중간   | 필요 시 점진 도입 가능                         |
-| 테스트 도구         | Vitest + Playwright   | 🟢 낮음   | TEST_PLAN.md에서 다룸                          |
+| 스타일링            | ~~Tailwind CSS~~ → **Tailwind 4 채택** | ✅ 결정됨 | 2026-05-26 스캐폴딩 시 적용 |
+| UI 컴포넌트 라이브러리 | ~~shadcn/ui~~ → **Tailwind만 (MVP)** | ✅ 결정됨 | 2026-05-28 결정. shadcn은 필요 시 후속 도입 |
+| 폼 라이브러리       | **react-hook-form + zod** | ✅ 결정됨 | 2026-05-28 결정. \`@hookform/resolvers\`로 zod 통합 |
+| 테스트 도구         | **Vitest (단위)** + Playwright(시연 임박 시 검토) | ✅ 일부 결정됨 | TEST_PLAN.md에서 보강 |
 | 린트 / 포맷         | ESLint + Prettier     | 🟢 낮음   | 또는 Biome 일원화                              |
-| 패키지 매니저       | pnpm                  | 🟢 낮음   | 디스크 효율, 모노리포 확장성                   |
+| 패키지 매니저       | ~~pnpm~~ → **pnpm 11.3 채택** | ✅ 결정됨 | 2026-05-26 적용 |
 | 배포 환경           | Vercel / 자체 호스팅  | 🟢 낮음   | 발표 시연은 로컬 + 백업 시연 영상 권장          |
 
 ---
