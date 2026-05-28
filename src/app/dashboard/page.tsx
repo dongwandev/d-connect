@@ -2,94 +2,188 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { AppShell } from '@/components/AppShell'
+import { SdgDonut } from '@/components/dashboard/SdgDonut'
+import { StatCard } from '@/components/dashboard/StatCard'
+import { TypeProgressList } from '@/components/dashboard/TypeProgressList'
 import { db } from '@/server/db'
+import { ContentTypeSchema, type ContentType, type SdgGoal } from '@/lib/enums'
 
 /**
- * 대시보드 — 로그인 사용자의 본인 기업 목록 (ADR-0005).
+ * 대시보드 (디자인 D4) — 본인 데이터에 기반한 통계 + SDGs donut + 콘텐츠 유형 progress.
  *
- * 디자인 폴리시 단계에서 통계 카드 / 차트 / 사이드바 레이아웃으로 확장 예정.
- * 본 PR은 최소 기능: 본인 기업 목록 + 새 기업 등록 CTA + 로그아웃.
+ * 통계 4종:
+ *   - 내 기업 수
+ *   - SDGs 분석 수
+ *   - 생성 콘텐츠 수
+ *   - 편집된 콘텐츠 수 (editedByUser=true)
+ *
+ * 차트:
+ *   - SDGs 분포 (sdgMatch group by sdg, 본인 분석 한정)
+ *   - 콘텐츠 유형별 생성 수 (groupBy by type)
  */
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardPage() {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
+  const userId = session.user.id
 
-  const companies = await db.company.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: 'desc' },
-    select: {
-      id: true,
-      name: true,
-      industry: true,
-      region: true,
-      createdAt: true,
-    },
-  })
+  const [
+    companies,
+    analysisCount,
+    contentCount,
+    editedCount,
+    sdgRaw,
+    typeRaw,
+  ] = await Promise.all([
+    db.company.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        name: true,
+        industryCategory: true,
+        sido: true,
+        createdAt: true,
+      },
+    }),
+    db.sdgAnalysis.count({ where: { company: { userId } } }),
+    db.generatedContent.count({
+      where: { analysis: { company: { userId } } },
+    }),
+    db.generatedContent.count({
+      where: { analysis: { company: { userId } }, editedByUser: true },
+    }),
+    db.sdgMatch.groupBy({
+      by: ['sdg'],
+      where: { analysis: { company: { userId } } },
+      _count: { _all: true },
+    }),
+    db.generatedContent.groupBy({
+      by: ['type'],
+      where: { analysis: { company: { userId } } },
+      _count: { _all: true },
+    }),
+  ])
+
+  const sdgData = sdgRaw
+    .map((r) => ({ sdg: r.sdg as SdgGoal, count: r._count._all }))
+    .sort((a, b) => b.count - a.count)
+
+  // 콘텐츠 유형은 4종 모두 표시 (0건도 포함하면 진행률 비교 직관)
+  const typeCounts = new Map<ContentType, number>(
+    typeRaw.map((r) => [r.type as ContentType, r._count._all]),
+  )
+  const typeData = ContentTypeSchema.options.map((t) => ({
+    type: t,
+    count: typeCounts.get(t) ?? 0,
+  }))
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-8 px-6 py-10">
-        <header>
-          <h1 className="text-3xl font-bold text-gray-900">대시보드</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {session.user.name ?? session.user.email ?? '사용자'}님, 환영합니다.
-          </p>
-        </header>
-
-        <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">
-            내 기업 ({companies.length})
-          </h2>
+      <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+        <header className="flex items-baseline justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">대시보드</h1>
+            <p className="mt-1 text-sm text-gray-500">
+              {session.user.name ?? session.user.email ?? '사용자'}님, 환영합니다.
+            </p>
+          </div>
           <Link
             href="/companies/new"
-            className="rounded bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700"
+            className="rounded bg-accent-500 px-3 py-2 text-sm font-medium text-white hover:bg-accent-600"
           >
             + 새 기업 등록
           </Link>
-        </div>
+        </header>
 
-        {companies.length === 0 ? (
-          <div className="rounded border border-dashed border-gray-300 bg-gray-50 p-8 text-center">
-            <p className="text-sm text-gray-600">
-              아직 등록된 기업이 없습니다.
-            </p>
-            <Link
-              href="/companies/new"
-              className="mt-3 inline-block text-sm font-medium text-blue-600 hover:underline"
-            >
-              첫 기업 등록하기 →
-            </Link>
-          </div>
-        ) : (
-          <ul className="space-y-2">
-            {companies.map((c) => (
-              <li
-                key={c.id}
-                className="rounded border border-gray-200 bg-white p-3"
-              >
-                <Link
-                  href={`/companies/${c.id}`}
-                  className="block text-blue-700 hover:underline"
-                >
-                  <span className="font-medium">{c.name}</span>
-                  {(c.industry || c.region) && (
-                    <span className="ml-2 text-sm text-gray-500">
-                      {c.industry ?? ''}
-                      {c.industry && c.region ? ' · ' : ''}
-                      {c.region ?? ''}
-                    </span>
-                  )}
-                </Link>
-                <p className="mt-1 text-xs text-gray-400">
-                  {c.createdAt.toLocaleString('ko-KR')}
+        {/* 통계 카드 4종 */}
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <StatCard
+            icon="🏢"
+            label="내 기업"
+            value={companies.length}
+            accent="green"
+          />
+          <StatCard
+            icon="📊"
+            label="SDGs 분석"
+            value={analysisCount}
+            hint={analysisCount > 0 ? '누적 분석 건' : '아직 분석 없음'}
+            accent="blue"
+          />
+          <StatCard
+            icon="✨"
+            label="생성된 콘텐츠"
+            value={contentCount}
+            hint={
+              contentCount > 0
+                ? `유형 ${typeData.filter((t) => t.count > 0).length}종`
+                : '아직 콘텐츠 없음'
+            }
+            accent="purple"
+          />
+          <StatCard
+            icon="✏️"
+            label="편집한 콘텐츠"
+            value={editedCount}
+            hint={
+              contentCount > 0
+                ? `전체 대비 ${Math.round(
+                    (editedCount / contentCount) * 100,
+                  )}%`
+                : '—'
+            }
+            accent="amber"
+          />
+        </section>
+
+        {/* 좌 — 기업 목록 / 우 — 차트 2종 */}
+        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-gray-900">
+                내 기업 ({companies.length})
+              </h2>
+            </div>
+            {companies.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-gray-300 bg-surface p-8 text-center">
+                <p className="text-sm text-gray-600">
+                  아직 등록된 기업이 없습니다.
                 </p>
-              </li>
-            ))}
-          </ul>
-        )}
+                <Link
+                  href="/companies/new"
+                  className="mt-3 inline-block text-sm font-medium text-accent-500 hover:underline"
+                >
+                  첫 기업 등록하기 →
+                </Link>
+              </div>
+            ) : (
+              <ul className="space-y-2">
+                {companies.map((c) => (
+                  <li
+                    key={c.id}
+                    className="rounded-lg border border-border bg-surface p-3"
+                  >
+                    <Link
+                      href={`/companies/${c.id}`}
+                      className="block text-accent-500 hover:underline"
+                    >
+                      <span className="font-medium">{c.name}</span>
+                    </Link>
+                    <p className="mt-1 text-xs text-gray-400">
+                      {c.createdAt.toLocaleString('ko-KR')}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <div className="space-y-4">
+            <SdgDonut data={sdgData} />
+            <TypeProgressList data={typeData} />
+          </div>
         </section>
       </div>
     </AppShell>
