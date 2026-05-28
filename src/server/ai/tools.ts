@@ -9,6 +9,42 @@ import type Anthropic from '@anthropic-ai/sdk'
  * `tool_choice: { type: 'tool', name: 'analyze_sdg' }`로 모델이 반드시 이 도구를
  * 호출하도록 강제한다.
  */
+/**
+ * 콘텐츠 생성 Tool Use 정의.
+ * 스키마는 src/server/ai/schemas.ts의 GeneratedContentSchema와 정합.
+ */
+export const GENERATE_CONTENT_TOOL: Anthropic.Tool = {
+  name: 'generate_content',
+  description:
+    'Submit the generated public-relations content for a Korean local SME based on the SDGs analysis. Always call this tool instead of replying with prose.',
+  input_schema: {
+    type: 'object',
+    properties: {
+      type: {
+        type: 'string',
+        enum: ['SNS_POST', 'CARD_NEWS', 'SHORT_VIDEO_SCRIPT', 'CAMPAIGN_SLOGAN'],
+      },
+      body: {
+        type: 'string',
+        description:
+          '콘텐츠 본문. 유형별 권장 길이 준수. 광고성·과장 표현 금지.',
+      },
+      hashtags: {
+        type: 'array',
+        items: { type: 'string' },
+        description:
+          '관련 해시태그. SNS_POST는 5~8개, 그 외 유형도 적절히. # 기호 제외.',
+      },
+      imagePrompt: {
+        type: 'string',
+        description:
+          '이미지 생성 도구에 그대로 입력할 수 있는 한국어 프롬프트 (배경·소품·색감·스타일).',
+      },
+    },
+    required: ['type', 'body', 'hashtags'],
+  },
+}
+
 export const ANALYZE_SDG_TOOL: Anthropic.Tool = {
   name: 'analyze_sdg',
   description:
