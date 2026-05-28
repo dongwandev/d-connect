@@ -9,6 +9,7 @@ import { ZodError } from 'zod'
 export type ApiErrorCode =
   | 'VALIDATION_ERROR'
   | 'NOT_FOUND'
+  | 'UNAUTHORIZED'
   | 'AI_FAILED_FALLBACK_USED'
   | 'INTERNAL_ERROR'
 

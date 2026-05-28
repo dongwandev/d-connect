@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
 import {
@@ -18,6 +19,7 @@ type SubmitState =
 const SOCIAL_CATEGORIES = SocialCategorySchema.options
 
 export function CompanyForm() {
+  const router = useRouter()
   const {
     register,
     control,
@@ -62,6 +64,9 @@ export function CompanyForm() {
 
       setState({ kind: 'success', id: json.data.id, name: json.data.name })
       reset()
+      // 등록 직후 기업 상세로 이동 — 사용자가 바로 SDGs 분석 단계로 진입 가능
+      router.push(`/companies/${json.data.id}`)
+      router.refresh()
     } catch (e) {
       setState({
         kind: 'error',

@@ -56,10 +56,10 @@ NextAuth Prisma adapter가 요구하는 4개 모델. 본 문서는 도메인 모
 
 | 모델 | 역할 |
 |------|------|
-| `User` | 회원. `email`(unique) / `name` / `image` / `emailVerified` |
+| `User` | 회원. `email`(unique) / `name` / `image` / `emailVerified` / **`password` (bcrypt 해시, optional — OAuth/dev 회원은 NULL)** |
 | `Account` | OAuth provider별 외부 식별자 + 토큰 (사용자 1:N) |
-| `Session` | 활성 세션 (DB session 정책 — ADR-0004) |
-| `VerificationToken` | Magic Link 토큰 (Magic Link 추후 도입 시 사용) |
+| `Session` | NextAuth 표준 모델. 현재 JWT session 사용 중이라 미사용 — 향후 DB session 복원 시 활용 |
+| `VerificationToken` | NextAuth 표준 모델. 현재 미사용 (Magic Link 제외) |
 
 User → Company는 1:N. 자식 리소스(Activity / SdgAnalysis / SdgMatch / GeneratedContent)는 Company를 통해 간접 소유 (ADR-0005).
 
