@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import { AnalyzeButton } from '@/components/AnalyzeButton'
 import { db } from '@/server/db'
 import { SOCIAL_CATEGORY_LABEL, type SocialCategory } from '@/lib/enums'
 
@@ -86,24 +87,30 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">SDGs 분석</h2>
         {latestAnalysis ? (
-          <div className="rounded border border-green-300 bg-green-50 p-4">
+          <div className="space-y-3 rounded border border-green-300 bg-green-50 p-4">
             <p className="text-sm text-gray-700">
               최신 분석: {latestAnalysis.createdAt.toLocaleString('ko-KR')}
             </p>
-            <p className="mt-2 text-sm text-gray-500">
-              {/* 상세 페이지는 PR 3에서 구현 예정 */}
-              분석 결과 상세 페이지는 곧 추가됩니다.
-            </p>
+            <Link
+              href={`/sdg-analysis/${latestAnalysis.id}`}
+              className="inline-block text-sm font-medium text-green-900 underline hover:text-green-700"
+            >
+              분석 결과 보기 →
+            </Link>
+            <div className="border-t border-green-200 pt-3">
+              <AnalyzeButton companyId={company.id} />
+              <p className="mt-2 text-xs text-gray-500">
+                다시 실행하면 새로운 분석이 추가되고 위 목록이 갱신됩니다.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="rounded border border-gray-200 bg-gray-50 p-4">
+          <div className="space-y-3 rounded border border-gray-200 bg-gray-50 p-4">
             <p className="text-sm text-gray-600">
-              아직 분석된 결과가 없습니다.
+              아직 분석된 결과가 없습니다. 아래 버튼으로 SDGs 분석을
+              시작해 보세요.
             </p>
-            <p className="mt-2 text-sm text-gray-500">
-              {/* 분석 트리거는 PR 3에서 구현 예정 */}
-              SDGs 분석 기능은 곧 추가됩니다.
-            </p>
+            <AnalyzeButton companyId={company.id} />
           </div>
         )}
       </section>
