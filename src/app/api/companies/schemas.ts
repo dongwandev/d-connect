@@ -40,8 +40,9 @@ export const CreateCompanySchema = z.object({
     .max(300, '제품·서비스는 300자 이내로 입력해주세요.')
     .optional(),
 
-  targetAudience: TargetAudienceSchema.optional(),
-  promoGoal: PromoGoalSchema.optional(),
+  /// 다중 선택 (D6). 비어 있어도 OK.
+  targetAudiences: z.array(TargetAudienceSchema).max(6).optional(),
+  promoGoals: z.array(PromoGoalSchema).max(6).optional(),
 
   activities: z
     .array(

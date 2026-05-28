@@ -18,6 +18,7 @@ import {
   type SocialCategory,
   type TargetAudience,
 } from '@/lib/enums'
+import { parseJsonArray } from '@/lib/json-array'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -99,24 +100,26 @@ export default async function CompanyDetailPage({ params }: PageProps) {
           )}
           <dt className="text-gray-500">제품·서비스</dt>
           <dd>{company.product ?? <span className="text-gray-400">—</span>}</dd>
-          {company.targetAudience && (
-            <>
-              <dt className="text-gray-500">주요 타겟 고객</dt>
-              <dd>
-                {
-                  TARGET_AUDIENCE_LABEL[
-                    company.targetAudience as TargetAudience
-                  ]
-                }
-              </dd>
-            </>
-          )}
-          {company.promoGoal && (
-            <>
-              <dt className="text-gray-500">홍보 목표</dt>
-              <dd>{PROMO_GOAL_LABEL[company.promoGoal as PromoGoal]}</dd>
-            </>
-          )}
+          {(() => {
+            const targets = parseJsonArray<TargetAudience>(
+              company.targetAudiences,
+            )
+            return targets.length > 0 ? (
+              <>
+                <dt className="text-gray-500">주요 타겟 고객</dt>
+                <dd>{targets.map((t) => TARGET_AUDIENCE_LABEL[t]).join(', ')}</dd>
+              </>
+            ) : null
+          })()}
+          {(() => {
+            const goals = parseJsonArray<PromoGoal>(company.promoGoals)
+            return goals.length > 0 ? (
+              <>
+                <dt className="text-gray-500">홍보 목표</dt>
+                <dd>{goals.map((g) => PROMO_GOAL_LABEL[g]).join(', ')}</dd>
+              </>
+            ) : null
+          })()}
         </dl>
       </section>
 

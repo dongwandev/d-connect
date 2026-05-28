@@ -1,21 +1,25 @@
 import Link from 'next/link'
-import { signOut } from '@/auth'
+import { UserMenu } from './UserMenu'
+
+interface CompanySummary {
+  id: string
+  name: string
+}
 
 interface SidebarProps {
   userName: string | null
   userEmail: string | null
+  companies: CompanySummary[]
 }
 
 /**
- * 좌측 고정 사이드바 (디자인 레퍼런스 기반).
+ * 좌측 고정 사이드바.
  *
- * 메뉴는 현재 구현된 페이지만 노출:
- *   - 대시보드 (/dashboard)
- *   - 새 기업 등록 (/companies/new)
- *
- * 추후 항목(SDGs 가이드 / 분석 리포트 / 설정 등)은 D4, D5 단계에서 점진 추가.
+ * D6 변경:
+ *   - 대시보드 메뉴 아래에 본인 기업 목록 (클릭 시 /companies/[id])
+ *   - 사용자 영역은 UserMenu (클릭 시 계정 정보 / 로그아웃 메뉴)
  */
-export function Sidebar({ userName, userEmail }: SidebarProps) {
+export function Sidebar({ userName, userEmail, companies }: SidebarProps) {
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface md:flex">
       {/* 로고 / 브랜드 */}
@@ -37,34 +41,41 @@ export function Sidebar({ userName, userEmail }: SidebarProps) {
       </div>
 
       {/* 메뉴 */}
-      <nav className="flex-1 space-y-1 px-3 py-4">
+      <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
         <NavItem href="/dashboard" icon="🏠" label="대시보드" />
-        <NavItem href="/companies/new" icon="➕" label="새 기업 등록" />
+
+        {companies.length > 0 && (
+          <div className="pt-3">
+            <p className="px-3 pb-1 text-[10px] font-medium uppercase tracking-wider text-gray-400">
+              내 기업 ({companies.length})
+            </p>
+            <ul className="space-y-0.5">
+              {companies.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/companies/${c.id}`}
+                    className="flex items-center gap-2 truncate rounded px-3 py-1.5 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700"
+                    title={c.name}
+                  >
+                    <span aria-hidden className="text-xs">
+                      🏢
+                    </span>
+                    <span className="truncate">{c.name}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <div className="pt-3">
+          <NavItem href="/companies/new" icon="➕" label="새 기업 등록" />
+        </div>
       </nav>
 
-      {/* 사용자 영역 */}
-      <div className="space-y-2 border-t border-border px-4 py-4">
-        <div className="overflow-hidden">
-          <p className="truncate text-sm font-medium text-gray-900">
-            {userName ?? '사용자'}
-          </p>
-          {userEmail && (
-            <p className="truncate text-xs text-gray-500">{userEmail}</p>
-          )}
-        </div>
-        <form
-          action={async () => {
-            'use server'
-            await signOut({ redirectTo: '/login' })
-          }}
-        >
-          <button
-            type="submit"
-            className="w-full rounded border border-border bg-surface px-3 py-1.5 text-xs text-gray-600 hover:bg-surface-muted hover:text-gray-900"
-          >
-            로그아웃 →
-          </button>
-        </form>
+      {/* 사용자 영역 — 클릭 시 펼침 메뉴 */}
+      <div className="border-t border-border px-4 py-4">
+        <UserMenu userName={userName} userEmail={userEmail} />
       </div>
     </aside>
   )
