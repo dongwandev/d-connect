@@ -8,7 +8,12 @@ import { db } from '@/server/db'
  * PRD §3.1 + API.md §3.1 / §3.2 + ARCHITECTURE §3 (3-layer).
  * 페이지(server component)가 DB를 직접 호출하고, 인터랙션이 필요한 폼은
  * client component leaf로 분리한다.
+ *
+ * 매 요청마다 최근 기업 목록이 달라지므로 dynamic 렌더로 강제한다
+ * (정적 prerender는 빌드 시 DB가 없으면 실패).
  */
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const recentCompanies = await db.company.findMany({
     orderBy: { createdAt: 'desc' },
