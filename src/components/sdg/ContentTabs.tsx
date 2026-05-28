@@ -103,18 +103,18 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
                     </span>
                   )}
                 </h3>
-                <div className="flex items-center gap-3 text-sm">
+                <div className="flex items-center gap-2">
                   <Link
                     href={`/contents/${c.id}`}
-                    className="text-accent-500 hover:underline"
+                    className="rounded border border-border bg-white px-3 py-1 text-xs font-medium text-gray-700 transition-colors hover:border-accent-500 hover:bg-accent-500/5 hover:text-accent-500"
                   >
-                    편집 →
+                    편집
                   </Link>
                   <button
                     type="button"
                     onClick={() => deleteContent(c.id)}
                     disabled={pending || deletingId === c.id}
-                    className="text-red-600 hover:underline disabled:opacity-50"
+                    className="rounded border border-red-200 bg-white px-3 py-1 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {deletingId === c.id ? '삭제 중...' : '삭제'}
                   </button>

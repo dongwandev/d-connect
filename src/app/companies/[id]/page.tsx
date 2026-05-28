@@ -25,15 +25,30 @@ interface PageProps {
 }
 
 /**
- * 기업 상세 페이지.
+ * 기업 상세 페이지 (D6 디자인 보강).
  *
  * 권한 (ADR-0005):
  *   - 비로그인 → /login
- *   - 본인 소유가 아닌 기업 id → 404 (존재 자체를 노출하지 않음)
- *
- * Server component가 DB를 직접 호출 (ARCHITECTURE §3 3-layer).
+ *   - 본인 소유 아니면 404 (존재 자체 숨김)
  */
 export const dynamic = 'force-dynamic'
+
+// 활동 카테고리별 컬러 클래스 (SocialCategory별 시각적 구분)
+const CATEGORY_BADGE: Record<SocialCategory, string> = {
+  EMPLOYMENT: 'bg-blue-100 text-blue-800',
+  ENVIRONMENT: 'bg-emerald-100 text-emerald-800',
+  LOCAL_ECONOMY: 'bg-amber-100 text-amber-800',
+  COMMUNITY: 'bg-purple-100 text-purple-800',
+  COOPERATION: 'bg-rose-100 text-rose-800',
+}
+
+const CATEGORY_ICON: Record<SocialCategory, string> = {
+  EMPLOYMENT: '💼',
+  ENVIRONMENT: '🌿',
+  LOCAL_ECONOMY: '🏙️',
+  COMMUNITY: '🤝',
+  COOPERATION: '🔗',
+}
 
 export default async function CompanyDetailPage({ params }: PageProps) {
   const session = await auth()
@@ -47,7 +62,6 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       activities: { orderBy: { createdAt: 'asc' } },
       analyses: {
         orderBy: { createdAt: 'desc' },
-        take: 1,
         select: { id: true, createdAt: true },
       },
     },
@@ -56,126 +70,237 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   if (!company) notFound()
 
   const latestAnalysis = company.analyses[0] ?? null
+  const targets = parseJsonArray<TargetAudience>(company.targetAudiences)
+  const goals = parseJsonArray<PromoGoal>(company.promoGoals)
+
+  const headerMeta: string[] = []
+  if (company.industryCategory) {
+    headerMeta.push(
+      INDUSTRY_CATEGORY_LABEL[company.industryCategory as IndustryCategory],
+    )
+  } else if (company.industry) {
+    headerMeta.push(company.industry)
+  }
+  if (company.sido) {
+    headerMeta.push(
+      `${SIDO_LABEL[company.sido as Sido]}${company.sigungu ? ` ${company.sigungu}` : ''}`,
+    )
+  } else if (company.region) {
+    headerMeta.push(company.region)
+  }
+  if (company.foundedYear) headerMeta.push(`${company.foundedYear}년 설립`)
 
   return (
     <AppShell>
-      <div className="mx-auto max-w-3xl space-y-8 px-6 py-10">
-        <nav>
-          <Link href="/dashboard" className="text-sm text-blue-600 hover:underline">
+      <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+        <nav className="text-sm">
+          <Link href="/dashboard" className="text-accent-500 hover:underline">
             ← 대시보드
           </Link>
         </nav>
 
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900">{company.name}</h1>
-        <p className="text-sm text-gray-500">
-          {company.industryCategory
-            ? INDUSTRY_CATEGORY_LABEL[
-                company.industryCategory as IndustryCategory
-              ]
-            : company.industry ?? '업종 미입력'}
-          {' · '}
-          {company.sido
-            ? `${SIDO_LABEL[company.sido as Sido]}${
-                company.sigungu ? ` ${company.sigungu}` : ''
-              }`
-            : company.region ?? '지역 미입력'}
-          {company.foundedYear && ` · ${company.foundedYear}년 설립`}
-        </p>
-        <p className="text-xs text-gray-400">
-          등록: {company.createdAt.toLocaleString('ko-KR')}
-        </p>
-      </header>
-
-      <section className="space-y-3 rounded-lg border border-border bg-surface p-5">
-        <h2 className="text-sm font-semibold text-gray-700">기본 정보</h2>
-        <dl className="grid grid-cols-[120px_1fr] gap-y-2 text-sm">
-          {company.businessType && (
-            <>
-              <dt className="text-gray-500">사업자 형태</dt>
-              <dd>
-                {BUSINESS_TYPE_LABEL[company.businessType as BusinessType]}
-              </dd>
-            </>
-          )}
-          <dt className="text-gray-500">제품·서비스</dt>
-          <dd>{company.product ?? <span className="text-gray-400">—</span>}</dd>
-          {(() => {
-            const targets = parseJsonArray<TargetAudience>(
-              company.targetAudiences,
-            )
-            return targets.length > 0 ? (
-              <>
-                <dt className="text-gray-500">주요 타겟 고객</dt>
-                <dd>{targets.map((t) => TARGET_AUDIENCE_LABEL[t]).join(', ')}</dd>
-              </>
-            ) : null
-          })()}
-          {(() => {
-            const goals = parseJsonArray<PromoGoal>(company.promoGoals)
-            return goals.length > 0 ? (
-              <>
-                <dt className="text-gray-500">홍보 목표</dt>
-                <dd>{goals.map((g) => PROMO_GOAL_LABEL[g]).join(', ')}</dd>
-              </>
-            ) : null
-          })()}
-        </dl>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">
-          활동 ({company.activities.length})
-        </h2>
-        <ul className="space-y-3">
-          {company.activities.map((a) => (
-            <li
-              key={a.id}
-              className="rounded border border-gray-200 p-4"
+        {/* 헤더 카드 — 브랜드 그린 그라데이션 + 이니셜 아바타 */}
+        <header className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
+          <div className="flex items-center gap-4 bg-gradient-to-br from-brand-50 to-blue-50 px-6 py-5">
+            <div
+              className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-2xl font-bold text-white shadow-sm"
+              aria-hidden
             >
-              <div className="mb-1 flex items-center gap-2">
-                <span className="rounded bg-blue-100 px-2 py-0.5 text-xs text-blue-800">
-                  {SOCIAL_CATEGORY_LABEL[a.category as SocialCategory]}
-                </span>
-                <h3 className="font-medium">{a.title}</h3>
-              </div>
-              <p className="text-sm text-gray-700">{a.description}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold">SDGs 분석</h2>
-        {latestAnalysis ? (
-          <div className="space-y-3 rounded border border-green-300 bg-green-50 p-4">
-            <p className="text-sm text-gray-700">
-              최신 분석: {latestAnalysis.createdAt.toLocaleString('ko-KR')}
-            </p>
-            <Link
-              href={`/sdg-analysis/${latestAnalysis.id}`}
-              className="inline-block text-sm font-medium text-green-900 underline hover:text-green-700"
-            >
-              분석 결과 보기 →
-            </Link>
-            <div className="border-t border-green-200 pt-3">
-              <AnalyzeButton companyId={company.id} />
-              <p className="mt-2 text-xs text-gray-500">
-                다시 실행하면 새로운 분석이 추가되고 위 목록이 갱신됩니다.
+              {company.name.slice(0, 1)}
+            </div>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-2xl font-bold text-gray-900">
+                {company.name}
+              </h1>
+              {headerMeta.length > 0 && (
+                <p className="mt-1 text-sm text-gray-600">
+                  {headerMeta.join(' · ')}
+                </p>
+              )}
+              <p className="mt-1 text-xs text-gray-400">
+                등록: {company.createdAt.toLocaleString('ko-KR')}
               </p>
             </div>
+            <div className="flex flex-col items-end gap-2">
+              {company.businessType && (
+                <span className="rounded-full bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm">
+                  {BUSINESS_TYPE_LABEL[company.businessType as BusinessType]}
+                </span>
+              )}
+              <Link
+                href={`/companies/${company.id}/edit`}
+                className="inline-flex items-center gap-1 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:border-brand-500 hover:bg-brand-50 hover:text-brand-700"
+              >
+                <span aria-hidden>✏️</span>
+                <span>정보 수정</span>
+              </Link>
+            </div>
           </div>
+        </header>
+
+        {/* SDGs 분석 CTA 카드 — 가장 중요한 액션 영역, 상단 prominent */}
+        {latestAnalysis ? (
+          <section className="rounded-xl border border-brand-500 bg-gradient-to-r from-brand-50 to-emerald-50 p-5 shadow-sm">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-brand-700">
+                  SDGs 분석 완료
+                </p>
+                <p className="mt-1 text-sm text-gray-700">
+                  최신 분석: {latestAnalysis.createdAt.toLocaleString('ko-KR')}{' '}
+                  · 총 {company.analyses.length}회
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/sdg-analysis/${latestAnalysis.id}`}
+                  className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                >
+                  분석 결과 보기 →
+                </Link>
+                <AnalyzeButton companyId={company.id} />
+              </div>
+            </div>
+          </section>
         ) : (
-          <div className="space-y-3 rounded border border-gray-200 bg-gray-50 p-4">
-            <p className="text-sm text-gray-600">
-              아직 분석된 결과가 없습니다. 아래 버튼으로 SDGs 분석을
-              시작해 보세요.
-            </p>
-            <AnalyzeButton companyId={company.id} />
-          </div>
+          <section className="rounded-xl border-2 border-dashed border-accent-500/40 bg-accent-500/5 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wider text-accent-600">
+                  SDGs 분석 대기 중
+                </p>
+                <p className="mt-1 text-sm text-gray-700">
+                  활동 정보를 바탕으로 AI가 SDGs를 추천합니다 (최대 30초).
+                </p>
+              </div>
+              <AnalyzeButton companyId={company.id} />
+            </div>
+          </section>
         )}
-        </section>
+
+        {/* 2-column grid: 좌측 정보 + 우측 활동 */}
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_1.3fr]">
+          {/* 좌측: 기본 정보 카드들 */}
+          <section className="space-y-4">
+            <div className="rounded-xl border border-border bg-surface p-5">
+              <div className="mb-3 flex items-center gap-2 text-xs font-medium text-brand-700">
+                <span aria-hidden>📋</span>
+                <span>기본 정보</span>
+              </div>
+              <dl className="space-y-3 text-sm">
+                <InfoRow
+                  label="제품·서비스"
+                  value={company.product ?? null}
+                />
+                {targets.length > 0 && (
+                  <InfoRow
+                    label="주요 타겟 고객"
+                    value={
+                      <div className="flex flex-wrap gap-1">
+                        {targets.map((t) => (
+                          <span
+                            key={t}
+                            className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800"
+                          >
+                            {TARGET_AUDIENCE_LABEL[t]}
+                          </span>
+                        ))}
+                      </div>
+                    }
+                  />
+                )}
+                {goals.length > 0 && (
+                  <InfoRow
+                    label="홍보 목표"
+                    value={
+                      <div className="flex flex-wrap gap-1">
+                        {goals.map((g) => (
+                          <span
+                            key={g}
+                            className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-800"
+                          >
+                            {PROMO_GOAL_LABEL[g]}
+                          </span>
+                        ))}
+                      </div>
+                    }
+                  />
+                )}
+              </dl>
+            </div>
+
+            {/* 통계 */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-xl border border-border bg-surface p-4">
+                <p className="text-xs text-gray-500">활동</p>
+                <p className="mt-1 text-2xl font-bold text-gray-900">
+                  {company.activities.length}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface p-4">
+                <p className="text-xs text-gray-500">분석 이력</p>
+                <p className="mt-1 text-2xl font-bold text-gray-900">
+                  {company.analyses.length}
+                </p>
+              </div>
+            </div>
+          </section>
+
+          {/* 우측: 활동 목록 */}
+          <section className="rounded-xl border border-border bg-surface p-5">
+            <div className="mb-3 flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs font-medium text-brand-700">
+                <span aria-hidden>🌟</span>
+                <span>지역사회 기여 활동 ({company.activities.length})</span>
+              </div>
+            </div>
+
+            <ul className="space-y-3">
+              {company.activities.map((a) => {
+                const cat = a.category as SocialCategory
+                return (
+                  <li
+                    key={a.id}
+                    className="rounded-lg border border-border bg-surface-muted p-4 transition-colors hover:border-brand-500"
+                  >
+                    <div className="mb-1 flex items-center gap-2">
+                      <span
+                        className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${CATEGORY_BADGE[cat]}`}
+                      >
+                        <span aria-hidden>{CATEGORY_ICON[cat]}</span>
+                        {SOCIAL_CATEGORY_LABEL[cat]}
+                      </span>
+                      <h3 className="font-semibold text-gray-900">
+                        {a.title}
+                      </h3>
+                    </div>
+                    <p className="text-sm leading-relaxed text-gray-700">
+                      {a.description}
+                    </p>
+                  </li>
+                )
+              })}
+            </ul>
+          </section>
+        </div>
       </div>
     </AppShell>
+  )
+}
+
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string
+  value: React.ReactNode | null
+}) {
+  return (
+    <div>
+      <dt className="mb-1 text-xs text-gray-500">{label}</dt>
+      <dd className="text-sm text-gray-800">
+        {value ?? <span className="text-gray-400">—</span>}
+      </dd>
+    </div>
   )
 }

@@ -138,16 +138,16 @@ export default async function DashboardPage() {
           />
         </section>
 
-        {/* 좌 — 기업 목록 / 우 — 차트 2종 */}
-        <section className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
+        {/* 좌 — 기업 목록 / 우 — 차트 2종. 양쪽 grid item이 stretch + 내부 flex로 높이 정렬 */}
+        <section className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
+          <div className="flex flex-col rounded-lg border border-border bg-surface p-5">
+            <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
                 내 기업 ({companies.length})
               </h2>
             </div>
             {companies.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-gray-300 bg-surface p-8 text-center">
+              <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 p-8 text-center">
                 <p className="text-sm text-gray-600">
                   아직 등록된 기업이 없습니다.
                 </p>
@@ -159,11 +159,11 @@ export default async function DashboardPage() {
                 </Link>
               </div>
             ) : (
-              <ul className="space-y-2">
+              <ul className="flex-1 space-y-2 overflow-y-auto pr-1">
                 {companies.map((c) => (
                   <li
                     key={c.id}
-                    className="rounded-lg border border-border bg-surface p-3"
+                    className="rounded-lg border border-border bg-surface-muted p-3 transition-colors hover:border-accent-500"
                   >
                     <Link
                       href={`/companies/${c.id}`}
@@ -180,7 +180,7 @@ export default async function DashboardPage() {
             )}
           </div>
 
-          <div className="space-y-4">
+          <div className="flex flex-col gap-4">
             <SdgDonut data={sdgData} />
             <TypeProgressList data={typeData} />
           </div>

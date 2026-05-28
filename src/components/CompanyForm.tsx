@@ -40,8 +40,25 @@ const INDUSTRIES = IndustryCategorySchema.options
 const TARGETS = TargetAudienceSchema.options
 const PROMO_GOALS = PromoGoalSchema.options
 
-export function CompanyForm() {
+interface CompanyFormProps {
+  /**
+   * 편집 모드: companyId가 있으면 PATCH /api/companies/[id] 호출.
+   * 등록 모드: 비어 있으면 POST /api/companies.
+   */
+  mode?: 'create' | 'edit'
+  companyId?: string
+  /** 편집 모드의 초기값. mode='edit'일 때만 의미 있음. */
+  initial?: Partial<CreateCompanyInput>
+}
+
+export function CompanyForm({
+  mode = 'create',
+  companyId,
+  initial,
+}: CompanyFormProps = {}) {
   const router = useRouter()
+  const isEdit = mode === 'edit' && companyId
+
   const {
     register,
     control,
@@ -53,8 +70,19 @@ export function CompanyForm() {
   } = useForm<CreateCompanyInput>({
     resolver: zodResolver(CreateCompanySchema),
     defaultValues: {
-      name: '',
-      activities: [{ category: 'ENVIRONMENT', title: '', description: '' }],
+      name: initial?.name ?? '',
+      foundedYear: initial?.foundedYear,
+      businessType: initial?.businessType,
+      sido: initial?.sido,
+      sigungu: initial?.sigungu ?? '',
+      industryCategory: initial?.industryCategory,
+      product: initial?.product ?? '',
+      targetAudiences: initial?.targetAudiences ?? [],
+      promoGoals: initial?.promoGoals ?? [],
+      activities:
+        initial?.activities && initial.activities.length > 0
+          ? initial.activities
+          : [{ category: 'ENVIRONMENT', title: '', description: '' }],
     },
   })
 
@@ -87,8 +115,13 @@ export function CompanyForm() {
   async function onSubmit(values: CreateCompanyInput) {
     setState({ kind: 'submitting' })
     try {
-      const res = await fetch('/api/companies', {
-        method: 'POST',
+      const url = isEdit
+        ? `/api/companies/${companyId}`
+        : '/api/companies'
+      const method = isEdit ? 'PATCH' : 'POST'
+
+      const res = await fetch(url, {
+        method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       })
@@ -106,7 +139,7 @@ export function CompanyForm() {
       }
 
       setState({ kind: 'success', id: json.data.id, name: json.data.name })
-      reset()
+      if (!isEdit) reset()
       router.push(`/companies/${json.data.id}`)
       router.refresh()
     } catch (e) {
@@ -351,12 +384,17 @@ export function CompanyForm() {
         disabled={state.kind === 'submitting'}
         className="w-full rounded bg-accent-500 px-4 py-3 font-medium text-white hover:bg-accent-600 disabled:bg-gray-400"
       >
-        {state.kind === 'submitting' ? '저장 중...' : '기업 등록'}
+        {state.kind === 'submitting'
+          ? '저장 중...'
+          : isEdit
+            ? '수정 저장'
+            : '기업 등록'}
       </button>
 
       {state.kind === 'success' && (
         <div className="rounded border border-green-300 bg-green-50 p-4 text-green-800">
-          ✅ 등록 완료 — <strong>{state.name}</strong>
+          ✅ {isEdit ? '수정 완료' : '등록 완료'} —{' '}
+          <strong>{state.name}</strong>
         </div>
       )}
       {state.kind === 'error' && (
