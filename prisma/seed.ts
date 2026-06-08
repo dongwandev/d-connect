@@ -434,15 +434,14 @@ async function main() {
       console.log(`✓ 익명 Company ${orphan.count}건을 demo 계정에 귀속`)
     }
 
-    // 3. demo 계정의 기존 시드 기업 삭제 (cascade로 활동·분석·콘텐츠 함께 삭제)
+    // 3. demo 계정의 모든 기업을 cascade 삭제 후 재생성.
+    //    demo 계정은 시연 전용이므로 dev 중 테스트 데이터(다른 이름의 기업/분석/콘텐츠)도
+    //    함께 정리해 시연 직전 깨끗한 상태로 만든다.
     const deleted = await db.company.deleteMany({
-      where: {
-        userId: demo.id,
-        name: { in: COMPANIES.map((c) => c.name) },
-      },
+      where: { userId: demo.id },
     })
     if (deleted.count > 0) {
-      console.log(`✓ 기존 시드 기업 ${deleted.count}건 삭제 후 재생성`)
+      console.log(`✓ demo 계정 기존 기업 ${deleted.count}건 cascade 삭제`)
     }
 
     // 4. 시드 데이터 생성
