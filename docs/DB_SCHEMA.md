@@ -56,30 +56,43 @@ NextAuth Prisma adapter가 요구하는 4개 모델. 본 문서는 도메인 모
 
 | 모델 | 역할 |
 |------|------|
-| `User` | 회원. `email`(unique) / `name` / `image` / `emailVerified` / **`password` (bcrypt 해시, optional — OAuth/dev 회원은 NULL)** |
+| `User` | 회원. NextAuth 표준 필드(`email` unique / `name` / `image` / `emailVerified`) + `password` (bcrypt 해시, optional) + **D6 확장 필드**: `realName` / `phone` / `organization` / `acceptedTermsAt` / `marketingOptIn` |
 | `Account` | OAuth provider별 외부 식별자 + 토큰 (사용자 1:N) |
 | `Session` | NextAuth 표준 모델. 현재 JWT session 사용 중이라 미사용 — 향후 DB session 복원 시 활용 |
 | `VerificationToken` | NextAuth 표준 모델. 현재 미사용 (Magic Link 제외) |
+
+User의 D6 확장 필드는 `/account` 페이지에서 직접 수정 (PATCH /api/auth/user). 표시명·실명·연락처·소속·마케팅 동의를 관리한다.
 
 User → Company는 1:N. 자식 리소스(Activity / SdgAnalysis / SdgMatch / GeneratedContent)는 Company를 통해 간접 소유 (ADR-0005).
 
 
 ### 3.1 `Company` — 기업 기본 정보
 
-| 필드        | 타입       | 제약               | 설명                                                |
-|-------------|------------|--------------------|-----------------------------------------------------|
-| `id`        | String     | PK, `cuid()`       | URL-safe 고유 ID                                    |
-| `userId`    | String?    | FK → User.id, cascade | 소유 사용자 (멀티테넌시 - ADR-0005). 일시 optional, application 레이어에서 항상 채움 |
-| `name`      | String     | required           | 기업명                                              |
-| `industry`  | String?    | optional           | 업종 (자유 텍스트)                                  |
-| `region`    | String?    | optional           | 소재 지역 (대전 / 세종 / 충남 등)                   |
-| `product`   | String?    | optional           | 제품·서비스 (자유 텍스트)                           |
-| `purpose`   | String?    | optional           | 홍보 목적                                           |
-| `createdAt` | DateTime   | `@default(now())`  |                                                     |
-| `updatedAt` | DateTime   | `@updatedAt`       |                                                     |
+| 필드              | 타입                  | 제약                  | 설명                                                |
+|-------------------|-----------------------|-----------------------|-----------------------------------------------------|
+| `id`              | String                | PK, `cuid()`          | URL-safe 고유 ID                                    |
+| `userId`          | String?               | FK → User.id, cascade | 소유 사용자 (멀티테넌시 - ADR-0005). 일시 optional, application 레이어에서 항상 채움 |
+| `name`            | String                | required              | 기업명                                              |
+| `industry`        | String?               | optional, deprecated  | 자유 텍스트 (D2 이후 `industryCategory`로 대체)     |
+| `region`          | String?               | optional, deprecated  | 자유 텍스트 (D2 이후 `sido`/`sigungu`로 대체)       |
+| `product`         | String?               | optional              | 제품·서비스 (자유 텍스트)                           |
+| `purpose`         | String?               | optional, deprecated  | 자유 텍스트 (D2 이후 `promoGoals`로 대체)           |
+| **D2 신규**       |                       |                       |                                                     |
+| `foundedYear`     | Int?                  | optional, 1900~2100   | 설립연도                                            |
+| `businessType`    | `BusinessType?`       | optional (enum)       | 개인·법인·사회적기업·협동조합·기타                |
+| `sido`            | `Sido?`               | optional (enum)       | 17개 시·도                                          |
+| `sigungu`         | String?               | optional, max 50      | 시/군/구 (자유 텍스트)                              |
+| `industryCategory`| `IndustryCategory?`   | optional (enum)       | 식음료·소매·서비스·교육·문화예술·환경·제조·기타     |
+| **D6 신규 (다중 선택)** |                |                       |                                                     |
+| `targetAudiences` | String?               | JSON array (max 6)    | 주요 타겟 고객 (전체/청년/가족/시니어/지역주민/기타) |
+| `promoGoals`      | String?               | JSON array (max 6)    | 홍보 목표 (브랜드/상품/매출/지역/투자/기타)        |
+| `createdAt`       | DateTime              | `@default(now())`     |                                                     |
+| `updatedAt`       | DateTime              | `@updatedAt`          |                                                     |
 
 **관계:** `user User?`, `activities Activity[]`, `analyses SdgAnalysis[]`
 **인덱스:** `userId` (소유자별 조회 빈번)
+
+> **JSON-string 직렬화**: SQLite는 배열을 직접 지원하지 않으므로 `targetAudiences` / `promoGoals`는 `JSON.stringify`로 저장. 읽을 때는 `parseJsonArray` 헬퍼([`src/lib/json-array.ts`](../src/lib/json-array.ts)) 사용.
 
 ---
 
@@ -187,6 +200,54 @@ enum SocialCategory {
   LOCAL_ECONOMY  // 지역경제
   COMMUNITY      // 공동체
   COOPERATION    // 협력
+}
+
+// === D2 신규 enum ===
+
+enum BusinessType {
+  INDIVIDUAL          // 개인사업자
+  CORPORATION         // 법인사업자
+  SOCIAL_ENTERPRISE   // 사회적기업
+  COOPERATIVE         // 협동조합
+  OTHER               // 기타
+}
+
+enum Sido {
+  // 17개 시·도 (SEOUL, BUSAN, DAEGU, INCHEON, GWANGJU,
+  //              DAEJEON, ULSAN, SEJONG, GYEONGGI, GANGWON,
+  //              CHUNGBUK, CHUNGNAM, JEONBUK, JEONNAM,
+  //              GYEONGBUK, GYEONGNAM, JEJU)
+}
+
+enum IndustryCategory {
+  FOOD_BEVERAGE       // 식품·음료
+  RETAIL              // 소매·유통
+  SERVICE             // 서비스
+  EDUCATION           // 교육
+  CULTURE_ARTS        // 문화·예술
+  ENVIRONMENT_IND     // 환경 (SocialCategory.ENVIRONMENT와 구분 위해 _IND)
+  MANUFACTURING       // 제조
+  OTHER               // 기타
+}
+
+// === D6 다중 선택 enum (JSON-string array로 저장) ===
+
+enum TargetAudience {
+  ALL                 // 전체
+  YOUTH               // 청년
+  FAMILY              // 가족
+  SENIOR              // 시니어
+  LOCAL_RESIDENT      // 지역주민
+  OTHER               // 기타
+}
+
+enum PromoGoal {
+  BRAND_AWARENESS     // 브랜드 인지도
+  PRODUCT_PROMO       // 상품 홍보
+  SALES_GROWTH        // 매출 성장
+  LOCAL_AWARENESS     // 지역 인지도
+  INVESTMENT          // 투자 유치
+  OTHER               // 기타
 }
 ```
 
