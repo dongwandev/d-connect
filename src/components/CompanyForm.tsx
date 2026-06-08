@@ -172,7 +172,7 @@ export function CompanyForm({
       noValidate
     >
       <Section title="기업 정보">
-        <div className="grid grid-cols-[2fr_1fr] gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-[2fr_1fr]">
           <Field label="기업명 / 단체명 *" error={errors.name?.message}>
             <input
               {...register('name')}
@@ -221,7 +221,7 @@ export function CompanyForm({
           </div>
         </Field>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="사업장 소재지 (시/도)" error={errors.sido?.message}>
             <select
               {...register('sido', {

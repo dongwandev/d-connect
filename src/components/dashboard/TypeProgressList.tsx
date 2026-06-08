@@ -22,7 +22,7 @@ export function TypeProgressList({ data }: { data: Datum[] }) {
       </h3>
 
       {total === 0 ? (
-        <p className="py-6 text-center text-sm text-gray-400">
+        <p className="py-6 text-center text-sm text-gray-500">
           아직 생성된 콘텐츠가 없습니다.
         </p>
       ) : (

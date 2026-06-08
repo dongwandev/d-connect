@@ -34,7 +34,7 @@ export function StatCard({
       <div className="min-w-0">
         <p className="text-xs text-gray-500">{label}</p>
         <p className="text-2xl font-bold text-gray-900">{value}</p>
-        {hint && <p className="text-xs text-gray-400">{hint}</p>}
+        {hint && <p className="text-xs text-gray-500">{hint}</p>}
       </div>
     </div>
   )

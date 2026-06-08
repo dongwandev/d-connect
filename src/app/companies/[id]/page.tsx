@@ -117,7 +117,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                   {headerMeta.join(' · ')}
                 </p>
               )}
-              <p className="mt-1 text-xs text-gray-400">
+              <p className="mt-1 text-xs text-gray-500">
                 등록: {company.createdAt.toLocaleString('ko-KR')}
               </p>
             </div>
@@ -299,7 +299,7 @@ function InfoRow({
     <div>
       <dt className="mb-1 text-xs text-gray-500">{label}</dt>
       <dd className="text-sm text-gray-800">
-        {value ?? <span className="text-gray-400">—</span>}
+        {value ?? <span className="text-gray-500">—</span>}
       </dd>
     </div>
   )

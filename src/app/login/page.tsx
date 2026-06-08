@@ -48,7 +48,7 @@ export default async function LoginPage() {
           <>
             <div className="flex items-center gap-2">
               <span className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs text-gray-400">또는 간편 로그인</span>
+              <span className="text-xs text-gray-500">또는 간편 로그인</span>
               <span className="h-px flex-1 bg-gray-200" />
             </div>
 
@@ -92,7 +92,7 @@ export default async function LoginPage() {
           <>
             <div className="flex items-center gap-2">
               <span className="h-px flex-1 bg-gray-200" />
-              <span className="text-xs text-gray-400">DEV ONLY</span>
+              <span className="text-xs text-gray-500">DEV ONLY</span>
               <span className="h-px flex-1 bg-gray-200" />
             </div>
             <form

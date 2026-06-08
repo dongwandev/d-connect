@@ -25,7 +25,9 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
         userEmail={session.user.email ?? null}
         companies={companies}
       />
-      <main className="min-w-0 flex-1">{children}</main>
+      {/* 모바일에서 햄버거 버튼이 fixed top-3 left-3에 떠 있으므로 main 상단에 여백 확보.
+          md 이상은 사이드바가 항상 노출돼 햄버거가 사라지므로 pt 제거. */}
+      <main className="min-w-0 flex-1 pt-14 md:pt-0">{children}</main>
     </div>
   )
 }
