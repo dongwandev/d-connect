@@ -28,15 +28,17 @@ export const CreateCompanySchema = z.object({
     .max(2100, '2100년 이전 값을 입력해주세요.')
     .optional(),
 
-  businessType: BusinessTypeSchema.optional(),
+  // .catch(undefined) — 라디오/select 미선택 시 form state가 ''이면 zod가 invalid_enum_value로
+  // 영문 raw 메시지를 띄우므로, optional enum은 invalid 값을 만나도 undefined로 fallback.
+  businessType: BusinessTypeSchema.optional().catch(undefined),
 
-  sido: SidoSchema.optional(),
+  sido: SidoSchema.optional().catch(undefined),
   sigungu: z
     .string()
     .max(50, '시/군/구는 50자 이내로 입력해주세요.')
     .optional(),
 
-  industryCategory: IndustryCategorySchema.optional(),
+  industryCategory: IndustryCategorySchema.optional().catch(undefined),
 
   product: z
     .string()
