@@ -70,7 +70,7 @@ export default async function ContentEditPage({ params }: PageProps) {
             </span>
           )}
         </h1>
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-gray-500">
           생성: {content.createdAt.toLocaleString('ko-KR')} · 최종 수정:{' '}
           {content.updatedAt.toLocaleString('ko-KR')}
         </p>

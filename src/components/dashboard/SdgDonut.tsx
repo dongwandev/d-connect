@@ -21,7 +21,7 @@ export function SdgDonut({ data }: { data: Datum[] }) {
 
   if (total === 0) {
     return (
-      <div className="flex h-48 items-center justify-center rounded-lg border border-border bg-surface p-6 text-sm text-gray-400">
+      <div className="flex h-48 items-center justify-center rounded-lg border border-border bg-surface p-6 text-sm text-gray-500">
         분석 결과가 누적되면 SDGs 분포가 표시됩니다.
       </div>
     )
@@ -116,7 +116,7 @@ export function SdgDonut({ data }: { data: Datum[] }) {
                 {SDG_GOAL_LABEL[s.sdg]}
               </span>
               <span className="text-gray-500">{s.count}</span>
-              <span className="w-10 text-right text-gray-400">
+              <span className="w-10 text-right text-gray-500">
                 {Math.round((s.count / total) * 100)}%
               </span>
             </li>

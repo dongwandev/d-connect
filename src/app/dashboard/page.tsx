@@ -5,6 +5,7 @@ import { AppShell } from '@/components/AppShell'
 import { SdgDonut } from '@/components/dashboard/SdgDonut'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { TypeProgressList } from '@/components/dashboard/TypeProgressList'
+import { EmptyState } from '@/components/EmptyState'
 import { db } from '@/server/db'
 import { ContentTypeSchema, type ContentType, type SdgGoal } from '@/lib/enums'
 
@@ -147,16 +148,21 @@ export default async function DashboardPage() {
               </h2>
             </div>
             {companies.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center rounded-lg border border-dashed border-gray-300 p-8 text-center">
-                <p className="text-sm text-gray-600">
-                  아직 등록된 기업이 없습니다.
-                </p>
-                <Link
-                  href="/companies/new"
-                  className="mt-3 inline-block text-sm font-medium text-accent-500 hover:underline"
-                >
-                  첫 기업 등록하기 →
-                </Link>
+              <div className="flex flex-1 items-center justify-center">
+                <EmptyState
+                  icon="🏢"
+                  title="아직 등록된 기업이 없어요"
+                  description="첫 기업을 등록하면 SDGs 분석과 콘텐츠 생성이 시작됩니다."
+                  action={
+                    <Link
+                      href="/companies/new"
+                      className="inline-flex items-center gap-1 rounded bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                    >
+                      <span aria-hidden>➕</span>
+                      <span>첫 기업 등록하기</span>
+                    </Link>
+                  }
+                />
               </div>
             ) : (
               <ul className="flex-1 space-y-2 overflow-y-auto pr-1">
@@ -171,7 +177,7 @@ export default async function DashboardPage() {
                     >
                       <span className="font-medium">{c.name}</span>
                     </Link>
-                    <p className="mt-1 text-xs text-gray-400">
+                    <p className="mt-1 text-xs text-gray-500">
                       {c.createdAt.toLocaleString('ko-KR')}
                     </p>
                   </li>

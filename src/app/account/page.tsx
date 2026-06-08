@@ -44,7 +44,7 @@ export default async function AccountPage() {
           <div className="space-y-2 border-b border-border pb-4">
             <p className="text-xs font-medium text-gray-500">이메일</p>
             <p className="text-sm text-gray-900">{user.email ?? '—'}</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-gray-500">
               가입일: {user.createdAt.toLocaleString('ko-KR')}
             </p>
           </div>

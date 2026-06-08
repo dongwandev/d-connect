@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { EmptyState } from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
 import {
   CONTENT_TYPE_LABEL,
@@ -88,11 +89,19 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded border border-dashed border-gray-300 bg-gray-50 p-6 text-center text-sm text-gray-500">
-          {tab === 'ALL'
-            ? '아직 생성된 콘텐츠가 없습니다. 위 버튼으로 유형을 선택해 생성해 보세요.'
-            : `${CONTENT_TYPE_LABEL[tab as ContentType]} 콘텐츠가 없습니다.`}
-        </div>
+        <EmptyState
+          icon="✨"
+          title={
+            tab === 'ALL'
+              ? '아직 생성된 콘텐츠가 없어요'
+              : `${CONTENT_TYPE_LABEL[tab as ContentType]} 콘텐츠가 없어요`
+          }
+          description={
+            tab === 'ALL'
+              ? '위의 유형 버튼으로 인스타그램·블로그·보도자료·내러티브 콘텐츠를 생성할 수 있습니다.'
+              : '다른 유형을 선택하거나, 위 콘텐츠 생성 버튼으로 새로 만들어 보세요.'
+          }
+        />
       ) : (
         <ul className="space-y-3 pt-2">
           {filtered.map((c) => (
@@ -146,7 +155,7 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
                   이미지 프롬프트: {c.imagePrompt}
                 </p>
               )}
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-gray-500">
                 {new Date(c.createdAt).toLocaleString('ko-KR')}
               </p>
             </li>
@@ -179,7 +188,7 @@ function TabButton({
       }`}
     >
       {label}
-      <span className="ml-1 text-xs text-gray-400">({count})</span>
+      <span className="ml-1 text-xs text-gray-500">({count})</span>
     </button>
   )
 }
