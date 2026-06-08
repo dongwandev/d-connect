@@ -199,7 +199,9 @@ export function CompanyForm({
                 <input
                   type="radio"
                   value={t}
-                  {...register('businessType')}
+                  {...register('businessType', {
+                    setValueAs: (v) => (v === '' ? undefined : v),
+                  })}
                 />
                 <span>{BUSINESS_TYPE_LABEL[t]}</span>
               </label>
@@ -209,7 +211,12 @@ export function CompanyForm({
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="사업장 소재지 (시/도)" error={errors.sido?.message}>
-            <select {...register('sido')} className={INPUT_CLS}>
+            <select
+              {...register('sido', {
+                setValueAs: (v) => (v === '' ? undefined : v),
+              })}
+              className={INPUT_CLS}
+            >
               <option value="">선택</option>
               {SIDOS.map((s) => (
                 <option key={s} value={s}>

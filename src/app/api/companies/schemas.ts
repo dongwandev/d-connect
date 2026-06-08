@@ -11,6 +11,9 @@ import {
 /**
  * POST /api/companies 요청 body.
  * 사양: docs/API.md §3.1 + D2 풍부한 폼 필드 (디자인 이미지 2).
+ *
+ * 폼 미선택('') → undefined 정규화는 client form 쪽에서 setValueAs로 처리한다.
+ * (schema에서 preprocess를 쓰면 react-hook-form zodResolver와 input/output 타입이 어긋남.)
  */
 export const CreateCompanySchema = z.object({
   name: z
