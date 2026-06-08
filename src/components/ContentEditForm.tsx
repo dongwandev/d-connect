@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
+import { useToast } from '@/components/Toast'
 
 interface Props {
   contentId: string
@@ -12,11 +13,7 @@ interface Props {
   }
 }
 
-type State =
-  | { kind: 'idle' }
-  | { kind: 'submitting' }
-  | { kind: 'success' }
-  | { kind: 'error'; message: string }
+type State = { kind: 'idle' } | { kind: 'submitting' }
 
 /**
  * 콘텐츠 편집 폼 (PRD §3.5, API.md §5.3).
@@ -26,6 +23,7 @@ type State =
  */
 export function ContentEditForm({ contentId, initial }: Props) {
   const router = useRouter()
+  const toast = useToast()
   const [body, setBody] = useState(initial.body)
   const [hashtagsText, setHashtagsText] = useState(initial.hashtags.join(', '))
   const [imagePrompt, setImagePrompt] = useState(initial.imagePrompt ?? '')
@@ -59,17 +57,20 @@ export function ContentEditForm({ contentId, initial }: Props) {
           'error' in json
             ? `[${json.error.code}] ${json.error.message}`
             : `HTTP ${res.status}`
-        setState({ kind: 'error', message })
+        toast.error('저장 실패', message)
+        setState({ kind: 'idle' })
         return
       }
 
-      setState({ kind: 'success' })
+      toast.success('저장되었습니다')
+      setState({ kind: 'idle' })
       router.refresh()
     } catch (e) {
-      setState({
-        kind: 'error',
-        message: e instanceof Error ? e.message : '알 수 없는 오류',
-      })
+      toast.error(
+        '저장 실패',
+        e instanceof Error ? e.message : '알 수 없는 오류',
+      )
+      setState({ kind: 'idle' })
     }
   }
 
@@ -120,12 +121,6 @@ export function ContentEditForm({ contentId, initial }: Props) {
         >
           {state.kind === 'submitting' ? '저장 중...' : '저장'}
         </button>
-        {state.kind === 'success' && (
-          <span className="text-sm text-green-700">✓ 저장되었습니다.</span>
-        )}
-        {state.kind === 'error' && (
-          <span className="text-sm text-red-600">❌ {state.message}</span>
-        )}
       </div>
     </form>
   )
