@@ -11,6 +11,9 @@ import {
 /**
  * POST /api/companies 요청 body.
  * 사양: docs/API.md §3.1 + D2 풍부한 폼 필드 (디자인 이미지 2).
+ *
+ * 폼 미선택('') → undefined 정규화는 client form 쪽에서 setValueAs로 처리한다.
+ * (schema에서 preprocess를 쓰면 react-hook-form zodResolver와 input/output 타입이 어긋남.)
  */
 export const CreateCompanySchema = z.object({
   name: z
@@ -25,15 +28,17 @@ export const CreateCompanySchema = z.object({
     .max(2100, '2100년 이전 값을 입력해주세요.')
     .optional(),
 
-  businessType: BusinessTypeSchema.optional(),
+  // .catch(undefined) — 라디오/select 미선택 시 form state가 ''이면 zod가 invalid_enum_value로
+  // 영문 raw 메시지를 띄우므로, optional enum은 invalid 값을 만나도 undefined로 fallback.
+  businessType: BusinessTypeSchema.optional().catch(undefined),
 
-  sido: SidoSchema.optional(),
+  sido: SidoSchema.optional().catch(undefined),
   sigungu: z
     .string()
     .max(50, '시/군/구는 50자 이내로 입력해주세요.')
     .optional(),
 
-  industryCategory: IndustryCategorySchema.optional(),
+  industryCategory: IndustryCategorySchema.optional().catch(undefined),
 
   product: z
     .string()

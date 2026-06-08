@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { useFieldArray, useForm } from 'react-hook-form'
+import { useToast } from '@/components/Toast'
 import {
   CreateCompanySchema,
   type CreateCompanyInput,
@@ -27,11 +28,7 @@ import {
   type TargetAudience,
 } from '@/lib/enums'
 
-type SubmitState =
-  | { kind: 'idle' }
-  | { kind: 'submitting' }
-  | { kind: 'success'; id: string; name: string }
-  | { kind: 'error'; message: string }
+type SubmitState = { kind: 'idle' } | { kind: 'submitting' }
 
 const SOCIAL_CATEGORIES = SocialCategorySchema.options
 const BUSINESS_TYPES = BusinessTypeSchema.options
@@ -57,6 +54,7 @@ export function CompanyForm({
   initial,
 }: CompanyFormProps = {}) {
   const router = useRouter()
+  const toast = useToast()
   const isEdit = mode === 'edit' && companyId
 
   const {
@@ -68,7 +66,19 @@ export function CompanyForm({
     reset,
     formState: { errors },
   } = useForm<CreateCompanyInput>({
-    resolver: zodResolver(CreateCompanySchema),
+    // 라디오 group register는 setValueAs를 무시하므로(미선택 시 form state에 ''이 남음)
+    // resolver를 wrap해서 zod 검증 직전에 빈 string을 undefined로 정규화한다.
+    resolver: (values, context, options) => {
+      const cleaned = { ...values } as Record<string, unknown>
+      for (const k of ['businessType', 'sido', 'industryCategory']) {
+        if (cleaned[k] === '') cleaned[k] = undefined
+      }
+      return zodResolver(CreateCompanySchema)(
+        cleaned as CreateCompanyInput,
+        context,
+        options,
+      )
+    },
     defaultValues: {
       name: initial?.name ?? '',
       foundedYear: initial?.foundedYear,
@@ -134,19 +144,24 @@ export function CompanyForm({
           'error' in json
             ? `[${json.error.code}] ${json.error.message}`
             : `HTTP ${res.status}`
-        setState({ kind: 'error', message })
+        toast.error(isEdit ? '수정 실패' : '등록 실패', message)
+        setState({ kind: 'idle' })
         return
       }
 
-      setState({ kind: 'success', id: json.data.id, name: json.data.name })
+      toast.success(
+        isEdit ? '수정되었습니다' : '등록되었습니다',
+        json.data.name,
+      )
       if (!isEdit) reset()
       router.push(`/companies/${json.data.id}`)
       router.refresh()
     } catch (e) {
-      setState({
-        kind: 'error',
-        message: e instanceof Error ? e.message : '알 수 없는 오류',
-      })
+      toast.error(
+        isEdit ? '수정 실패' : '등록 실패',
+        e instanceof Error ? e.message : '알 수 없는 오류',
+      )
+      setState({ kind: 'idle' })
     }
   }
 
@@ -196,7 +211,9 @@ export function CompanyForm({
                 <input
                   type="radio"
                   value={t}
-                  {...register('businessType')}
+                  {...register('businessType', {
+                    setValueAs: (v) => (v === '' ? undefined : v),
+                  })}
                 />
                 <span>{BUSINESS_TYPE_LABEL[t]}</span>
               </label>
@@ -206,7 +223,12 @@ export function CompanyForm({
 
         <div className="grid grid-cols-2 gap-3">
           <Field label="사업장 소재지 (시/도)" error={errors.sido?.message}>
-            <select {...register('sido')} className={INPUT_CLS}>
+            <select
+              {...register('sido', {
+                setValueAs: (v) => (v === '' ? undefined : v),
+              })}
+              className={INPUT_CLS}
+            >
               <option value="">선택</option>
               {SIDOS.map((s) => (
                 <option key={s} value={s}>
@@ -391,17 +413,6 @@ export function CompanyForm({
             : '기업 등록'}
       </button>
 
-      {state.kind === 'success' && (
-        <div className="rounded border border-green-300 bg-green-50 p-4 text-green-800">
-          ✅ {isEdit ? '수정 완료' : '등록 완료'} —{' '}
-          <strong>{state.name}</strong>
-        </div>
-      )}
-      {state.kind === 'error' && (
-        <div className="rounded border border-red-300 bg-red-50 p-4 text-red-800">
-          ❌ {state.message}
-        </div>
-      )}
     </form>
   )
 }

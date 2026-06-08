@@ -41,3 +41,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* AnalyzeButton 진행 중 indeterminate progress bar — 30초까지 걸릴 수 있는 작업의 시각적 진행 신호 */
+@keyframes indeterminate-slide {
+  0% { transform: translateX(-100%); width: 40%; }
+  50% { transform: translateX(60%); width: 60%; }
+  100% { transform: translateX(180%); width: 40%; }
+}
+
+.indeterminate-bar {
+  animation: indeterminate-slide 1.4s ease-in-out infinite;
+  will-change: transform, width;
+}

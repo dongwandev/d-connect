@@ -57,6 +57,11 @@ export default async function AnalysisPage({ params }: PageProps) {
     analysis.socialFunctions,
   )
 
+  // ANTHROPIC_API_KEY 미설정 시 모든 분석이 mock fallback으로 떨어진다 (server/ai/index.ts).
+  // 사용자에게 'mock 결과'임을 명시해 결과 신뢰도 오해를 방지.
+  // 향후 DB schema에 fromMock 컬럼을 추가하면 분석마다 정확히 판정 가능 (위험 작업).
+  const usingMockFallback = !process.env.ANTHROPIC_API_KEY
+
   // ContentTabs는 client component — Date를 ISO string으로 직렬화해 전달
   const contentsForClient: ContentItem[] = analysis.contents.map((c) => ({
     id: c.id,
@@ -91,6 +96,18 @@ export default async function AnalysisPage({ params }: PageProps) {
             {company.name} · {analysis.createdAt.toLocaleString('ko-KR')}
           </p>
         </header>
+
+        {usingMockFallback && (
+          <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <span aria-hidden className="text-base">⚠️</span>
+            <div className="min-w-0 flex-1">
+              <p className="font-semibold">API 키 미설정 — mock 결과입니다</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-amber-800/90">
+                서버에 <code className="rounded bg-amber-100 px-1 py-0.5 font-mono">ANTHROPIC_API_KEY</code> 가 없어 AI 호출 대신 고정 mock 응답을 표시합니다. 실제 분석은 환경 변수 설정 후 다시 실행해 주세요.
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
           {/* 좌측: 기업 정보 사이드 카드 (디자인 이미지 1 패턴) */}

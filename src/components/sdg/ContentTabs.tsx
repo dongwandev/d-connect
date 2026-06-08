@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useState, useTransition } from 'react'
+import { useToast } from '@/components/Toast'
 import {
   CONTENT_TYPE_LABEL,
   ContentTypeSchema,
@@ -31,6 +32,7 @@ const TYPES = ContentTypeSchema.options
  */
 export function ContentTabs({ contents }: { contents: ContentItem[] }) {
   const router = useRouter()
+  const toast = useToast()
   const [tab, setTab] = useState<TabKey>('ALL')
   const [pending, startTransition] = useTransition()
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -46,9 +48,13 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
         const json = (await res.json().catch(() => ({}))) as {
           error?: { message?: string }
         }
-        alert(`삭제 실패: ${json.error?.message ?? `HTTP ${res.status}`}`)
+        toast.error(
+          '삭제 실패',
+          json.error?.message ?? `HTTP ${res.status}`,
+        )
         return
       }
+      toast.success('콘텐츠가 삭제되었습니다')
       startTransition(() => router.refresh())
     } finally {
       setDeletingId(null)
