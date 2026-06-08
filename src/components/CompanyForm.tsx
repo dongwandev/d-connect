@@ -66,7 +66,19 @@ export function CompanyForm({
     reset,
     formState: { errors },
   } = useForm<CreateCompanyInput>({
-    resolver: zodResolver(CreateCompanySchema),
+    // 라디오 group register는 setValueAs를 무시하므로(미선택 시 form state에 ''이 남음)
+    // resolver를 wrap해서 zod 검증 직전에 빈 string을 undefined로 정규화한다.
+    resolver: (values, context, options) => {
+      const cleaned = { ...values } as Record<string, unknown>
+      for (const k of ['businessType', 'sido', 'industryCategory']) {
+        if (cleaned[k] === '') cleaned[k] = undefined
+      }
+      return zodResolver(CreateCompanySchema)(
+        cleaned as CreateCompanyInput,
+        context,
+        options,
+      )
+    },
     defaultValues: {
       name: initial?.name ?? '',
       foundedYear: initial?.foundedYear,
