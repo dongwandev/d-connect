@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { UserMenu } from './UserMenu'
 
@@ -27,14 +26,16 @@ interface SidebarProps {
  */
 export function Sidebar({ userName, userEmail, companies }: SidebarProps) {
   const [open, setOpen] = useState(false)
-  const pathname = usePathname()
 
-  // 라우트 이동 시 모바일 drawer 자동 닫기 (drawer가 열린 채로 페이지 전환되면 사용자가 다시 닫아야 함)
-  useEffect(() => {
-    setOpen(false)
-  }, [pathname])
+  // 사이드바 내부의 모든 link 클릭 시 drawer 닫기 (모바일).
+  // useEffect + usePathname 패턴은 React Compiler 룰(react-hooks/set-state-in-effect)을 위반하므로
+  // event delegation으로 처리. <a href> 만 잡아서 토글 버튼 등 다른 click은 영향 없음.
+  function handleSidebarClick(e: React.MouseEvent<HTMLElement>) {
+    const target = e.target as HTMLElement | null
+    if (target?.closest('a[href]')) setOpen(false)
+  }
 
-  // Esc로 drawer 닫기 (a11y)
+  // Esc로 drawer 닫기 (a11y) — addEventListener는 외부 시스템 동기화라 set-state-in-effect 룰 위반 아님
   useEffect(() => {
     if (!open) return
     function onKey(e: KeyboardEvent) {
@@ -70,6 +71,7 @@ export function Sidebar({ userName, userEmail, companies }: SidebarProps) {
 
       {/* 사이드바 본체 */}
       <aside
+        onClick={handleSidebarClick}
         className={`fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-border bg-surface transition-transform duration-200 ease-out md:relative md:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
