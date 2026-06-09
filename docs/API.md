@@ -84,17 +84,22 @@ MVP에서는 적용하지 않는다. 모든 목록 응답은 `createdAt DESC`로
 
 ## 2. 엔드포인트 목록
 
-| # | Method | Path | 설명 | AI 호출 |
-|---|--------|------|------|---------|
-| 1 | POST   | `/api/companies` | 기업 + 활동 생성 (atomic) | — |
-| 2 | GET    | `/api/companies` | 기업 목록 | — |
-| 3 | GET    | `/api/companies/{id}` | 기업 상세 (활동 + 최신 분석 포함) | — |
-| 4 | POST   | `/api/companies/{id}/sdg-analysis` | SDGs 분석 요청 | ✅ |
-| 5 | GET    | `/api/companies/{id}/sdg-analysis` | 분석 이력 목록 | — |
-| 6 | GET    | `/api/sdg-analysis/{id}` | 분석 상세 (매칭 + 콘텐츠 포함) | — |
-| 7 | POST   | `/api/sdg-analysis/{id}/content` | 콘텐츠 초안 생성 | ✅ |
-| 8 | GET    | `/api/sdg-analysis/{id}/content` | 콘텐츠 목록 (동일 경로, 메서드만 차이) | — |
-| 9 | PATCH  | `/api/contents/{id}` | 콘텐츠 초안 수정 | — |
+| #  | Method | Path | 설명 | AI 호출 |
+|----|--------|------|------|---------|
+| 1  | POST   | `/api/companies` | 기업 + 활동 생성 (atomic) | — |
+| 2  | GET    | `/api/companies` | 기업 목록 | — |
+| 3  | GET    | `/api/companies/{id}` | 기업 상세 (활동 + 최신 분석 포함) | — |
+| 4  | PATCH  | `/api/companies/{id}` | 기업 정보 수정 (전체 replace, activities deleteMany+create) | — |
+| 5  | POST   | `/api/companies/{id}/sdg-analysis` | SDGs 분석 요청 | ✅ |
+| 6  | GET    | `/api/companies/{id}/sdg-analysis` | 분석 이력 목록 | — |
+| 7  | GET    | `/api/sdg-analysis/{id}` | 분석 상세 (매칭 + 콘텐츠 포함) | — |
+| 8  | POST   | `/api/sdg-analysis/{id}/content` | 콘텐츠 초안 생성 | ✅ |
+| 9  | GET    | `/api/sdg-analysis/{id}/content` | 콘텐츠 목록 (동일 경로, 메서드만 차이) | — |
+| 10 | PATCH  | `/api/contents/{id}` | 콘텐츠 초안 수정 | — |
+| 11 | DELETE | `/api/contents/{id}` | 콘텐츠 삭제 (편집된 결과까지 함께 사라짐) | — |
+| 12 | POST   | `/api/auth/register` | 이메일/비밀번호 회원가입 (bcrypt) | — |
+| 13 | PATCH  | `/api/auth/user` | 본인 계정 정보 수정 (표시명/실명/연락처/소속/마케팅 동의) | — |
+| 14 | —      | `/api/auth/[...nextauth]` | NextAuth 표준 endpoint (sign-in / sign-out / callback / providers) | — |
 
 ---
 
