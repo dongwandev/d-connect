@@ -38,21 +38,42 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
     return () => document.removeEventListener('mousedown', onClick)
   }, [open])
 
+  const initial =
+    (userName ?? userEmail ?? '?').trim().slice(0, 1).toUpperCase() || '?'
+
   return (
-    <div ref={wrapRef} className="relative space-y-2">
+    <div ref={wrapRef} className="relative">
+      {/* 사용자 클릭 영역 — 아바타 + 표시명/이메일 + 드롭다운 화살표.
+          명확한 button 형태(테두리·hover·▾)로 클릭 가능함을 시각적으로 알림. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="w-full overflow-hidden rounded text-left transition-colors hover:bg-surface-muted"
+        className="flex w-full items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-2 py-2 text-left transition-colors hover:border-brand-500 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <p className="truncate text-sm font-medium text-gray-900">
-          {userName ?? '사용자'}
-        </p>
-        {userEmail && (
-          <p className="truncate text-xs text-gray-500">{userEmail}</p>
-        )}
+        <span
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700"
+          aria-hidden
+        >
+          {initial}
+        </span>
+        <span className="min-w-0 flex-1">
+          <p className="truncate text-sm font-medium text-gray-900">
+            {userName ?? '사용자'}
+          </p>
+          {userEmail && (
+            <p className="truncate text-xs text-gray-500">{userEmail}</p>
+          )}
+        </span>
+        <span
+          aria-hidden
+          className={`shrink-0 text-xs text-gray-500 transition-transform ${
+            open ? 'rotate-180' : ''
+          }`}
+        >
+          ▾
+        </span>
       </button>
 
       {open && (
@@ -64,7 +85,7 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
             href="/account"
             onClick={() => setOpen(false)}
             role="menuitem"
-            className="block rounded px-3 py-2 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-700"
+            className="block rounded px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
           >
             👤 계정 정보
           </Link>
@@ -72,7 +93,7 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
             type="button"
             role="menuitem"
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="block w-full rounded px-3 py-2 text-left text-sm text-gray-700 hover:bg-red-50 hover:text-red-700"
+            className="block w-full rounded px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
           >
             ↪ 로그아웃
           </button>

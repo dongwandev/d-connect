@@ -50,32 +50,56 @@ D-Connect는 **풀스택 단일 Next.js 16 (App Router) 애플리케이션**이�
 
 ```
 src/
-├── app/                  # Next.js App Router
-│   ├── api/              # Route Handler (REST 엔드포인트)
-│   │   └── .../route.ts
-│   ├── (pages)/          # 사용자 페이지
-│   │   └── page.tsx
-│   ├── layout.tsx
-│   └── globals.css
+├── app/                                # Next.js App Router
+│   ├── api/                            # Route Handler (REST 엔드포인트)
+│   │   ├── auth/                       # NextAuth + register + user
+│   │   ├── companies/                  # POST/GET·PATCH/[id]·sdg-analysis
+│   │   ├── contents/[id]/              # PATCH/DELETE
+│   │   └── sdg-analysis/[id]/content/  # POST (콘텐츠 생성)
+│   │
+│   ├── (pages)/                        # 사용자 페이지 (각 폴더에 page.tsx + loading.tsx + error.tsx)
+│   │   ├── dashboard/                  # 통계 + 차트 + 기업 목록
+│   │   ├── companies/{new,[id],[id]/edit}/
+│   │   ├── sdg-analysis/[id]/          # SDG 카드 + 콘텐츠 탭
+│   │   ├── contents/[id]/              # 콘텐츠 편집
+│   │   ├── account/                    # 계정 정보 수정
+│   │   ├── login/  signup/
+│   │
+│   ├── layout.tsx                      # ToastProvider mount + lang='ko'
+│   └── globals.css                     # 브랜드 토큰 + indeterminate-bar 애니메이션
 │
-├── server/               # 서버 전용 (절대 client에서 import 금지)
-│   ├── db.ts             # Prisma Client 싱글톤
-│   ├── env.ts            # 환경 변수 + zod 검증
-│   ├── errors.ts         # ApiError + Route Handler wrapper
-│   └── ai/               # AI 통합
-│       ├── client.ts     # Anthropic SDK 인스턴스
-│       ├── schemas.ts    # zod 응답 스키마
-│       ├── prompts/      # 시스템 프롬프트 모음
-│       ├── mock/         # mock fallback 응답
-│       └── index.ts      # public API (analyzeSdg, generateContent)
+├── server/                             # 서버 전용 ('server-only' import 강제)
+│   ├── db.ts                           # Prisma Client 싱글톤 (better-sqlite3 adapter)
+│   ├── env.ts                          # 환경 변수 + zod 검증
+│   ├── errors.ts                       # ApiError + withErrorHandler
+│   ├── auth-guard.ts                   # requireUserId (멀티테넌시)
+│   ├── password.ts                     # bcrypt 해시/검증
+│   └── ai/                             # AI 통합
+│       ├── client.ts                   # Anthropic SDK 인스턴스
+│       ├── schemas.ts                  # zod 응답 스키마
+│       ├── tools.ts                    # tool definitions
+│       ├── prompts/                    # 시스템 프롬프트 (sdg-analysis, content-generation)
+│       └── index.ts                    # analyzeSdg, generateContent + mock fallback
 │
-├── lib/                  # 순수 유틸 (server/client 양쪽 사용 가능, 부수효과 X)
+├── lib/                                # 순수 유틸 (enums, json-array)
 │
-├── components/           # React 컴포넌트
-│   └── ui/               # 기본 UI 요소
+├── components/                         # React 컴포넌트 (대부분 server, client는 'use client')
+│   ├── AppShell.tsx                    # 로그인된 페이지의 셸 (Sidebar + main)
+│   ├── Sidebar.tsx                     # 모바일 햄버거 + drawer (P3)
+│   ├── UserMenu.tsx                    # 사이드바 하단 사용자 드롭다운
+│   ├── Toast.tsx                       # 자체 구현 Provider + useToast (P2)
+│   ├── ErrorState.tsx                  # 공통 에러 카드 (P1)
+│   ├── EmptyState.tsx                  # 공통 빈 상태 (P3)
+│   ├── skeleton/                       # 도메인별 로딩 Skeleton (P1)
+│   ├── dashboard/                      # SdgDonut, StatCard, TypeProgressList
+│   ├── sdg/                            # SdgMatchCard, ContentTabs
+│   ├── CompanyForm.tsx                 # 신규/수정 공용 (mode='create'|'edit')
+│   ├── ContentEditForm.tsx, AccountForm.tsx, AnalyzeButton.tsx
+│   ├── ContentGenerationButtons.tsx
+│   ├── EmailLoginForm.tsx, SignupForm.tsx
 │
-└── generated/            # 자동 생성 (gitignored)
-    └── prisma/           # Prisma Client
+└── generated/                          # 자동 생성 (gitignored)
+    └── prisma/                         # Prisma Client
 ```
 
 ### 규칙
