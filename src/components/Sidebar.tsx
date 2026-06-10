@@ -2,9 +2,11 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 import {
   IconBuilding,
+  IconDocument,
+  IconGlobe,
   IconHome,
   IconMenu,
   IconPlusCircle,
@@ -13,36 +15,74 @@ import {
   IconX,
 } from './icons'
 
-interface CompanySummary {
-  id: string
-  name: string
+interface SidebarProps {
+  /**
+   * URL만으로 메뉴를 정할 수 없는 페이지(예: /sdg-analysis/[id])에서
+   * 활성 메뉴를 명시적으로 지정. NAV_ITEMS의 href와 일치해야 한다.
+   */
+  activeHref?: string
 }
 
-interface SidebarProps {
-  companies: CompanySummary[]
-  /**
-   * URL에 기업 id가 없는 페이지(분석 결과·콘텐츠 편집)에서 사이드바의
-   * 해당 기업을 활성 표시하기 위한 명시적 지정.
-   */
-  activeCompanyId?: string
-}
+/**
+ * 사이드바 메뉴 정의 — 사용자 확정 IA (D7).
+ * isActive는 usePathname 결과로 판정한다.
+ */
+const NAV_ITEMS = [
+  {
+    href: '/companies/new',
+    label: '새 기업 등록',
+    Icon: IconPlusCircle,
+    isActive: (p: string) => p === '/companies/new',
+  },
+  {
+    href: '/dashboard',
+    label: '대시보드',
+    Icon: IconHome,
+    isActive: (p: string) => p === '/dashboard',
+  },
+  {
+    href: '/contents',
+    label: '내 콘텐츠 보기',
+    Icon: IconDocument,
+    isActive: (p: string) => p.startsWith('/contents'),
+  },
+  {
+    href: '/sdg-guide',
+    label: 'SDGs 가이드',
+    Icon: IconGlobe,
+    isActive: (p: string) => p.startsWith('/sdg-guide'),
+  },
+  {
+    href: '/mypage',
+    label: '마이페이지',
+    Icon: IconUser,
+    isActive: (p: string) => p.startsWith('/mypage'),
+  },
+  {
+    href: '/companies',
+    label: '기업 관리',
+    Icon: IconBuilding,
+    isActive: (p: string) =>
+      p === '/companies' ||
+      (p.startsWith('/companies/') && p !== '/companies/new'),
+  },
+] as const
 
 /**
  * 좌측 사이드바 (디자인 디벨롭 — 목업 정합).
  *
  * - 상단: 브랜드 로고 (그린 아이콘 + 이름 + 태그라인)
- * - 메뉴: SVG 라인 아이콘 + usePathname 기반 활성 상태 (파란 하이라이트)
- * - 하단: 그라데이션 홍보 카드 (사용자 메뉴는 TopBar로 이동)
+ * - 메뉴: 고정 6항목 (새 기업 등록 / 대시보드 / 내 콘텐츠 보기 /
+ *   SDGs 가이드 / 마이페이지 / 기업 관리) — 활성 메뉴 파란 하이라이트
+ * - 하단: 그라데이션 홍보 카드
  * - md 미만: 햄버거 토글 drawer + overlay (P3 동작 유지)
- *
- * usePathname은 렌더 중 읽기만 하므로 React Compiler 룰에 안전.
- * drawer 자동 닫기는 set-state-in-effect 룰 회피를 위해 event delegation 유지.
  */
-export function Sidebar({ companies, activeCompanyId }: SidebarProps) {
+export function Sidebar({ activeHref }: SidebarProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
 
-  // 사이드바 내부의 link 클릭 시 drawer 닫기 (모바일) — event delegation
+  // 사이드바 내부의 link 클릭 시 drawer 닫기 (모바일) — event delegation.
+  // useEffect + usePathname 패턴은 React Compiler 룰(set-state-in-effect) 위반이라 회피.
   function handleSidebarClick(e: React.MouseEvent<HTMLElement>) {
     const target = e.target as HTMLElement | null
     if (target?.closest('a[href]')) setOpen(false)
@@ -123,63 +163,26 @@ export function Sidebar({ companies, activeCompanyId }: SidebarProps) {
         {/* 메뉴 */}
         <nav
           className="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-1"
-          aria-label="기업 및 페이지 메뉴"
+          aria-label="페이지 메뉴"
         >
-          <NavItem
-            href="/dashboard"
-            icon={<IconHome className="h-[18px] w-[18px]" />}
-            label="대시보드"
-            active={pathname === '/dashboard'}
-          />
-          <NavItem
-            href="/companies/new"
-            icon={<IconPlusCircle className="h-[18px] w-[18px]" />}
-            label="새 기업 등록"
-            active={pathname === '/companies/new'}
-          />
-          <NavItem
-            href="/account"
-            icon={<IconUser className="h-[18px] w-[18px]" />}
-            label="계정 정보"
-            active={pathname === '/account'}
-          />
-
-          <div className="pt-4">
-            <p className="px-3 pb-1.5 text-[11px] font-semibold uppercase tracking-wider text-gray-500">
-              내 기업{companies.length > 0 && ` (${companies.length})`}
-            </p>
-            {companies.length > 0 ? (
-              <ul className="space-y-0.5">
-                {companies.map((c) => {
-                  const active =
-                    pathname.startsWith(`/companies/${c.id}`) ||
-                    c.id === activeCompanyId
-                  return (
-                    <li key={c.id}>
-                      <Link
-                        href={`/companies/${c.id}`}
-                        title={c.name}
-                        aria-current={active ? 'page' : undefined}
-                        className={`flex items-center gap-2.5 truncate rounded-lg px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${
-                          active
-                            ? 'bg-accent-500/10 font-semibold text-accent-600'
-                            : 'text-gray-600 hover:bg-surface-muted hover:text-gray-900'
-                        }`}
-                      >
-                        <IconBuilding className="h-[18px] w-[18px] shrink-0" />
-                        <span className="truncate">{c.name}</span>
-                      </Link>
-                    </li>
-                  )
-                })}
-              </ul>
-            ) : (
-              <p className="px-3 text-xs leading-relaxed text-gray-500">
-                등록된 기업이 없어요. 위의 &lsquo;새 기업 등록&rsquo;으로
-                시작해 보세요.
-              </p>
-            )}
-          </div>
+          {NAV_ITEMS.map(({ href, label, Icon, isActive }) => {
+            const active = activeHref ? href === activeHref : isActive(pathname)
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${
+                  active
+                    ? 'bg-accent-500/10 font-semibold text-accent-600'
+                    : 'text-gray-700 hover:bg-surface-muted hover:text-gray-900'
+                }`}
+              >
+                <Icon className="h-[18px] w-[18px] shrink-0" />
+                <span>{label}</span>
+              </Link>
+            )
+          })}
         </nav>
 
         {/* 하단 홍보 카드 (목업 패턴) */}
@@ -197,32 +200,5 @@ export function Sidebar({ companies, activeCompanyId }: SidebarProps) {
         </div>
       </aside>
     </>
-  )
-}
-
-function NavItem({
-  href,
-  icon,
-  label,
-  active,
-}: {
-  href: string
-  icon: ReactNode
-  label: string
-  active: boolean
-}) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? 'page' : undefined}
-      className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${
-        active
-          ? 'bg-accent-500/10 font-semibold text-accent-600'
-          : 'text-gray-700 hover:bg-surface-muted hover:text-gray-900'
-      }`}
-    >
-      {icon}
-      <span>{label}</span>
-    </Link>
   )
 }

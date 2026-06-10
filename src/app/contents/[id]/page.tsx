@@ -44,7 +44,6 @@ export default async function ContentEditPage({ params }: PageProps) {
     <AppShell
       title={`${CONTENT_TYPE_LABEL[content.type as ContentType]} 편집`}
       description={`${content.analysis.company.name} · 최종 수정 ${content.updatedAt.toLocaleString('ko-KR')}`}
-      activeCompanyId={content.analysis.company.id}
     >
       <div className="mx-auto max-w-3xl space-y-6 px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-2">

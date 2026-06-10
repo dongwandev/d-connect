@@ -16,7 +16,7 @@ interface UserMenuProps {
  * 기존에는 사이드바 하단에서 위로 펼쳤지만, 목업처럼 TopBar 우측에서
  * 아래로 펼치는 드롭다운으로 이동.
  *
- * - 계정 정보 → /account
+ * - 마이페이지 → /mypage
  * - 로그아웃 → next-auth/react signOut
  */
 export function UserMenu({ userName, userEmail }: UserMenuProps) {
@@ -85,13 +85,13 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
             )}
           </div>
           <Link
-            href="/account"
+            href="/mypage"
             onClick={() => setOpen(false)}
             role="menuitem"
             className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-accent-500/5 hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
           >
             <IconUser className="h-4 w-4" />
-            <span>계정 정보</span>
+            <span>마이페이지</span>
           </Link>
           <button
             type="button"
