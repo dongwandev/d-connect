@@ -74,28 +74,20 @@ export default async function AnalysisPage({ params }: PageProps) {
   }))
 
   return (
-    <AppShell>
+    <AppShell
+      title="SDGs 분석 결과"
+      description={`${company.name} · ${analysis.createdAt.toLocaleString('ko-KR')}`}
+      activeCompanyId={company.id}
+    >
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-        <nav className="space-x-3 text-sm">
-          <Link href="/dashboard" className="text-accent-500 hover:underline">
-            ← 대시보드
-          </Link>
+        <nav className="text-sm">
           <Link
             href={`/companies/${company.id}`}
             className="text-accent-500 hover:underline"
           >
-            {company.name} 상세
+            ← {company.name} 상세
           </Link>
         </nav>
-
-        <header className="space-y-1">
-          <h1 className="text-3xl font-bold text-gray-900">
-            SDGs 분석 결과
-          </h1>
-          <p className="text-sm text-gray-500">
-            {company.name} · {analysis.createdAt.toLocaleString('ko-KR')}
-          </p>
-        </header>
 
         {usingMockFallback && (
           <div className="flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">

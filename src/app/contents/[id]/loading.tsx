@@ -4,7 +4,7 @@ import { FormSkeleton } from '@/components/skeleton/FormSkeleton'
 export default function Loading() {
   return (
     <AppShellSkeleton>
-      <FormSkeleton rows={3} />
+      <FormSkeleton rows={3} withNav wide />
     </AppShellSkeleton>
   )
 }

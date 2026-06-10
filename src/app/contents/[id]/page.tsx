@@ -41,48 +41,47 @@ export default async function ContentEditPage({ params }: PageProps) {
   const hashtags = parseJsonArray<string>(content.hashtags)
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-3xl space-y-6 px-6 py-10">
-        <nav className="space-x-3 text-sm">
-        <Link href="/dashboard" className="text-blue-600 hover:underline">
-          ← 대시보드
-        </Link>
-        <Link
-          href={`/companies/${content.analysis.company.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          {content.analysis.company.name}
-        </Link>
-        <Link
-          href={`/sdg-analysis/${content.analysis.id}`}
-          className="text-blue-600 hover:underline"
-        >
-          분석 결과
-        </Link>
-      </nav>
-
-      <header className="space-y-2">
-        <h1 className="text-2xl font-bold">
-          {CONTENT_TYPE_LABEL[content.type as ContentType]} 편집
-          {content.editedByUser && (
-            <span className="ml-2 rounded bg-amber-100 px-2 py-0.5 text-sm text-amber-800">
-              편집됨
+    <AppShell
+      title={`${CONTENT_TYPE_LABEL[content.type as ContentType]} 편집`}
+      description={`${content.analysis.company.name} · 최종 수정 ${content.updatedAt.toLocaleString('ko-KR')}`}
+      activeCompanyId={content.analysis.company.id}
+    >
+      <div className="mx-auto max-w-3xl space-y-6 px-6 py-8">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <nav className="space-x-3 text-sm">
+            <Link
+              href={`/sdg-analysis/${content.analysis.id}`}
+              className="text-accent-500 hover:underline"
+            >
+              ← 분석 결과
+            </Link>
+            <Link
+              href={`/companies/${content.analysis.company.id}`}
+              className="text-accent-500 hover:underline"
+            >
+              {content.analysis.company.name}
+            </Link>
+          </nav>
+          <div className="flex items-center gap-2">
+            {content.editedByUser && (
+              <span className="rounded bg-amber-100 px-2 py-0.5 text-xs text-amber-800">
+                편집됨
+              </span>
+            )}
+            <span className="text-xs text-gray-500">
+              생성 {content.createdAt.toLocaleString('ko-KR')} · 수정{' '}
+              {content.updatedAt.toLocaleString('ko-KR')}
             </span>
-          )}
-        </h1>
-        <p className="text-xs text-gray-500">
-          생성: {content.createdAt.toLocaleString('ko-KR')} · 최종 수정:{' '}
-          {content.updatedAt.toLocaleString('ko-KR')}
-        </p>
-      </header>
+          </div>
+        </div>
 
-      <ContentEditForm
-        contentId={content.id}
-        initial={{
-          body: content.body,
-          hashtags,
-          imagePrompt: content.imagePrompt,
-        }}
+        <ContentEditForm
+          contentId={content.id}
+          initial={{
+            body: content.body,
+            hashtags,
+            imagePrompt: content.imagePrompt,
+          }}
         />
       </div>
     </AppShell>

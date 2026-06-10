@@ -4,7 +4,7 @@ import { CompanyFormSkeleton } from '@/components/skeleton/CompanyFormSkeleton'
 export default function Loading() {
   return (
     <AppShellSkeleton>
-      <CompanyFormSkeleton />
+      <CompanyFormSkeleton withNav />
     </AppShellSkeleton>
   )
 }

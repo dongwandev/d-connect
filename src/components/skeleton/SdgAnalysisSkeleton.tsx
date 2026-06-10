@@ -1,17 +1,13 @@
 import { Skeleton } from './Skeleton'
 
 /**
- * /sdg-analysis/[id] 로딩 골격 — header + SDG 카드 grid + 콘텐츠 탭/리스트.
+ * /sdg-analysis/[id] 로딩 골격 — 브레드크럼 + SDG 카드 grid + 콘텐츠 탭/리스트.
+ * D7부터 페이지 제목이 TopBar로 이동해 본문은 nav 한 줄로 시작한다.
  */
 export function SdgAnalysisSkeleton() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
       <Skeleton className="h-4 w-32" />
-
-      <header className="space-y-2">
-        <Skeleton className="h-8 w-1/2" />
-        <Skeleton className="h-4 w-1/3" />
-      </header>
 
       {/* SDG 카드 grid */}
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">

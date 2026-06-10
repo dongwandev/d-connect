@@ -91,14 +91,11 @@ export default async function CompanyDetailPage({ params }: PageProps) {
   if (company.foundedYear) headerMeta.push(`${company.foundedYear}년 설립`)
 
   return (
-    <AppShell>
+    <AppShell
+      title={company.name}
+      description="기업 활동과 SDGs 분석 현황을 확인합니다."
+    >
       <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
-        <nav className="text-sm">
-          <Link href="/dashboard" className="text-accent-500 hover:underline">
-            ← 대시보드
-          </Link>
-        </nav>
-
         {/* 헤더 카드 — 브랜드 그린 그라데이션 + 이니셜 아바타 */}
         <header className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
           <div className="flex items-center gap-4 bg-gradient-to-br from-brand-50 to-blue-50 px-6 py-5">
@@ -109,9 +106,9 @@ export default async function CompanyDetailPage({ params }: PageProps) {
               {company.name.slice(0, 1)}
             </div>
             <div className="min-w-0 flex-1">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h2 className="text-2xl font-bold text-gray-900">
                 {company.name}
-              </h1>
+              </h2>
               {headerMeta.length > 0 && (
                 <p className="mt-1 text-sm text-gray-600">
                   {headerMeta.join(' · ')}

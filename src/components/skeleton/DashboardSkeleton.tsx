@@ -1,20 +1,13 @@
 import { Skeleton } from './Skeleton'
 
 /**
- * /dashboard 로딩 골격 — header + 통계 4카드 + 좌(기업)/우(차트 2종) grid.
+ * /dashboard 로딩 골격 — 통계 4카드 + 좌(기업)/우(차트 2종) grid.
+ * D7부터 페이지 제목/CTA가 TopBar로 이동해 본문은 통계 grid로 바로 시작한다.
  * 실제 페이지 레이아웃과 클래스를 맞춰 깜빡임을 최소화한다.
  */
 export function DashboardSkeleton() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-      <header className="flex items-baseline justify-between">
-        <div className="space-y-2">
-          <Skeleton className="h-8 w-40" />
-          <Skeleton className="h-4 w-56" />
-        </div>
-        <Skeleton className="h-9 w-32" />
-      </header>
-
       <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
           <div
