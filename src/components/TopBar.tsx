@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { type ReactNode } from 'react'
 import { useToast } from './Toast'
 import { UserMenu } from './UserMenu'
@@ -58,16 +59,14 @@ export function TopBar({
           <IconBell className="h-5 w-5" />
         </button>
 
-        <button
-          type="button"
-          onClick={() =>
-            toast.info('도움말', 'SDGs 가이드 문서는 준비 중입니다.')
-          }
-          aria-label="도움말"
+        <Link
+          href="/sdg-guide"
+          aria-label="도움말 — SDGs 가이드"
+          title="SDGs 가이드"
           className="hidden rounded-full p-2 text-gray-500 transition-colors hover:bg-surface-muted hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 sm:block"
         >
           <IconHelp className="h-5 w-5" />
-        </button>
+        </Link>
 
         <div className="ml-1 border-l border-border pl-2.5">
           <UserMenu userName={userName} userEmail={userEmail} />
