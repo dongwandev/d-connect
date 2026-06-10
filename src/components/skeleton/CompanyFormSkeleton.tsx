@@ -12,7 +12,7 @@ export function CompanyFormSkeleton({ withNav = false }: { withNav?: boolean }) 
     <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
       {withNav && (
         <>
-          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-9 w-40 rounded-lg" />
           <Skeleton className="h-11 w-full rounded-lg" />
         </>
       )}

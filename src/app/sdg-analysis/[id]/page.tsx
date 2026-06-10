@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { AppShell } from '@/components/AppShell'
+import { BackLink } from '@/components/BackLink'
 import { ContentGenerationButtons } from '@/components/ContentGenerationButtons'
 import {
   ContentTabs,
@@ -79,13 +79,11 @@ export default async function AnalysisPage({ params }: PageProps) {
       description={`${company.name} · ${analysis.createdAt.toLocaleString('ko-KR')}`}
     >
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-        <nav className="text-sm">
-          <Link
+        <nav>
+          <BackLink
             href={`/companies/${company.id}`}
-            className="text-accent-500 hover:underline"
-          >
-            ← {company.name} 상세
-          </Link>
+            label={`${company.name} 상세`}
+          />
         </nav>
 
         {usingMockFallback && (
