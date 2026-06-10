@@ -62,3 +62,6 @@ Thumbs.db
 logs/
 
 /src/generated/prisma
+
+# 로컬 테크노트 (주차별 회고, 로컬 노트로만 유지)
+/docs/technotes/
