@@ -1,4 +1,4 @@
-import { SDG_GOAL_LABEL, type SdgGoal } from '@/lib/enums'
+import { SDG_COLOR, SDG_GOAL_LABEL, type SdgGoal } from '@/lib/enums'
 
 /**
  * SDG 매칭 카드 — UN 공식 컬러 + 번호 + 라벨 + 점수 + 키워드 + 근거.
@@ -10,13 +10,6 @@ interface SdgMatchData {
   score: number
   keywords: string[]
   rationale: string
-}
-
-const SDG_COLOR: Record<SdgGoal, string> = {
-  SDG_8: '#A21942',
-  SDG_11: '#FD9D24',
-  SDG_12: '#BF8B2E',
-  SDG_17: '#19486A',
 }
 
 const SDG_NUMBER: Record<SdgGoal, number> = {

@@ -12,9 +12,9 @@ import { Skeleton } from './Skeleton'
 export function AppShellSkeleton({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen bg-surface-muted">
-      {/* 사이드바 placeholder */}
+      {/* 사이드바 placeholder — 실제 Sidebar와 동일하게 sticky 고정 */}
       <aside
-        className="hidden w-64 shrink-0 border-r border-border bg-surface md:block"
+        className="hidden w-64 shrink-0 border-r border-border bg-surface md:sticky md:top-0 md:block md:h-screen"
         aria-hidden
       >
         <div className="flex flex-col gap-4 p-4">

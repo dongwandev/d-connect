@@ -77,7 +77,6 @@ export default async function AnalysisPage({ params }: PageProps) {
     <AppShell
       title="SDGs 분석 결과"
       description={`${company.name} · ${analysis.createdAt.toLocaleString('ko-KR')}`}
-      activeNavHref="/companies"
     >
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
         <nav className="text-sm">

@@ -90,14 +90,6 @@ export default async function DashboardPage() {
     <AppShell
       title="대시보드"
       description={`${session.user.name ?? session.user.email ?? '사용자'}님, 환영합니다.`}
-      actions={
-        <Link
-          href="/companies/new"
-          className="rounded-lg bg-accent-500 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
-        >
-          + 새 기업 등록
-        </Link>
-      }
     >
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
         {/* 통계 카드 4종 */}

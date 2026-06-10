@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   IconBuilding,
+  IconChart,
   IconDocument,
   IconGlobe,
   IconHome,
@@ -39,6 +40,12 @@ const NAV_ITEMS = [
     label: '대시보드',
     Icon: IconHome,
     isActive: (p: string) => p === '/dashboard',
+  },
+  {
+    href: '/sdg-analysis',
+    label: '내 SDGs 분석 보기',
+    Icon: IconChart,
+    isActive: (p: string) => p.startsWith('/sdg-analysis'),
   },
   {
     href: '/contents',
@@ -120,10 +127,11 @@ export function Sidebar({ activeHref }: SidebarProps) {
         />
       )}
 
-      {/* 사이드바 본체 */}
+      {/* 사이드바 본체 — md 이상에서는 sticky + h-screen으로 viewport에 고정.
+          본문이 길어 페이지를 스크롤해도 메뉴·하단 홍보 카드가 항상 보인다. */}
       <aside
         onClick={handleSidebarClick}
-        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-border bg-surface transition-transform duration-200 ease-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-border bg-surface transition-transform duration-200 ease-out md:sticky md:top-0 md:bottom-auto md:h-screen md:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         aria-label="주 메뉴"
