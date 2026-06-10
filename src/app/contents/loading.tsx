@@ -1,10 +1,10 @@
 import { AppShellSkeleton } from '@/components/skeleton/AppShellSkeleton'
-import { FormSkeleton } from '@/components/skeleton/FormSkeleton'
+import { CardGridSkeleton } from '@/components/skeleton/CardGridSkeleton'
 
 export default function Loading() {
   return (
     <AppShellSkeleton>
-      <FormSkeleton rows={3} withNav wide />
+      <CardGridSkeleton cards={6} />
     </AppShellSkeleton>
   )
 }

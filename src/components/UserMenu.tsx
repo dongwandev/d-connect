@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { signOut } from 'next-auth/react'
 import { useEffect, useRef, useState } from 'react'
+import { IconChevronDown, IconLogout, IconUser } from './icons'
 
 interface UserMenuProps {
   userName: string | null
@@ -10,32 +11,35 @@ interface UserMenuProps {
 }
 
 /**
- * 사이드바 하단 사용자 영역 — 계정명 클릭 시 펼침 메뉴.
+ * 상단 네비게이션 바 우측 사용자 영역 (디자인 디벨롭 — 목업 정합).
  *
- * - 계정 정보 → /account
+ * 기존에는 사이드바 하단에서 위로 펼쳤지만, 목업처럼 TopBar 우측에서
+ * 아래로 펼치는 드롭다운으로 이동.
+ *
+ * - 마이페이지 → /mypage
  * - 로그아웃 → next-auth/react signOut
- *
- * Server action으로 signOut을 호출하려면 사이드바 자체를 server로 두고
- * form action에서 처리해야 한다. 펼침 인터랙션이 필요한 점을 고려해
- * 클라이언트 컴포넌트로 분리하고 signOut을 next-auth/react로 호출한다.
  */
 export function UserMenu({ userName, userEmail }: UserMenuProps) {
   const [open, setOpen] = useState(false)
   const wrapRef = useRef<HTMLDivElement>(null)
 
-  // 외부 클릭 시 자동 닫힘
+  // 외부 클릭 + Esc 시 자동 닫힘
   useEffect(() => {
     if (!open) return
     function onClick(e: MouseEvent) {
-      if (
-        wrapRef.current &&
-        !wrapRef.current.contains(e.target as Node)
-      ) {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
         setOpen(false)
       }
     }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
     document.addEventListener('mousedown', onClick)
-    return () => document.removeEventListener('mousedown', onClick)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onClick)
+      window.removeEventListener('keydown', onKey)
+    }
   }, [open])
 
   const initial =
@@ -43,59 +47,60 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
 
   return (
     <div ref={wrapRef} className="relative">
-      {/* 사용자 클릭 영역 — 아바타 + 표시명/이메일 + 드롭다운 화살표.
-          명확한 button 형태(테두리·hover·▾)로 클릭 가능함을 시각적으로 알림. */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-2 overflow-hidden rounded-lg border border-border bg-surface px-2 py-2 text-left transition-colors hover:border-brand-500 hover:bg-brand-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+        aria-label={`${userName ?? '사용자'} 메뉴`}
+        className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
         aria-haspopup="menu"
         aria-expanded={open}
       >
         <span
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-sm font-semibold text-brand-700"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-500/10 text-sm font-semibold text-accent-600"
           aria-hidden
         >
           {initial}
         </span>
-        <span className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-gray-900">
-            {userName ?? '사용자'}
-          </p>
-          {userEmail && (
-            <p className="truncate text-xs text-gray-500">{userEmail}</p>
-          )}
+        <span className="hidden max-w-32 truncate text-sm font-medium text-gray-800 sm:block">
+          {userName ?? '사용자'}
         </span>
-        <span
-          aria-hidden
-          className={`shrink-0 text-xs text-gray-500 transition-transform ${
+        <IconChevronDown
+          className={`h-4 w-4 shrink-0 text-gray-500 transition-transform ${
             open ? 'rotate-180' : ''
           }`}
-        >
-          ▾
-        </span>
+        />
       </button>
 
       {open && (
         <div
           role="menu"
-          className="absolute bottom-full left-0 right-0 mb-2 space-y-1 rounded-lg border border-border bg-surface p-2 shadow-lg"
+          className="absolute right-0 top-full z-50 mt-2 w-56 space-y-1 rounded-xl border border-border bg-surface p-2 shadow-lg"
         >
+          <div className="border-b border-border px-3 pb-2 pt-1">
+            <p className="truncate text-sm font-semibold text-gray-900">
+              {userName ?? '사용자'}
+            </p>
+            {userEmail && (
+              <p className="truncate text-xs text-gray-500">{userEmail}</p>
+            )}
+          </div>
           <Link
-            href="/account"
+            href="/mypage"
             onClick={() => setOpen(false)}
             role="menuitem"
-            className="block rounded px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-accent-500/5 hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
           >
-            👤 계정 정보
+            <IconUser className="h-4 w-4" />
+            <span>마이페이지</span>
           </Link>
           <button
             type="button"
             role="menuitem"
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="block w-full rounded px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+            className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
           >
-            ↪ 로그아웃
+            <IconLogout className="h-4 w-4" />
+            <span>로그아웃</span>
           </button>
         </div>
       )}

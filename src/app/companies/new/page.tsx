@@ -15,14 +15,11 @@ export default async function NewCompanyPage() {
   if (!session?.user?.id) redirect('/login')
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-2xl px-4 py-10">
-        <header className="mb-6 px-2">
-          <h1 className="text-2xl font-bold text-gray-900">새 기업 등록</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            기업 정보와 지역사회 기여 활동을 입력하면 SDGs 분석을 시작할 수 있습니다.
-          </p>
-        </header>
+    <AppShell
+      title="새 기업 등록"
+      description="기업 정보와 지역사회 기여 활동을 입력하면 SDGs 분석을 시작할 수 있습니다."
+    >
+      <div className="mx-auto max-w-2xl px-4 py-8">
         <CompanyForm />
       </div>
     </AppShell>

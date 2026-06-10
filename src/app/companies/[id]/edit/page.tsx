@@ -66,35 +66,24 @@ export default async function EditCompanyPage({ params }: PageProps) {
   }
 
   return (
-    <AppShell>
+    <AppShell
+      title="기업 정보 수정"
+      description={`${company.name} — 저장하면 기업 상세 페이지로 돌아갑니다.`}
+    >
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
-        <nav className="space-x-3 text-sm">
-          <Link
-            href="/dashboard"
-            className="text-accent-500 hover:underline"
-          >
-            ← 대시보드
-          </Link>
+        <nav className="px-2 text-sm">
           <Link
             href={`/companies/${company.id}`}
             className="text-accent-500 hover:underline"
           >
-            {company.name}
+            ← {company.name}
           </Link>
         </nav>
 
-        <header className="px-2">
-          <h1 className="text-2xl font-bold text-gray-900">
-            기업 정보 수정
-          </h1>
-          <p className="mt-1 text-sm text-gray-500">
-            변경된 정보를 저장하면 기업 상세 페이지로 돌아갑니다.
-            <br />
-            <span className="text-xs text-amber-700">
-              ⚠️ 활동을 수정해도 기존 분석·콘텐츠는 그대로 유지됩니다 (재실행 시 새 분석 추가).
-            </span>
-          </p>
-        </header>
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
+          ⚠️ 활동을 수정해도 기존 분석·콘텐츠는 그대로 유지됩니다 (재실행 시 새
+          분석 추가).
+        </p>
 
         <CompanyForm mode="edit" companyId={company.id} initial={initial} />
       </div>

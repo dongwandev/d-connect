@@ -2,16 +2,20 @@ import { Skeleton } from './Skeleton'
 
 /**
  * /companies/new + /companies/[id]/edit 로딩 골격 — 긴 폼 (기본 정보 + 다중 선택 + 활동 목록).
+ *
+ * D7부터 페이지 제목이 TopBar로 이동:
+ *   - new: 본문이 폼으로 바로 시작 (withNav=false)
+ *   - edit: 브레드크럼 + amber 안내 박스 후 폼 (withNav=true)
  */
-export function CompanyFormSkeleton() {
+export function CompanyFormSkeleton({ withNav = false }: { withNav?: boolean }) {
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
-      <Skeleton className="h-4 w-32" />
-
-      <header className="space-y-2 px-2">
-        <Skeleton className="h-7 w-40" />
-        <Skeleton className="h-4 w-64" />
-      </header>
+      {withNav && (
+        <>
+          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-11 w-full rounded-lg" />
+        </>
+      )}
 
       <div className="space-y-5 rounded-xl border border-border bg-surface p-6">
         {/* 기본 정보 그룹 */}

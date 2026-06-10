@@ -1,41 +1,101 @@
 'use client'
 
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { UserMenu } from './UserMenu'
-
-interface CompanySummary {
-  id: string
-  name: string
-}
+import {
+  IconBuilding,
+  IconChart,
+  IconDocument,
+  IconGlobe,
+  IconHome,
+  IconMenu,
+  IconPlusCircle,
+  IconSparkles,
+  IconUser,
+  IconX,
+} from './icons'
 
 interface SidebarProps {
-  userName: string | null
-  userEmail: string | null
-  companies: CompanySummary[]
+  /**
+   * URL만으로 메뉴를 정할 수 없는 페이지(예: /sdg-analysis/[id])에서
+   * 활성 메뉴를 명시적으로 지정. NAV_ITEMS의 href와 일치해야 한다.
+   */
+  activeHref?: string
 }
 
 /**
- * 좌측 사이드바.
- *
- * - md 이상: 항상 노출되는 고정 컬럼
- * - md 미만: 햄버거 토글로 drawer + overlay (P3)
- *
- * Client component인 이유: 모바일 drawer open state + route 변경 시 자동 닫기.
- * 본인 기업 목록 등 데이터는 server에서 props로 받는다.
+ * 사이드바 메뉴 정의 — 사용자 확정 IA (D7).
+ * isActive는 usePathname 결과로 판정한다.
  */
-export function Sidebar({ userName, userEmail, companies }: SidebarProps) {
-  const [open, setOpen] = useState(false)
+const NAV_ITEMS = [
+  {
+    href: '/companies/new',
+    label: '새 기업 등록',
+    Icon: IconPlusCircle,
+    isActive: (p: string) => p === '/companies/new',
+  },
+  {
+    href: '/dashboard',
+    label: '대시보드',
+    Icon: IconHome,
+    isActive: (p: string) => p === '/dashboard',
+  },
+  {
+    href: '/sdg-analysis',
+    label: '내 SDGs 분석 보기',
+    Icon: IconChart,
+    isActive: (p: string) => p.startsWith('/sdg-analysis'),
+  },
+  {
+    href: '/contents',
+    label: '내 콘텐츠 보기',
+    Icon: IconDocument,
+    isActive: (p: string) => p.startsWith('/contents'),
+  },
+  {
+    href: '/sdg-guide',
+    label: 'SDGs 가이드',
+    Icon: IconGlobe,
+    isActive: (p: string) => p.startsWith('/sdg-guide'),
+  },
+  {
+    href: '/mypage',
+    label: '마이페이지',
+    Icon: IconUser,
+    isActive: (p: string) => p.startsWith('/mypage'),
+  },
+  {
+    href: '/companies',
+    label: '기업 관리',
+    Icon: IconBuilding,
+    isActive: (p: string) =>
+      p === '/companies' ||
+      (p.startsWith('/companies/') && p !== '/companies/new'),
+  },
+] as const
 
-  // 사이드바 내부의 모든 link 클릭 시 drawer 닫기 (모바일).
-  // useEffect + usePathname 패턴은 React Compiler 룰(react-hooks/set-state-in-effect)을 위반하므로
-  // event delegation으로 처리. <a href> 만 잡아서 토글 버튼 등 다른 click은 영향 없음.
+/**
+ * 좌측 사이드바 (디자인 디벨롭 — 목업 정합).
+ *
+ * - 상단: 브랜드 로고 (그린 아이콘 + 이름 + 태그라인)
+ * - 메뉴: 고정 6항목 (새 기업 등록 / 대시보드 / 내 콘텐츠 보기 /
+ *   SDGs 가이드 / 마이페이지 / 기업 관리) — 활성 메뉴 파란 하이라이트
+ * - 하단: 그라데이션 홍보 카드
+ * - md 미만: 햄버거 토글 drawer + overlay (P3 동작 유지)
+ */
+export function Sidebar({ activeHref }: SidebarProps) {
+  const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+
+  // 사이드바 내부의 link 클릭 시 drawer 닫기 (모바일) — event delegation.
+  // useEffect + usePathname 패턴은 React Compiler 룰(set-state-in-effect) 위반이라 회피.
   function handleSidebarClick(e: React.MouseEvent<HTMLElement>) {
     const target = e.target as HTMLElement | null
     if (target?.closest('a[href]')) setOpen(false)
   }
 
-  // Esc로 drawer 닫기 (a11y) — addEventListener는 외부 시스템 동기화라 set-state-in-effect 룰 위반 아님
+  // Esc로 drawer 닫기 (a11y)
   useEffect(() => {
     if (!open) return
     function onKey(e: KeyboardEvent) {
@@ -47,20 +107,18 @@ export function Sidebar({ userName, userEmail, companies }: SidebarProps) {
 
   return (
     <>
-      {/* 모바일 햄버거 — md 미만에만 표시. fixed로 페이지 위 떠 있어 어디서나 접근 가능 */}
+      {/* 모바일 햄버거 — TopBar 좌측에 겹치도록 fixed (md 미만 전용) */}
       <button
         type="button"
         onClick={() => setOpen(true)}
         aria-label="메뉴 열기"
         aria-expanded={open}
-        className="fixed left-3 top-3 z-30 flex h-10 w-10 items-center justify-center rounded-md border border-border bg-surface text-gray-700 shadow-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+        className="fixed left-3 top-3 z-30 flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-surface text-gray-700 shadow-sm transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 md:hidden"
       >
-        <span aria-hidden className="text-xl">
-          ☰
-        </span>
+        <IconMenu className="h-5 w-5" />
       </button>
 
-      {/* 모바일 overlay — drawer 열렸을 때 배경 어둡게 + 클릭으로 닫기 */}
+      {/* 모바일 overlay */}
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/40 md:hidden"
@@ -69,114 +127,86 @@ export function Sidebar({ userName, userEmail, companies }: SidebarProps) {
         />
       )}
 
-      {/* 사이드바 본체 */}
+      {/* 사이드바 본체 — md 이상에서는 sticky + h-screen으로 viewport에 고정.
+          본문이 길어 페이지를 스크롤해도 메뉴·하단 홍보 카드가 항상 보인다. */}
       <aside
         onClick={handleSidebarClick}
-        className={`fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-border bg-surface transition-transform duration-200 ease-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-64 shrink-0 flex-col border-r border-border bg-surface transition-transform duration-200 ease-out md:sticky md:top-0 md:bottom-auto md:h-screen md:translate-x-0 ${
           open ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
         }`}
         aria-label="주 메뉴"
       >
-        {/* 로고 / 브랜드 + 모바일 닫기 버튼 */}
-        <div className="flex items-center justify-between border-b border-border px-5 py-5">
+        {/* 브랜드 로고 + 모바일 닫기 */}
+        <div className="flex items-center justify-between px-5 py-5">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+            className="flex items-center gap-2.5 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
           >
             <span
-              className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-100 text-lg"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white shadow-sm"
               aria-hidden
             >
-              🌱
+              <IconSparkles className="h-5 w-5" />
             </span>
-            <div>
-              <p className="text-base font-bold text-gray-900">D-Connect</p>
-              <p className="text-[10px] text-gray-500">
+            <span>
+              <span className="block text-base font-bold leading-tight text-gray-900">
+                D-Connect
+              </span>
+              <span className="block text-[11px] leading-tight text-gray-500">
                 SDGs 홍보 콘텐츠 플랫폼
-              </p>
-            </div>
+              </span>
+            </span>
           </Link>
 
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="메뉴 닫기"
-            className="rounded-md p-1.5 text-gray-500 transition-colors hover:bg-surface-muted hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 md:hidden"
+            className="rounded-lg p-1.5 text-gray-500 transition-colors hover:bg-surface-muted hover:text-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 md:hidden"
           >
-            <span aria-hidden>✕</span>
+            <IconX className="h-5 w-5" />
           </button>
         </div>
 
         {/* 메뉴 */}
         <nav
-          className="flex-1 space-y-1 overflow-y-auto px-3 py-4"
-          aria-label="기업 및 페이지 메뉴"
+          className="flex-1 space-y-1 overflow-y-auto px-3 pb-4 pt-1"
+          aria-label="페이지 메뉴"
         >
-          <NavItem href="/dashboard" icon="🏠" label="대시보드" />
-
-          {companies.length > 0 ? (
-            <div className="pt-3">
-              <p className="px-3 pb-1 text-[10px] font-medium uppercase tracking-wider text-gray-500">
-                내 기업 ({companies.length})
-              </p>
-              <ul className="space-y-0.5">
-                {companies.map((c) => (
-                  <li key={c.id}>
-                    <Link
-                      href={`/companies/${c.id}`}
-                      className="flex items-center gap-2 truncate rounded px-3 py-1.5 text-sm text-gray-700 transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                      title={c.name}
-                    >
-                      <span aria-hidden className="text-xs">
-                        🏢
-                      </span>
-                      <span className="truncate">{c.name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <div className="pt-3">
-              <p className="px-3 pb-2 text-[10px] font-medium uppercase tracking-wider text-gray-500">
-                내 기업
-              </p>
-              <p className="px-3 text-xs leading-relaxed text-gray-500">
-                등록된 기업이 없어요. 아래 버튼으로 첫 기업을 등록해 보세요.
-              </p>
-            </div>
-          )}
-
-          <div className="pt-3">
-            <NavItem href="/companies/new" icon="➕" label="새 기업 등록" />
-          </div>
+          {NAV_ITEMS.map(({ href, label, Icon, isActive }) => {
+            const active = activeHref ? href === activeHref : isActive(pathname)
+            return (
+              <Link
+                key={href}
+                href={href}
+                aria-current={active ? 'page' : undefined}
+                className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 ${
+                  active
+                    ? 'bg-accent-500/10 font-semibold text-accent-600'
+                    : 'text-gray-700 hover:bg-surface-muted hover:text-gray-900'
+                }`}
+              >
+                <Icon className="h-[18px] w-[18px] shrink-0" />
+                <span>{label}</span>
+              </Link>
+            )
+          })}
         </nav>
 
-        {/* 사용자 영역 — 클릭 시 펼침 메뉴 */}
-        <div className="border-t border-border px-4 py-4">
-          <UserMenu userName={userName} userEmail={userEmail} />
+        {/* 하단 홍보 카드 (목업 패턴) */}
+        <div className="px-4 pb-5">
+          <div className="rounded-2xl bg-gradient-to-br from-brand-50 to-emerald-100/60 p-4">
+            <p className="flex items-center gap-1.5 text-sm font-semibold text-brand-700">
+              <span aria-hidden>🌱</span>
+              <span>지역과 함께, 가치를 알리다</span>
+            </p>
+            <p className="mt-1.5 text-xs leading-relaxed text-gray-600">
+              지속가능한 미래를 위한 우리 지역의 작은 실천을 더 많은
+              사람들에게 전달해 보세요.
+            </p>
+          </div>
         </div>
       </aside>
     </>
-  )
-}
-
-function NavItem({
-  href,
-  icon,
-  label,
-}: {
-  href: string
-  icon: string
-  label: string
-}) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 rounded px-3 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-brand-50 hover:text-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-    >
-      <span aria-hidden>{icon}</span>
-      <span>{label}</span>
-    </Link>
   )
 }

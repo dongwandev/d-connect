@@ -404,7 +404,7 @@ export function CompanyForm({
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
-        className="w-full rounded bg-accent-500 px-4 py-3 font-medium text-white hover:bg-accent-600 disabled:bg-gray-400"
+        className="w-full rounded-lg bg-accent-500 px-4 py-3 font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:bg-gray-400"
       >
         {state.kind === 'submitting'
           ? '저장 중...'
@@ -419,7 +419,8 @@ export function CompanyForm({
 
 // --- helpers -------------------------------------------------------------
 
-const INPUT_CLS = 'w-full rounded border border-gray-300 px-3 py-2'
+const INPUT_CLS =
+  'w-full rounded-lg border border-gray-300 px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500'
 
 function Section({
   title,
@@ -429,7 +430,7 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <fieldset className="space-y-3 rounded border border-border bg-surface p-5">
+    <fieldset className="space-y-3 rounded-xl border border-border bg-surface p-5">
       <legend className="px-2 text-sm font-semibold text-gray-700">
         {title}
       </legend>

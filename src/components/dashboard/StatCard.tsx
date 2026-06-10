@@ -1,7 +1,10 @@
+import { type ReactNode } from 'react'
+
 /**
  * 대시보드 통계 카드 (디자인 레퍼런스 이미지 3 패턴).
  *
  * Tailwind 기본 + 브랜드 토큰만 사용. 차트 라이브러리 미사용.
+ * icon은 D7부터 라인 아이콘(ReactNode) — 셸의 비주얼 언어와 통일.
  */
 export function StatCard({
   label,
@@ -13,7 +16,7 @@ export function StatCard({
   label: string
   value: number | string
   hint?: string
-  icon: string
+  icon: ReactNode
   accent?: 'blue' | 'green' | 'amber' | 'purple'
 }) {
   const accentClass = {

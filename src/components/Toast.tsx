@@ -119,8 +119,9 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={api}>
       {children}
+      {/* top-20 — sticky TopBar(min-h-16) 우측 버튼군을 가리지 않도록 그 아래에 표시 */}
       <div
-        className="pointer-events-none fixed inset-x-0 top-4 z-50 mx-auto flex w-full max-w-sm flex-col gap-2 px-4 sm:right-4 sm:left-auto sm:inset-auto sm:top-4 sm:px-0"
+        className="pointer-events-none fixed inset-x-0 top-20 z-50 mx-auto flex w-full max-w-sm flex-col gap-2 px-4 sm:right-4 sm:left-auto sm:inset-auto sm:top-20 sm:px-0"
         aria-live="polite"
         role="region"
       >

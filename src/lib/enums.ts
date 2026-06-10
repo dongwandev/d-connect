@@ -49,6 +49,14 @@ export const SDG_GOAL_LABEL: Record<SdgGoal, string> = {
   SDG_17: 'SDG 17 · 목표를 위한 파트너십',
 }
 
+/** UN 공식 SDG 컬러 (sdgs.un.org 브랜드 가이드) — 카드·배지 공용 */
+export const SDG_COLOR: Record<SdgGoal, string> = {
+  SDG_8: '#A21942',
+  SDG_11: '#FD9D24',
+  SDG_12: '#BF8B2E',
+  SDG_17: '#19486A',
+}
+
 export const CONTENT_TYPE_LABEL: Record<ContentType, string> = {
   SNS_POST: 'SNS 게시글',
   CARD_NEWS: '카드뉴스 문안',

@@ -2,12 +2,11 @@ import { Skeleton } from './Skeleton'
 
 /**
  * /companies/[id] 로딩 골격 — 그라데이션 헤더 + CTA + 좌(기본정보·통계)/우(활동) grid.
+ * D7부터 브레드크럼이 제거되어 본문은 헤더 카드로 바로 시작한다.
  */
 export function CompanyDetailSkeleton() {
   return (
     <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
-      <Skeleton className="h-4 w-24" />
-
       <header className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
         <div className="flex items-center gap-4 bg-gradient-to-br from-brand-50 to-blue-50 px-6 py-5">
           <Skeleton className="h-16 w-16 rounded-2xl bg-gray-300" />

@@ -6,6 +6,12 @@ import { SdgDonut } from '@/components/dashboard/SdgDonut'
 import { StatCard } from '@/components/dashboard/StatCard'
 import { TypeProgressList } from '@/components/dashboard/TypeProgressList'
 import { EmptyState } from '@/components/EmptyState'
+import {
+  IconBuilding,
+  IconChart,
+  IconEdit,
+  IconSparkles,
+} from '@/components/icons'
 import { db } from '@/server/db'
 import { ContentTypeSchema, type ContentType, type SdgGoal } from '@/lib/enums'
 
@@ -81,40 +87,28 @@ export default async function DashboardPage() {
   }))
 
   return (
-    <AppShell>
+    <AppShell
+      title="대시보드"
+      description={`${session.user.name ?? session.user.email ?? '사용자'}님, 환영합니다.`}
+    >
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-        <header className="flex items-baseline justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">대시보드</h1>
-            <p className="mt-1 text-sm text-gray-500">
-              {session.user.name ?? session.user.email ?? '사용자'}님, 환영합니다.
-            </p>
-          </div>
-          <Link
-            href="/companies/new"
-            className="rounded bg-accent-500 px-3 py-2 text-sm font-medium text-white hover:bg-accent-600"
-          >
-            + 새 기업 등록
-          </Link>
-        </header>
-
         {/* 통계 카드 4종 */}
         <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <StatCard
-            icon="🏢"
+            icon={<IconBuilding className="h-5 w-5" />}
             label="내 기업"
             value={companies.length}
             accent="green"
           />
           <StatCard
-            icon="📊"
+            icon={<IconChart className="h-5 w-5" />}
             label="SDGs 분석"
             value={analysisCount}
             hint={analysisCount > 0 ? '누적 분석 건' : '아직 분석 없음'}
             accent="blue"
           />
           <StatCard
-            icon="✨"
+            icon={<IconSparkles className="h-5 w-5" />}
             label="생성된 콘텐츠"
             value={contentCount}
             hint={
@@ -125,7 +119,7 @@ export default async function DashboardPage() {
             accent="purple"
           />
           <StatCard
-            icon="✏️"
+            icon={<IconEdit className="h-5 w-5" />}
             label="편집한 콘텐츠"
             value={editedCount}
             hint={
