@@ -4,6 +4,7 @@ import { auth } from '@/auth'
 import { AppShell } from '@/components/AppShell'
 import { BackLink } from '@/components/BackLink'
 import { EmptyState } from '@/components/EmptyState'
+import { DeleteAnalysisButton } from '@/components/sdg/DeleteAnalysisButton'
 import { db } from '@/server/db'
 import { SDG_COLOR, type SdgGoal } from '@/lib/enums'
 
@@ -146,13 +147,18 @@ export default async function SdgAnalysisListPage({ searchParams }: PageProps) {
                   ))}
                 </div>
 
-                <div className="mt-4 border-t border-border pt-4">
+                <div className="mt-4 flex gap-2 border-t border-border pt-4">
                   <Link
                     href={`/sdg-analysis/${a.id}`}
-                    className="block rounded-lg bg-accent-500 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                    className="flex-1 rounded-lg bg-accent-500 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                   >
                     분석 결과 보기
                   </Link>
+                  <DeleteAnalysisButton
+                    analysisId={a.id}
+                    companyName={a.company.name}
+                    contentCount={a._count.contents}
+                  />
                 </div>
               </li>
             ))}
