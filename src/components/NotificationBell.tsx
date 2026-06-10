@@ -17,6 +17,19 @@ interface NotificationItem {
 
 /** 읽음 기준 시각 — 브라우저별 localStorage (프로토타입. DB 모델은 별도 단계) */
 const LAST_SEEN_KEY = 'dconnect.notifications.lastSeenAt'
+/** 개별 클릭으로 읽은 알림 id 목록 — '모두 읽음' 시 lastSeen으로 흡수되며 비워짐 */
+const READ_IDS_KEY = 'dconnect.notifications.readIds'
+
+function loadReadIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set()
+  try {
+    const raw = window.localStorage.getItem(READ_IDS_KEY)
+    const parsed: unknown = raw ? JSON.parse(raw) : []
+    return new Set(Array.isArray(parsed) ? (parsed as string[]) : [])
+  } catch {
+    return new Set()
+  }
+}
 
 const KIND_ICON = {
   ANALYSIS_DONE: IconChart,
@@ -49,6 +62,7 @@ export function NotificationBell() {
       ? 0
       : Number(window.localStorage.getItem(LAST_SEEN_KEY) ?? 0),
   )
+  const [readIds, setReadIds] = useState<Set<string>>(loadReadIds)
   const wrapRef = useRef<HTMLDivElement>(null)
 
   function refetch() {
@@ -87,19 +101,31 @@ export function NotificationBell() {
     }
   }, [open])
 
-  const unread = items.filter(
-    (i) => new Date(i.createdAt).getTime() > lastSeen,
-  ).length
+  function isRead(n: NotificationItem): boolean {
+    return readIds.has(n.id) || new Date(n.createdAt).getTime() <= lastSeen
+  }
+
+  const unread = items.filter((i) => !isRead(i)).length
 
   function toggleOpen() {
     if (!open) refetch()
     setOpen((v) => !v)
   }
 
+  function markRead(id: string) {
+    if (readIds.has(id)) return
+    const next = new Set(readIds)
+    next.add(id)
+    window.localStorage.setItem(READ_IDS_KEY, JSON.stringify([...next]))
+    setReadIds(next)
+  }
+
   function markAllRead() {
     const now = Date.now()
     window.localStorage.setItem(LAST_SEEN_KEY, String(now))
+    window.localStorage.removeItem(READ_IDS_KEY)
     setLastSeen(now)
+    setReadIds(new Set())
   }
 
   return (
@@ -157,14 +183,16 @@ export function NotificationBell() {
               <ul>
                 {items.map((n) => {
                   const Icon = KIND_ICON[n.kind]
-                  const isUnread =
-                    new Date(n.createdAt).getTime() > lastSeen
+                  const isUnread = !isRead(n)
                   return (
                     <li key={n.id} className="border-b border-border last:border-b-0">
                       <Link
                         href={n.link}
                         role="menuitem"
-                        onClick={() => setOpen(false)}
+                        onClick={() => {
+                          markRead(n.id)
+                          setOpen(false)
+                        }}
                         className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent-500 ${
                           isUnread ? 'bg-accent-500/5' : ''
                         }`}
