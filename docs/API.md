@@ -98,9 +98,10 @@ MVP에서는 적용하지 않는다. 모든 목록 응답은 `createdAt DESC`로
 | 10 | PATCH  | `/api/contents/{id}` | 콘텐츠 초안 수정 | — |
 | 11 | DELETE | `/api/contents/{id}` | 콘텐츠 삭제 (편집된 결과까지 함께 사라짐) | — |
 | 12 | DELETE | `/api/sdg-analysis/{id}` | 분석 삭제 (cascade로 매칭·생성 콘텐츠 동반 삭제) | — |
-| 13 | POST   | `/api/auth/register` | 이메일/비밀번호 회원가입 (bcrypt) | — |
-| 14 | PATCH  | `/api/auth/user` | 본인 계정 정보 수정 (표시명/실명/연락처/소속/마케팅 동의) | — |
-| 15 | —      | `/api/auth/[...nextauth]` | NextAuth 표준 endpoint (sign-in / sign-out / callback / providers) | — |
+| 13 | GET    | `/api/notifications` | 본인 이벤트 알림 (분석/콘텐츠/기업 + mock 경고, 기존 데이터 파생) | — |
+| 14 | POST   | `/api/auth/register` | 이메일/비밀번호 회원가입 (bcrypt) | — |
+| 15 | PATCH  | `/api/auth/user` | 본인 계정 정보 수정 (표시명/실명/연락처/소속/마케팅 동의) | — |
+| 16 | —      | `/api/auth/[...nextauth]` | NextAuth 표준 endpoint (sign-in / sign-out / callback / providers) | — |
 
 ---
 
