@@ -2,16 +2,24 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { AppShell } from '@/components/AppShell'
+import { BackLink } from '@/components/BackLink'
 import { EmptyState } from '@/components/EmptyState'
 import { db } from '@/server/db'
 import { SDG_COLOR, type SdgGoal } from '@/lib/enums'
+
+interface PageProps {
+  searchParams: Promise<{ company?: string }>
+}
 
 /**
  * 내 SDGs 분석 보기 페이지 (D7 IA — 사이드바 '내 SDGs 분석 보기').
  *
  * 모든 기업에 걸친 분석 이력을 모아 본다. 같은 기업을 재분석하면
  * 이력이 여러 건 쌓이므로 시점·기업별로 구분해 표시한다.
- * 권한 (ADR-0005): company.userId 경유로 본인 것만.
+ *
+ * ?company={id} — 특정 기업의 분석만 필터 (기업 상세 '분석 결과 보기' 진입).
+ * 본인 소유가 아니거나 없는 id는 필터를 조용히 무시한다 (ADR-0005 —
+ * 존재 여부를 노출하지 않음).
  */
 export const dynamic = 'force-dynamic'
 
@@ -22,12 +30,25 @@ const SDG_NUMBER: Record<SdgGoal, number> = {
   SDG_17: 17,
 }
 
-export default async function SdgAnalysisListPage() {
+export default async function SdgAnalysisListPage({ searchParams }: PageProps) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
 
+  const { company: companyParam } = await searchParams
+
+  // 필터 대상 기업 — 본인 소유일 때만 유효
+  const filterCompany = companyParam
+    ? await db.company.findFirst({
+        where: { id: companyParam, userId: session.user.id },
+        select: { id: true, name: true },
+      })
+    : null
+
   const analyses = await db.sdgAnalysis.findMany({
-    where: { company: { userId: session.user.id } },
+    where: {
+      company: { userId: session.user.id },
+      ...(filterCompany ? { companyId: filterCompany.id } : {}),
+    },
     orderBy: { createdAt: 'desc' },
     include: {
       company: { select: { id: true, name: true } },
@@ -42,20 +63,48 @@ export default async function SdgAnalysisListPage() {
   return (
     <AppShell
       title="내 SDGs 분석"
-      description={`실행한 모든 SDGs 분석 이력입니다. (총 ${analyses.length}건)`}
+      description={
+        filterCompany
+          ? `${filterCompany.name}의 분석 이력입니다. (총 ${analyses.length}건)`
+          : `실행한 모든 SDGs 분석 이력입니다. (총 ${analyses.length}건)`
+      }
     >
-      <div className="mx-auto max-w-5xl px-6 py-8">
+      <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+        {filterCompany && (
+          <nav className="flex flex-wrap items-center gap-2">
+            <BackLink
+              href={`/companies/${filterCompany.id}`}
+              label={`${filterCompany.name} 상세`}
+            />
+            <Link
+              href="/sdg-analysis"
+              className="inline-flex items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:border-accent-500 hover:bg-accent-500/5 hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+            >
+              전체 분석 보기
+            </Link>
+          </nav>
+        )}
         {analyses.length === 0 ? (
           <EmptyState
             icon="📊"
-            title="아직 실행한 분석이 없어요"
+            title={
+              filterCompany
+                ? '이 기업의 분석이 아직 없어요'
+                : '아직 실행한 분석이 없어요'
+            }
             description="기업 상세 페이지에서 'SDGs 분석 실행'을 누르면 AI가 활동을 분석해 SDGs를 추천합니다."
             action={
               <Link
-                href="/companies"
+                href={
+                  filterCompany
+                    ? `/companies/${filterCompany.id}`
+                    : '/companies'
+                }
                 className="inline-flex items-center gap-1 rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
               >
-                기업 관리로 이동
+                {filterCompany
+                  ? `${filterCompany.name} 상세로 이동`
+                  : '기업 관리로 이동'}
               </Link>
             }
           />

@@ -149,11 +149,12 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                 </p>
               </div>
               <div className="flex items-center gap-2">
+                {/* 재분석 시 이력이 여러 건이므로 단건 직행 대신 이 기업의 분석 목록으로 */}
                 <Link
-                  href={`/sdg-analysis/${latestAnalysis.id}`}
-                  className="rounded bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
+                  href={`/sdg-analysis?company=${company.id}`}
+                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
                 >
-                  분석 결과 보기 →
+                  분석 결과 보기 ({company.analyses.length}건)
                 </Link>
                 <AnalyzeButton companyId={company.id} />
               </div>
