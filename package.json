@@ -15,7 +15,8 @@
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "tunnel": "ngrok http 3000"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",
