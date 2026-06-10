@@ -7,7 +7,7 @@ import { Skeleton } from './Skeleton'
 export function SdgAnalysisSkeleton() {
   return (
     <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
-      <Skeleton className="h-4 w-32" />
+      <Skeleton className="h-9 w-44 rounded-lg" />
 
       {/* SDG 카드 grid */}
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -43,7 +43,7 @@ export function SdgAnalysisSkeleton() {
               className="space-y-2 rounded-lg border border-border bg-surface-muted p-4"
             >
               <div className="flex items-center justify-between">
-                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-9 w-44 rounded-lg" />
                 <div className="flex gap-2">
                   <Skeleton className="h-7 w-14" />
                   <Skeleton className="h-7 w-14" />

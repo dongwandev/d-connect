@@ -24,7 +24,7 @@ export function FormSkeleton({
     <div
       className={`mx-auto space-y-6 px-6 py-8 ${wide ? 'max-w-3xl' : 'max-w-2xl'}`}
     >
-      {withNav && <Skeleton className="h-4 w-48" />}
+      {withNav && <Skeleton className="h-9 w-48 rounded-lg" />}
 
       <div className="space-y-4 rounded-xl border border-border bg-surface p-6">
         {Array.from({ length: rows }).map((_, i) => (

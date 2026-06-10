@@ -1,7 +1,7 @@
-import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { AppShell } from '@/components/AppShell'
+import { BackLink } from '@/components/BackLink'
 import { CompanyForm } from '@/components/CompanyForm'
 import { db } from '@/server/db'
 import type {
@@ -71,13 +71,8 @@ export default async function EditCompanyPage({ params }: PageProps) {
       description={`${company.name} — 저장하면 기업 상세 페이지로 돌아갑니다.`}
     >
       <div className="mx-auto max-w-2xl space-y-4 px-4 py-8">
-        <nav className="px-2 text-sm">
-          <Link
-            href={`/companies/${company.id}`}
-            className="text-accent-500 hover:underline"
-          >
-            ← {company.name}
-          </Link>
+        <nav>
+          <BackLink href={`/companies/${company.id}`} label={company.name} />
         </nav>
 
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">

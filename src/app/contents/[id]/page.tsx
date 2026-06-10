@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { AppShell } from '@/components/AppShell'
+import { BackLink } from '@/components/BackLink'
 import { ContentEditForm } from '@/components/ContentEditForm'
 import { db } from '@/server/db'
 import { CONTENT_TYPE_LABEL, type ContentType } from '@/lib/enums'
@@ -47,16 +48,14 @@ export default async function ContentEditPage({ params }: PageProps) {
     >
       <div className="mx-auto max-w-3xl space-y-6 px-6 py-8">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <nav className="space-x-3 text-sm">
-            <Link
+          <nav className="flex flex-wrap items-center gap-2">
+            <BackLink
               href={`/sdg-analysis/${content.analysis.id}`}
-              className="text-accent-500 hover:underline"
-            >
-              ← 분석 결과
-            </Link>
+              label="분석 결과"
+            />
             <Link
               href={`/companies/${content.analysis.company.id}`}
-              className="text-accent-500 hover:underline"
+              className="inline-flex items-center rounded-lg border border-border bg-surface px-3 py-1.5 text-sm font-medium text-gray-600 shadow-sm transition-colors hover:border-accent-500 hover:bg-accent-500/5 hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
             >
               {content.analysis.company.name}
             </Link>
