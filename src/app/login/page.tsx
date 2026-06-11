@@ -26,7 +26,7 @@ export const dynamic = 'force-dynamic'
  */
 const AUTH_ERROR_MESSAGE: Record<string, string> = {
   OAuthAccountNotLinked:
-    '이미 같은 이메일로 가입된 계정이 있습니다. 처음 가입했던 방법(이메일·비밀번호 또는 다른 소셜 계정)으로 로그인해 주세요.',
+    '이 소셜 계정 또는 이메일은 이미 다른 계정과 연결되어 있습니다. 처음 가입했던 방법으로 로그인해 주세요.',
   OAuthCallbackError:
     '소셜 로그인 처리 중 오류가 발생했습니다. 로그인 동의를 취소했거나 접근 권한이 없는 계정일 수 있어요. 잠시 후 다시 시도해 주세요.',
   Configuration:
