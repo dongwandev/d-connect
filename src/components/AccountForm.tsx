@@ -9,6 +9,7 @@ import {
   UpdateUserSchema,
   type UpdateUserInput,
 } from '@/app/api/auth/user/schemas'
+import { formatPhone } from '@/lib/phone'
 
 interface Props {
   initial: {
@@ -40,6 +41,14 @@ export function AccountForm({ initial }: Props) {
     },
   })
   const [state, setState] = useState<State>({ kind: 'idle' })
+
+  // 숫자만 입력해도 하이픈 자동 삽입 — 포맷 후 RHF onChange에 전달해
+  // 폼 상태와 화면 표시를 일치시킨다
+  const phoneField = register('phone')
+  function onPhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    e.target.value = formatPhone(e.target.value)
+    void phoneField.onChange(e)
+  }
 
   async function onSubmit(values: UpdateUserInput) {
     setState({ kind: 'submitting' })
@@ -94,7 +103,9 @@ export function AccountForm({ initial }: Props) {
       >
         <input
           type="tel"
-          {...register('phone')}
+          autoComplete="tel"
+          {...phoneField}
+          onChange={onPhoneChange}
           className={INPUT_CLS}
           placeholder="010-1234-5678"
         />

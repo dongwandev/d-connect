@@ -13,6 +13,7 @@ import {
   OnboardingWithEmailSchema,
   type OnboardingInput,
 } from '@/app/api/auth/onboarding/schemas'
+import { formatPhone } from '@/lib/phone'
 
 interface Props {
   /** 소셜 프로필에서 가져온 표시명 — prefill */
@@ -56,6 +57,14 @@ export function OnboardingForm({ initialDisplayName, initialEmail }: Props) {
       marketingOptIn: false,
     },
   })
+
+  // 숫자만 입력해도 하이픈 자동 삽입 — 포맷 후 RHF onChange에 전달해
+  // 폼 상태와 화면 표시를 일치시킨다
+  const phoneField = register('phone')
+  function onPhoneChange(e: React.ChangeEvent<HTMLInputElement>) {
+    e.target.value = formatPhone(e.target.value)
+    void phoneField.onChange(e)
+  }
 
   async function onSubmit(values: OnboardingInput) {
     setSubmitting(true)
@@ -139,7 +148,9 @@ export function OnboardingForm({ initialDisplayName, initialEmail }: Props) {
       >
         <input
           type="tel"
-          {...register('phone')}
+          autoComplete="tel"
+          {...phoneField}
+          onChange={onPhoneChange}
           className={INPUT_CLS}
           placeholder="010-1234-5678"
         />
