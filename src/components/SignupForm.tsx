@@ -178,10 +178,10 @@ export function SignupForm() {
 
       <Section title="이메일 인증">
         <p className="rounded border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800">
-          📧 가입 시 이메일 인증이 진행됩니다.
+          📧 가입하면 입력하신 이메일로 인증 링크가 발송됩니다.
           <br />
-          <strong>현재 단계(MVP)</strong> — 가입 즉시 자동 인증 처리됩니다.
-          운영 단계에서는 이메일로 인증 링크가 발송됩니다.
+          인증 전에도 서비스를 이용할 수 있으며, 화면 상단 배너에서 인증
+          메일을 다시 받을 수 있어요.
         </p>
       </Section>
 

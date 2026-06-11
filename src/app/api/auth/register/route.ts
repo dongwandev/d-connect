@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { db } from '@/server/db'
 import { ApiError, withErrorHandler } from '@/server/errors'
 import { hashPassword } from '@/server/password'
+import { sendVerificationEmail } from '@/server/verification'
 import { SignupSchema } from './schemas'
 
 /**
@@ -14,10 +15,10 @@ import { SignupSchema } from './schemas'
  * 보안:
  *   - 비밀번호는 bcrypt 해시로만 저장 (평문 절대 X)
  *
- * 이메일 인증 정책 (MVP):
- *   - 현재는 가입 시점에 emailVerified = now()로 자동 통과.
- *   - 운영 단계 진입 시 SMTP 결정 후 인증 메일 발송 → 사용자 클릭 → emailVerified 갱신
- *     흐름으로 교체 예정 (ADR-0004 후속 항목).
+ * 이메일 인증 (ADR-0004 후속 — #86):
+ *   - 가입 시 인증 메일 발송, 링크 클릭 시 emailVerified 갱신 (/verify-email).
+ *   - 미인증이어도 로그인·서비스 이용 가능 — 셸 배너로만 안내 (시연 안전 우선).
+ *   - SMTP 미설정/발송 실패 시 mock fallback — 배너의 재발송이 링크를 직접 보여준다.
  */
 export async function POST(req: NextRequest): Promise<NextResponse> {
   return withErrorHandler(async () => {
@@ -52,11 +53,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         organization,
         acceptedTermsAt: new Date(),
         marketingOptIn: body.marketingOptIn ?? false,
-        // MVP: 이메일 인증 자동 통과. 운영 단계에서 SMTP 인증으로 교체.
-        emailVerified: new Date(),
       },
       select: { id: true, email: true },
     })
+
+    // 인증 메일 발송 — 실패해도 가입은 성공 (내부에서 mock fallback 처리)
+    if (user.email) await sendVerificationEmail(user.email)
+
     return user
   })
 }
