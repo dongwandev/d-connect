@@ -10,12 +10,18 @@ import { useForm } from 'react-hook-form'
 import { useToast } from '@/components/Toast'
 import {
   OnboardingSchema,
+  OnboardingWithEmailSchema,
   type OnboardingInput,
 } from '@/app/api/auth/onboarding/schemas'
 
 interface Props {
   /** 소셜 프로필에서 가져온 표시명 — prefill */
   initialDisplayName: string | null
+  /**
+   * 소셜 프로필에서 가져온 이메일.
+   * 있으면(구글) 확인용 표시만, 없으면(카카오) 입력 필수.
+   */
+  initialEmail: string | null
 }
 
 /**
@@ -24,16 +30,21 @@ interface Props {
  * 이메일 회원가입과 동일한 추가 정보·동의를 받는다 (이메일/비밀번호 제외).
  * 성공 시 acceptedTermsAt이 기록되어 AppShell 게이트를 통과하게 된다.
  */
-export function OnboardingForm({ initialDisplayName }: Props) {
+export function OnboardingForm({ initialDisplayName, initialEmail }: Props) {
   const toast = useToast()
   const [submitting, setSubmitting] = useState(false)
+  const needsEmail = !initialEmail
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<OnboardingInput>({
-    resolver: zodResolver(OnboardingSchema),
+    // 이메일이 없는 계정(카카오)은 이메일 필수 스키마로 검증
+    resolver: zodResolver(
+      needsEmail ? OnboardingWithEmailSchema : OnboardingSchema,
+    ),
     defaultValues: {
+      email: '',
       realName: '',
       displayName: initialDisplayName ?? '',
       phone: '',
@@ -80,6 +91,29 @@ export function OnboardingForm({ initialDisplayName }: Props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
+      {needsEmail ? (
+        <Field
+          label="이메일 *"
+          error={errors.email?.message}
+          hint="알림·계정 안내에 사용할 이메일을 입력해 주세요."
+        >
+          <input
+            type="email"
+            {...register('email')}
+            className={INPUT_CLS}
+            placeholder="you@example.com"
+          />
+        </Field>
+      ) : (
+        <div className="space-y-1 rounded-lg bg-gray-50 p-3">
+          <p className="text-xs font-medium text-gray-500">이메일</p>
+          <p className="text-sm text-gray-900">{initialEmail}</p>
+          <p className="text-xs text-gray-500">
+            소셜 계정에서 가져온 이메일입니다.
+          </p>
+        </div>
+      )}
+
       <Field label="실명 *" error={errors.realName?.message}>
         <input
           {...register('realName')}

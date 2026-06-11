@@ -21,7 +21,7 @@ export default async function WelcomePage() {
 
   const user = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { name: true, acceptedTermsAt: true },
+    select: { name: true, email: true, acceptedTermsAt: true },
   })
   if (!user) redirect('/login')
   // 이미 가입 완료 → 서비스로
@@ -46,7 +46,10 @@ export default async function WelcomePage() {
           </p>
         </header>
 
-        <OnboardingForm initialDisplayName={user.name} />
+        <OnboardingForm
+          initialDisplayName={user.name}
+          initialEmail={user.email}
+        />
       </div>
     </main>
   )

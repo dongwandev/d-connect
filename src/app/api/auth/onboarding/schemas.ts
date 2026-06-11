@@ -8,6 +8,15 @@ import { z } from 'zod'
 const PHONE_PATTERN = /^0\d{1,2}-\d{3,4}-\d{4}$/
 
 export const OnboardingSchema = z.object({
+  /**
+   * 소셜 provider가 이메일을 안 주는 경우(카카오) 직접 입력받는다.
+   * 이미 이메일이 있는 사용자(구글)는 서버에서 이 값을 무시한다.
+   */
+  email: z
+    .string()
+    .email('올바른 이메일 형식이 아닙니다.')
+    .max(200, '이메일은 200자 이내로 입력해주세요.')
+    .optional(),
   realName: z
     .string({ message: '실명을 입력해주세요.' })
     .min(1, '실명을 입력해주세요.')
@@ -37,3 +46,12 @@ export const OnboardingSchema = z.object({
 })
 
 export type OnboardingInput = z.infer<typeof OnboardingSchema>
+
+/** 이메일이 없는 계정(카카오 가입)용 — 이메일 필수 변형 */
+export const OnboardingWithEmailSchema = OnboardingSchema.extend({
+  email: z
+    .string({ message: '이메일을 입력해주세요.' })
+    .min(1, '이메일을 입력해주세요.')
+    .email('올바른 이메일 형식이 아닙니다.')
+    .max(200, '이메일은 200자 이내로 입력해주세요.'),
+})
