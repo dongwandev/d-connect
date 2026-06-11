@@ -79,15 +79,26 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <EmailLoginForm />
         </Suspense>
 
-        <p className="text-center text-sm text-gray-500">
-          아직 계정이 없으신가요?{' '}
-          <Link
-            href="/signup"
-            className="font-medium text-blue-600 hover:underline"
-          >
-            회원가입
-          </Link>
-        </p>
+        {/* 보조 링크 — 계정 찾기·회원가입을 한 그룹으로 묶어 간격을 좁힌다 */}
+        <div className="space-y-2 text-center text-sm text-gray-500">
+          <p>
+            <Link
+              href="/find-account"
+              className="hover:text-blue-600 hover:underline"
+            >
+              이메일·비밀번호를 잊으셨나요?
+            </Link>
+          </p>
+          <p>
+            아직 계정이 없으신가요?{' '}
+            <Link
+              href="/signup"
+              className="font-medium text-blue-600 hover:underline"
+            >
+              회원가입
+            </Link>
+          </p>
+        </div>
 
         {(providers.kakao || providers.google) && (
           <>
