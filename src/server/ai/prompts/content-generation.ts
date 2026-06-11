@@ -69,6 +69,7 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
 - **범용 일러스트 금지 — 활동의 실제 장면을 그려라**: [활동] 중 홍보 대상 SDG와 가장 맞는 활동 하나를 골라 그 현장을 구체적으로 묘사 (예: 부트캠프 교육이면 강의실에서 코드를 배우는 수강생과 멘토). 입력에 없는 사실(특정 인물 수, 실제 매장 외관 등)은 일반화해 표현.
 - **body와 한 몸**: imagePrompt는 body(헤드라인·서브카피·자막)가 말하는 메시지를 장면으로 번역한 것이어야 한다.
 - **한국 맥락 명시**: 인물·배경에 "Korean young adults", "in Daejeon, South Korea" 등 한국임을 반드시 명시 — 명시하지 않으면 이미지 모델이 서구권 인물·도시를 그린다. 기업의 지역 정보가 있으면 도시명을 포함.
+- **고유명사 금지**: 과정명·기업명·캠페인명을 따옴표로 프롬프트에 넣지 말 것 — 이미지 모델이 그 글자를 간판·현수막으로 그려 넣어 no-text 지시를 깨뜨린다. 이름 없이 장면으로만 묘사하라 (예: "'데이터 탐험가 과정'" 대신 "a data analysis bootcamp class"). 이름·문구는 body가 담당한다.
 - 과장된 연출("epic", "dramatic", "best")보다 따뜻하고 절제된 공공 캠페인 무드.
 
 언어: body·hashtags는 한국어, 영어 프롬프트 지시가 있는 필드만 영어. 톤: 공공기관 보도자료·카드뉴스의 절제된 ~합니다체 (SNS_POST는 ~해요체 일부 허용).`
@@ -87,7 +88,7 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
     '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 인물·배경은 한국임을 명시(Korean ...). body의 자막 문구가 말하는 내용과 장면이 일치해야 함. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안',
   CAMPAIGN_SLOGAN: '- body: 슬로건 2~3개 후보, 각 한 줄 + 짧은 부연',
   POSTER:
-    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): [홍보 대상 SDG]의 시각 서사를 중심 테마로, [활동] 중 그 SDG와 맞는 활동의 실제 현장을 그린 포스터 장면 ([영어 프롬프트 작성 규칙] 준수 — 범용 SDG 상징 나열 금지). 인물·배경은 한국임을 명시(Korean ..., 지역명). 구도·배경·색감·스타일·텍스트용 여백 위치 포함. 이미지 모델이 글자를 그려 넣지 않도록 프롬프트 끝에 반드시 "No text, no lettering, no typography in the image — leave clean empty areas at the top and bottom for overlaying text later." 문장을 포함할 것',
+    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): [홍보 대상 SDG]의 시각 서사를 중심 테마로, [활동] 중 그 SDG와 맞는 활동의 실제 현장을 그린 포스터 장면 ([영어 프롬프트 작성 규칙] 준수 — 범용 SDG 상징 나열 금지). 인물·배경은 한국임을 명시(Korean ..., 지역명). 구도·배경·색감·스타일·텍스트용 여백 위치 포함. 이미지 모델이 글자를 그려 넣지 않도록 프롬프트 끝에 반드시 "Absolutely no text anywhere in the image: no lettering, no typography, no signage, no captions, no words, no names or place names rendered. Leave clean empty areas at the top and bottom for overlaying text later." 문장을 포함할 것',
 }
 
 export function buildContentGenerationPrompt(
