@@ -10,9 +10,10 @@ import {
   type FindEmailMatch,
 } from '@/app/api/auth/find-email/schemas'
 import {
-  ResetPasswordSchema,
-  type ResetPasswordInput,
-} from '@/app/api/auth/reset-password/schemas'
+  ForgotPasswordSchema,
+  type ForgotPasswordInput,
+  type ForgotPasswordResult,
+} from '@/app/api/auth/forgot-password/schemas'
 import { formatPhone } from '@/lib/phone'
 
 type Tab = 'email' | 'password'
@@ -21,7 +22,7 @@ type Tab = 'email' | 'password'
  * 계정 찾기 폼 (/find-account).
  *
  * 탭 1 — 이메일 찾기: 실명 + 연락처 → 마스킹된 이메일 + 가입 방법 안내
- * 탭 2 — 비밀번호 재설정: 이메일 + 실명 본인 확인 → 새 비밀번호 즉시 설정 (MVP)
+ * 탭 2 — 비밀번호 재설정: 이메일로 재설정 링크 발송 (#88 — 메일 인증 기반)
  */
 export function FindAccountForm() {
   const [tab, setTab] = useState<Tab>('email')
@@ -200,12 +201,12 @@ function loginHint(m: FindEmailMatch): string {
   return methods.length > 0 ? `(${methods.join(' · ')})` : ''
 }
 
-// --- 탭 2: 비밀번호 재설정 -------------------------------------------------
+// --- 탭 2: 비밀번호 재설정 (메일 링크 발송) ---------------------------------
 
 type ResetState =
   | { kind: 'idle' }
   | { kind: 'submitting' }
-  | { kind: 'done' }
+  | { kind: 'sent'; result: ForgotPasswordResult }
   | { kind: 'error'; message: string }
 
 function ResetPasswordTab() {
@@ -213,27 +214,22 @@ function ResetPasswordTab() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ResetPasswordInput>({
-    resolver: zodResolver(ResetPasswordSchema),
-    defaultValues: {
-      email: '',
-      realName: '',
-      newPassword: '',
-      newPasswordConfirm: '',
-    },
+  } = useForm<ForgotPasswordInput>({
+    resolver: zodResolver(ForgotPasswordSchema),
+    defaultValues: { email: '' },
   })
   const [state, setState] = useState<ResetState>({ kind: 'idle' })
 
-  async function onSubmit(values: ResetPasswordInput) {
+  async function onSubmit(values: ForgotPasswordInput) {
     setState({ kind: 'submitting' })
     try {
-      const res = await fetch('/api/auth/reset-password', {
+      const res = await fetch('/api/auth/forgot-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
       })
       const json = (await res.json()) as
-        | { data: { ok: true } }
+        | { data: ForgotPasswordResult }
         | { error: { code: string; message: string } }
 
       if (!res.ok || 'error' in json) {
@@ -243,7 +239,7 @@ function ResetPasswordTab() {
         })
         return
       }
-      setState({ kind: 'done' })
+      setState({ kind: 'sent', result: json.data })
     } catch (e) {
       setState({
         kind: 'error',
@@ -252,27 +248,42 @@ function ResetPasswordTab() {
     }
   }
 
-  if (state.kind === 'done') {
+  if (state.kind === 'sent') {
+    const { mocked, verifyUrl, socialOnly } = state.result
     return (
       <div className="space-y-3 rounded border border-green-300 bg-green-50 p-4">
         <p className="text-sm font-medium text-green-800">
-          ✅ 비밀번호가 재설정되었습니다. 새 비밀번호로 로그인해 주세요.
+          ✅ 가입된 이메일이라면 비밀번호 재설정 링크를 보냈습니다.
         </p>
-        <Link
-          href="/login"
-          className="inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          로그인하러 가기
-        </Link>
+        <p className="text-xs leading-relaxed text-green-700">
+          메일함(스팸함 포함)을 확인해 주세요. 링크는 1시간 동안 유효합니다.
+        </p>
+        {mocked && verifyUrl && (
+          <p className="text-xs text-green-800">
+            🔧 메일 서버 미설정(MVP) —{' '}
+            <a
+              href={verifyUrl}
+              className="font-medium text-blue-700 underline"
+            >
+              이 링크로 바로 재설정
+            </a>
+            할 수 있어요.
+          </p>
+        )}
+        {mocked && socialOnly && (
+          <p className="text-xs text-green-800">
+            🔧 메일 서버 미설정(MVP) — 이 계정은 비밀번호가 없는{' '}
+            {socialOnly.join('·')} 간편 로그인 계정입니다.
+          </p>
+        )}
       </div>
     )
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
-      <p className="rounded border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800">
-        🔐 <strong>현재 단계(MVP)</strong> — 이메일·실명 확인 후 즉시
-        재설정됩니다. 운영 단계에서는 이메일 인증 링크 방식으로 교체됩니다.
+      <p className="text-sm text-gray-500">
+        가입한 이메일로 비밀번호 재설정 링크를 보내드려요.
       </p>
 
       <Field label="이메일" error={errors.email?.message}>
@@ -285,42 +296,12 @@ function ResetPasswordTab() {
         />
       </Field>
 
-      <Field label="실명" error={errors.realName?.message}>
-        <input
-          autoComplete="name"
-          {...register('realName')}
-          className={INPUT_CLS}
-          placeholder="홍길동"
-        />
-      </Field>
-
-      <Field label="새 비밀번호 (8자 이상)" error={errors.newPassword?.message}>
-        <input
-          type="password"
-          autoComplete="new-password"
-          {...register('newPassword')}
-          className={INPUT_CLS}
-        />
-      </Field>
-
-      <Field
-        label="새 비밀번호 확인"
-        error={errors.newPasswordConfirm?.message}
-      >
-        <input
-          type="password"
-          autoComplete="new-password"
-          {...register('newPasswordConfirm')}
-          className={INPUT_CLS}
-        />
-      </Field>
-
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
         className={SUBMIT_CLS}
       >
-        {state.kind === 'submitting' ? '재설정 중...' : '비밀번호 재설정'}
+        {state.kind === 'submitting' ? '발송 중...' : '재설정 링크 받기'}
       </button>
 
       {state.kind === 'error' && <ErrorBox message={state.message} />}
