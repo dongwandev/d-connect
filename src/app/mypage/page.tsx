@@ -136,6 +136,17 @@ export default async function MyPage() {
             ))}
           </ul>
         </section>
+
+        {/* 회원탈퇴 — 파괴적 동작이므로 메뉴 카드가 아닌 하단에 차분하게 */}
+        <p className="text-center text-sm text-gray-500">
+          서비스를 더 이상 이용하지 않으시나요?{' '}
+          <Link
+            href="/mypage/withdraw"
+            className="text-gray-500 underline hover:text-red-600"
+          >
+            회원탈퇴
+          </Link>
+        </p>
       </div>
     </AppShell>
   )

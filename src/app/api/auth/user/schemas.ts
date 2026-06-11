@@ -43,3 +43,19 @@ export const UpdateUserSchema = z
   )
 
 export type UpdateUserInput = z.infer<typeof UpdateUserSchema>
+
+/** 탈퇴 확인 문구 — 소셜 전용(비밀번호 없는) 계정의 본인 확인용 */
+export const WITHDRAW_CONFIRM_PHRASE = '회원탈퇴'
+
+/**
+ * DELETE /api/auth/user — 회원탈퇴 (#90).
+ *
+ * 본인 확인 수단은 계정 유형에 따라 서버가 판단:
+ * 비밀번호 계정 → password 필수 / 소셜 전용 → confirmPhrase 필수.
+ */
+export const WithdrawSchema = z.object({
+  password: z.string().max(100).optional(),
+  confirmPhrase: z.string().max(20).optional(),
+})
+
+export type WithdrawInput = z.infer<typeof WithdrawSchema>
