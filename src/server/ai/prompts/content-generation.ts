@@ -80,7 +80,7 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
     '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안',
   CAMPAIGN_SLOGAN: '- body: 슬로건 2~3개 후보, 각 한 줄 + 짧은 부연',
   POSTER:
-    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): 포스터 구도·배경·색감·스타일·텍스트용 여백 위치를 포함한 이미지 생성 프롬프트. 이미지 안에 글자 렌더링을 요구하지 말 것',
+    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): 포스터 구도·배경·색감·스타일·텍스트용 여백 위치를 포함한 이미지 생성 프롬프트. 이미지 모델이 글자를 그려 넣지 않도록 프롬프트 끝에 반드시 "No text, no lettering, no typography in the image — leave clean empty areas at the top and bottom for overlaying text later." 문장을 포함할 것',
 }
 
 export function buildContentGenerationPrompt(
