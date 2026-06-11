@@ -415,12 +415,19 @@ async function main() {
     const passwordHash = await bcrypt.hash(DEMO_PASSWORD, SALT_ROUNDS)
     const demo = await db.user.upsert({
       where: { email: DEMO_EMAIL },
-      update: { password: passwordHash, name: DEMO_NAME },
+      // acceptedTermsAt: 가입 완료 게이트(D8) 통과용 — 시드 계정이
+      // /welcome으로 빠지지 않도록 항상 채운다.
+      update: {
+        password: passwordHash,
+        name: DEMO_NAME,
+        acceptedTermsAt: new Date(),
+      },
       create: {
         email: DEMO_EMAIL,
         name: DEMO_NAME,
         password: passwordHash,
         emailVerified: new Date(),
+        acceptedTermsAt: new Date(),
       },
     })
     console.log(`✓ demo user 준비: ${demo.email} (id=${demo.id})`)

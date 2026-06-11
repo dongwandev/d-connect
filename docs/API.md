@@ -102,7 +102,8 @@ MVP에서는 적용하지 않는다. 모든 목록 응답은 `createdAt DESC`로
 | 14 | POST   | `/api/auth/register` | 이메일/비밀번호 회원가입 (bcrypt) | — |
 | 15 | PATCH  | `/api/auth/user` | 본인 계정 정보 수정 (표시명/실명/연락처/소속/마케팅 동의) | — |
 | 16 | DELETE | `/api/auth/accounts/{provider}` | 소셜 연동 해제 (마지막 로그인 수단 잠금 방지 가드) | — |
-| 17 | —      | `/api/auth/[...nextauth]` | NextAuth 표준 endpoint (sign-in / sign-out / callback / providers) | — |
+| 17 | POST   | `/api/auth/onboarding` | 소셜 가입 완료 (추가 정보 + 약관 동의 → acceptedTermsAt 기록) | — |
+| 18 | —      | `/api/auth/[...nextauth]` | NextAuth 표준 endpoint (sign-in / sign-out / callback / providers) | — |
 
 ---
 

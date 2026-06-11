@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { type ReactNode } from 'react'
 import { auth } from '@/auth'
+import { db } from '@/server/db'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 
@@ -35,6 +36,16 @@ export async function AppShell({
 }: AppShellProps) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
+
+  // 가입 완료 게이트 (D8) — 소셜 첫 로그인으로 자동 생성된 사용자는
+  // acceptedTermsAt이 없으므로 /welcome(가입 완료)으로 보낸다.
+  // user가 없으면 삭제된 계정의 잔여 세션 → 재로그인 유도.
+  const me = await db.user.findUnique({
+    where: { id: session.user.id },
+    select: { acceptedTermsAt: true },
+  })
+  if (!me) redirect('/login')
+  if (!me.acceptedTermsAt) redirect('/welcome')
 
   return (
     <div className="flex min-h-screen bg-surface-muted">
