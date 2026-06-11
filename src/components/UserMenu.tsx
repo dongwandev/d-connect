@@ -96,7 +96,13 @@ export function UserMenu({ userName, userEmail }: UserMenuProps) {
           <button
             type="button"
             role="menuitem"
-            onClick={() => signOut({ callbackUrl: '/login' })}
+            onClick={async () => {
+              // 서버 계산 리다이렉트(callbackUrl)는 프록시(ngrok) 경유 시
+              // https://localhost 같은 잘못된 origin이 생성될 수 있다 (#78).
+              // 로그인 폼과 동일하게 클라이언트에서 상대 경로로 이동.
+              await signOut({ redirect: false })
+              window.location.href = '/login'
+            }}
             className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-gray-700 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
           >
             <IconLogout className="h-4 w-4" />
