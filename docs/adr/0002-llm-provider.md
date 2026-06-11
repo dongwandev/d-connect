@@ -1,6 +1,6 @@
 # ADR 0002: LLM Provider 선정
 
-- **상태:** Accepted
+- **상태:** Accepted (2026-06-11 추록: provider를 OpenAI로 전환 — 하단 변경 이력 참조)
 - **작성일:** 2026-05-26
 - **작성자:** D-Connect 팀
 - **관련 문서:** [PRD](../PRD.md) (§3.2, §3.4, §5.3), [ADR-0001](0001-tech-stack.md) (§추후 결정)
@@ -105,6 +105,23 @@ D-Connect의 핵심 기능 중 **SDGs 목표 추천**(PRD §3.2)과 **공공홍�
 
 ---
 
+## 추록 — Provider 전환: Anthropic → OpenAI (2026-06-11, #92)
+
+**사유:** Anthropic API 크레딧을 추가 결제할 수 없는 비용 상황. 보유 크레딧은
+OpenAI ~$15.89, GCP $300 두 가지였고, 셋업 단순성(키 발급만으로 즉시 사용,
+GCP는 결제 연결 절차 필요)을 우선해 **OpenAI 단독**으로 결정 (사용자 결정).
+
+**전환 범위:** `src/server/ai/client.ts`(SDK 인스턴스)와 `index.ts`의 호출
+함수만 교체. 프롬프트·zod 스키마·mock fallback·Tool JSON 스키마는 프로바이더
+중립으로 유지(`tools.ts`의 `ToolDef`). 기본 모델 `gpt-4o-mini`
+(시연 트래픽 기준 총 비용 ~$1 미만 예상), 환경변수 `OPENAI_API_KEY`.
+
+**되돌리기:** 본 ADR의 원래 결정(Anthropic) 복귀는 client.ts·index.ts의
+callTool 함수 교체로 충분하다. 비용 상황 해소 시 재검토.
+
+---
+
 ## 변경 이력
 
 - 2026-05-26: 초안 작성 및 채택.
+- 2026-06-11: 추록 — 비용 사유로 provider를 OpenAI(gpt-4o-mini)로 전환 (#92).

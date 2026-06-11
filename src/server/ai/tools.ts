@@ -1,19 +1,20 @@
-import type Anthropic from '@anthropic-ai/sdk'
-
 /**
- * Tool Use 정의.
+ * Tool(함수 호출) 정의 — 프로바이더 중립 JSON Schema.
  *
- * Anthropic Messages API의 \`tools\` 파라미터에 그대로 전달한다.
- * 스키마는 docs/API.md §4.1과 src/server/ai/schemas.ts의 SdgAnalysisResultSchema와 정합되어야 한다.
- *
- * `tool_choice: { type: 'tool', name: 'analyze_sdg' }`로 모델이 반드시 이 도구를
- * 호출하도록 강제한다.
+ * OpenAI chat completions의 function 정의로 변환해 전달한다 (index.ts).
+ * 스키마는 docs/API.md §4.1과 src/server/ai/schemas.ts의 zod 스키마와 정합되어야 한다.
+ * tool_choice로 모델이 반드시 이 도구를 호출하도록 강제한다.
  */
+export interface ToolDef {
+  name: string
+  description: string
+  input_schema: Record<string, unknown>
+}
 /**
  * 콘텐츠 생성 Tool Use 정의.
  * 스키마는 src/server/ai/schemas.ts의 GeneratedContentSchema와 정합.
  */
-export const GENERATE_CONTENT_TOOL: Anthropic.Tool = {
+export const GENERATE_CONTENT_TOOL: ToolDef = {
   name: 'generate_content',
   description:
     'Submit the generated public-relations content for a Korean local SME based on the SDGs analysis. Always call this tool instead of replying with prose.',
@@ -45,7 +46,7 @@ export const GENERATE_CONTENT_TOOL: Anthropic.Tool = {
   },
 }
 
-export const ANALYZE_SDG_TOOL: Anthropic.Tool = {
+export const ANALYZE_SDG_TOOL: ToolDef = {
   name: 'analyze_sdg',
   description:
     'Submit the structured SDGs analysis result for a Korean local SME / social enterprise. Always call this tool instead of replying with prose.',
