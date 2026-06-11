@@ -66,6 +66,23 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
 
 언어: body·hashtags는 한국어, 영어 프롬프트 지시가 있는 필드만 영어. 톤: 공공기관 보도자료·카드뉴스의 절제된 ~합니다체 (SNS_POST는 ~해요체 일부 허용).`
 
+/**
+ * 유형별 출력 체크리스트 — 시스템 프롬프트의 가이드를 사용자 메시지에서
+ * 한 번 더 강제한다 (경량 모델이 긴 시스템 프롬프트의 형식 지시를
+ * 누락하는 것을 실측으로 확인 — gpt-4o-mini, #92).
+ */
+const TYPE_REQUIREMENTS: Record<ContentType, string> = {
+  SNS_POST:
+    '- body: 바로 게시 가능한 한국어 본문 200~400자, 이모지 1~3개\n- imagePrompt(선택): 곁들일 이미지 1장의 영어 프롬프트',
+  CARD_NEWS:
+    '- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장\n- imagePrompt(선택): 표지 배경의 영어 프롬프트',
+  SHORT_VIDEO_SCRIPT:
+    '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안',
+  CAMPAIGN_SLOGAN: '- body: 슬로건 2~3개 후보, 각 한 줄 + 짧은 부연',
+  POSTER:
+    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): 포스터 구도·배경·색감·스타일·텍스트용 여백 위치를 포함한 이미지 생성 프롬프트. 이미지 안에 글자 렌더링을 요구하지 말 것',
+}
+
 export function buildContentGenerationPrompt(
   company: CompanyInput,
   analysis: SdgAnalysisResult,
@@ -108,5 +125,8 @@ ${othersBlock}
 - 공공적 의미: ${analysis.publicMeaning}
 
 [요청 유형]
-${contentType} (${CONTENT_TYPE_LABEL[contentType]})`
+${contentType} (${CONTENT_TYPE_LABEL[contentType]})
+
+[이 유형의 출력 요구사항 — 반드시 준수]
+${TYPE_REQUIREMENTS[contentType]}`
 }
