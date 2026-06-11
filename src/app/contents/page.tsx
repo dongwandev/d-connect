@@ -20,6 +20,7 @@ const TYPE_BADGE: Record<ContentType, string> = {
   CARD_NEWS: 'bg-blue-100 text-blue-800',
   SHORT_VIDEO_SCRIPT: 'bg-purple-100 text-purple-800',
   CAMPAIGN_SLOGAN: 'bg-emerald-100 text-emerald-800',
+  POSTER: 'bg-amber-100 text-amber-800',
 }
 
 export default async function ContentsPage() {

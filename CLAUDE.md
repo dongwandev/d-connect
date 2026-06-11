@@ -27,7 +27,7 @@
 | Framework        | Next.js 16 (App Router) + TypeScript       | 풀스택 단일 코드베이스                            |
 | Styling          | Tailwind CSS 4                             | App Router와 친화적                               |
 | DB / ORM         | SQLite + Prisma 7                          | 시연 안정성 위해 파일 기반                        |
-| AI               | Anthropic Claude API (Sonnet 4.7 기본)     | 백엔드 경유 호출, mock fallback                   |
+| AI               | OpenAI API (gpt-4o-mini 기본)              | 백엔드 경유 호출, mock fallback (ADR-0002 추록)   |
 | 응답 검증        | zod                                        | Tool Use 응답 스키마 검증                         |
 | 패키지 매니저    | pnpm 11.3                                  | `packageManager` 필드로 고정                      |
 
@@ -177,8 +177,8 @@ d-connect/
 
 ## 보안·운영 주의사항
 
-- **API 키 클라이언트 노출 금지** — `ANTHROPIC_API_KEY`는 서버(Route Handler)에서만 사용. 클라이언트 컴포넌트로 전달 금지.
-- **AI 호출 mock fallback 필수** — `ANTHROPIC_API_KEY` 부재 / 호출 실패 / 30초 타임아웃 시 동일 스키마의 mock 응답 반환. PRD §5.2.
+- **API 키 클라이언트 노출 금지** — `OPENAI_API_KEY`는 서버(Route Handler)에서만 사용. 클라이언트 컴포넌트로 전달 금지.
+- **AI 호출 mock fallback 필수** — `OPENAI_API_KEY` 부재 / 호출 실패 / 30초 타임아웃 시 동일 스키마의 mock 응답 반환. PRD §5.2.
 - **AI 출력 톤 가드** — 광고성·과장·검증되지 않은 수치 회피. PRD §5.3.
 - **`.env` 커밋 금지** — `.gitignore`에 `.env*` 포함. `.env.example`만 커밋.
 - **모델 ID는 환경변수** — `LLM_MODEL_DEFAULT`, `LLM_MODEL_FAST`. 코드에 하드코딩 금지.

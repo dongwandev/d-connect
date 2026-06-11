@@ -1,15 +1,20 @@
 import 'server-only'
-import Anthropic from '@anthropic-ai/sdk'
+import OpenAI from 'openai'
 import { env } from '../env'
 
 /**
- * Anthropic Claude SDK 인스턴스.
+ * OpenAI SDK 인스턴스 (#92 — ADR-0002 추록: 비용 사유로 Anthropic→OpenAI 전환).
  *
- * API 키가 없으면 인스턴스는 그대로 만들지만, 실제 호출은 mock fallback을
- * 거치므로 흐름이 깨지지 않는다 (PRD §5.2, ARCHITECTURE §5 참고).
+ * Anthropic SDK와 달리 OpenAI SDK는 키가 비어 있으면 생성자에서 throw하므로
+ * **지연 초기화**한다 — 키 없는 환경(CI 빌드, mock 모드)에서 모듈 로드가
+ * 깨지지 않아야 한다. 호출부는 hasApiKey() 확인 후에만 getOpenAI()를 부른다
+ * (PRD §5.2 mock fallback).
  */
-export const anthropic = new Anthropic({
-  apiKey: env.ANTHROPIC_API_KEY ?? '',
-})
+let client: OpenAI | null = null
 
-export const hasApiKey = (): boolean => Boolean(env.ANTHROPIC_API_KEY)
+export function getOpenAI(): OpenAI {
+  client ??= new OpenAI({ apiKey: env.OPENAI_API_KEY })
+  return client
+}
+
+export const hasApiKey = (): boolean => Boolean(env.OPENAI_API_KEY)

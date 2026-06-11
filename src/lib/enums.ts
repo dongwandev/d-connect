@@ -19,8 +19,20 @@ export const ContentTypeSchema = z.enum([
   'CARD_NEWS',
   'SHORT_VIDEO_SCRIPT',
   'CAMPAIGN_SLOGAN',
+  'POSTER',
 ])
 export type ContentType = z.infer<typeof ContentTypeSchema>
+
+/**
+ * 신규 생성 가능한 콘텐츠 유형 (#92 파이프라인 개편).
+ * CAMPAIGN_SLOGAN은 기존 데이터 표시용으로만 남고 신규 생성에서 제외.
+ */
+export const GENERATABLE_CONTENT_TYPES = [
+  'SNS_POST',
+  'CARD_NEWS',
+  'SHORT_VIDEO_SCRIPT',
+  'POSTER',
+] as const satisfies readonly ContentType[]
 
 export const SocialCategorySchema = z.enum([
   'EMPLOYMENT',
@@ -60,8 +72,18 @@ export const SDG_COLOR: Record<SdgGoal, string> = {
 export const CONTENT_TYPE_LABEL: Record<ContentType, string> = {
   SNS_POST: 'SNS 게시글',
   CARD_NEWS: '카드뉴스 문안',
-  SHORT_VIDEO_SCRIPT: '숏폼 영상 대본',
+  SHORT_VIDEO_SCRIPT: '숏폼 생성 프롬프트',
   CAMPAIGN_SLOGAN: '캠페인 슬로건',
+  POSTER: '포스터',
+}
+
+/** 유형별 산출물 한 줄 설명 — 생성 버튼·콘텐츠 카드 안내용 (#92) */
+export const CONTENT_TYPE_HINT: Record<ContentType, string> = {
+  SNS_POST: '바로 게시할 수 있는 완성 텍스트',
+  CARD_NEWS: '슬라이드별 문안 (3~5장)',
+  SHORT_VIDEO_SCRIPT: '영상 생성 AI에 붙여넣는 영어 프롬프트 + 한국어 안내',
+  CAMPAIGN_SLOGAN: '캠페인 슬로건 후보 (구버전)',
+  POSTER: '이미지 생성 AI에 붙여넣는 완성형 프롬프트 (한글 문구 포함)',
 }
 
 // --- D2 enum 라벨 (디자인 이미지 2 기반) -------------------------------------

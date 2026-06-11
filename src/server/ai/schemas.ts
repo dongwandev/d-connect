@@ -35,10 +35,19 @@ export type SdgAnalysisResult = z.infer<typeof SdgAnalysisResultSchema>
 
 // --- 콘텐츠 생성 -------------------------------------------------------------
 
-export const GeneratedContentSchema = z.object({
-  type: ContentTypeSchema,
-  body: z.string().min(1),
-  hashtags: z.array(z.string()),
-  imagePrompt: z.string().optional(),
-})
+export const GeneratedContentSchema = z
+  .object({
+    type: ContentTypeSchema,
+    body: z.string().min(1),
+    hashtags: z.array(z.string()),
+    imagePrompt: z.string().optional(),
+  })
+  .refine(
+    // 숏폼·포스터는 외부 생성형 AI용 영어 프롬프트가 산출물의 핵심 (#92) —
+    // 누락 시 검증 실패로 처리해 mock fallback이 동작하게 한다
+    (v) =>
+      !['SHORT_VIDEO_SCRIPT', 'POSTER'].includes(v.type) ||
+      Boolean(v.imagePrompt?.trim()),
+    { message: '숏폼·포스터는 imagePrompt(생성 프롬프트)가 필수입니다.' },
+  )
 export type GeneratedContent = z.infer<typeof GeneratedContentSchema>

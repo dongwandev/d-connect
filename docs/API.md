@@ -361,9 +361,10 @@ const CreateCompanySchema = z.object({
     {
       "id": "clxyz_ct_1",
       "type": "SNS_POST",
+      "focusSdg": "SDG_12",
       "body": "저희 가게는 ...",
-      "hashtags": ["#지역상생", "#환경캠페인", "#일회용품저감"],
-      "imagePrompt": "카페 카운터 위에 ...",
+      "hashtags": ["지역상생", "환경캠페인", "일회용품저감"],
+      "imagePrompt": "A reusable cup on a small cafe counter ...",
       "editedByUser": false,
       "createdAt": "2026-05-27T09:32:00.000Z",
       "updatedAt": "2026-05-27T09:32:00.000Z"
@@ -372,7 +373,7 @@ const CreateCompanySchema = z.object({
 }
 ```
 
-**참고:** `hashtags`는 JSON-string 컬럼이지만 응답에는 **파싱된 string 배열**.
+**참고:** `hashtags`는 JSON-string 컬럼이지만 응답에는 **파싱된 string 배열**. `focusSdg`는 생성 시 선택한 홍보 대상 SDG (#92 이전 데이터는 `null`). `imagePrompt`는 외부 생성형 AI에 붙여넣는 영어 프롬프트 — `SHORT_VIDEO_SCRIPT`(영상)·`POSTER`(이미지)는 필수 산출.
 
 ---
 
@@ -383,18 +384,22 @@ const CreateCompanySchema = z.object({
 **Request body:**
 
 ```json
-{ "type": "SNS_POST" }
+{ "type": "SNS_POST", "focusSdg": "SDG_12" }
 ```
 
 **zod 스키마:**
 
 ```ts
 const CreateContentSchema = z.object({
-  type: z.nativeEnum(ContentType),
+  // 신규 생성 가능 4유형 — CAMPAIGN_SLOGAN은 구버전 데이터 표시 전용 (#92)
+  type: z.enum(['SNS_POST', 'CARD_NEWS', 'SHORT_VIDEO_SCRIPT', 'POSTER']),
+  // 홍보할 SDG 단일 선택 — 해당 분석의 매칭에 존재해야 함 (route에서 400 검증)
+  focusSdg: SdgGoalSchema,
 })
 ```
 
 > **참고:** 사용자 톤 힌트(`toneHint`)는 MVP 범위 외 — 결정 #7. 시스템 프롬프트가 톤을 결정한다.
+> **유형별 산출물 (#92):** `SNS_POST`·`CARD_NEWS`는 한국어 완성형, `SHORT_VIDEO_SCRIPT`(숏폼 생성 프롬프트)·`POSTER`는 외부 생성형 AI용 **영어 `imagePrompt`(필수)** + 한국어 `body`(안내·문구).
 
 **Response 201:** [§5.1](#51-get-apisdg-analysisidcontent--콘텐츠-목록)의 단일 객체와 동일 구조.
 

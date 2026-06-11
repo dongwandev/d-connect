@@ -1,19 +1,20 @@
-import type Anthropic from '@anthropic-ai/sdk'
-
 /**
- * Tool Use 정의.
+ * Tool(함수 호출) 정의 — 프로바이더 중립 JSON Schema.
  *
- * Anthropic Messages API의 \`tools\` 파라미터에 그대로 전달한다.
- * 스키마는 docs/API.md §4.1과 src/server/ai/schemas.ts의 SdgAnalysisResultSchema와 정합되어야 한다.
- *
- * `tool_choice: { type: 'tool', name: 'analyze_sdg' }`로 모델이 반드시 이 도구를
- * 호출하도록 강제한다.
+ * OpenAI chat completions의 function 정의로 변환해 전달한다 (index.ts).
+ * 스키마는 docs/API.md §4.1과 src/server/ai/schemas.ts의 zod 스키마와 정합되어야 한다.
+ * tool_choice로 모델이 반드시 이 도구를 호출하도록 강제한다.
  */
+export interface ToolDef {
+  name: string
+  description: string
+  input_schema: Record<string, unknown>
+}
 /**
  * 콘텐츠 생성 Tool Use 정의.
  * 스키마는 src/server/ai/schemas.ts의 GeneratedContentSchema와 정합.
  */
-export const GENERATE_CONTENT_TOOL: Anthropic.Tool = {
+export const GENERATE_CONTENT_TOOL: ToolDef = {
   name: 'generate_content',
   description:
     'Submit the generated public-relations content for a Korean local SME based on the SDGs analysis. Always call this tool instead of replying with prose.',
@@ -22,30 +23,30 @@ export const GENERATE_CONTENT_TOOL: Anthropic.Tool = {
     properties: {
       type: {
         type: 'string',
-        enum: ['SNS_POST', 'CARD_NEWS', 'SHORT_VIDEO_SCRIPT', 'CAMPAIGN_SLOGAN'],
+        enum: ['SNS_POST', 'CARD_NEWS', 'SHORT_VIDEO_SCRIPT', 'POSTER'],
       },
       body: {
         type: 'string',
         description:
-          '콘텐츠 본문. 유형별 권장 길이 준수. 광고성·과장 표현 금지.',
+          '한국어 본문. SNS_POST/CARD_NEWS는 완성 텍스트, SHORT_VIDEO_SCRIPT는 영상 의도·구성 안내, POSTER는 포스터 문구(헤드라인·서브카피·하단 정보). 광고성·과장 표현 금지.',
       },
       hashtags: {
         type: 'array',
         items: { type: 'string' },
         description:
-          '관련 해시태그. SNS_POST는 5~8개, 그 외 유형도 적절히. # 기호 제외.',
+          '관련 해시태그. SNS_POST는 5~8개, 그 외 유형은 3~6개. # 기호 제외.',
       },
       imagePrompt: {
         type: 'string',
         description:
-          '이미지 생성 도구에 그대로 입력할 수 있는 한국어 프롬프트 (배경·소품·색감·스타일).',
+          '생성형 AI에 그대로 붙여넣는 영어 프롬프트. SHORT_VIDEO_SCRIPT(영상 생성 AI)·POSTER(이미지 생성 AI)는 필수, SNS_POST·CARD_NEWS는 곁들일 이미지용 선택.',
       },
     },
     required: ['type', 'body', 'hashtags'],
   },
 }
 
-export const ANALYZE_SDG_TOOL: Anthropic.Tool = {
+export const ANALYZE_SDG_TOOL: ToolDef = {
   name: 'analyze_sdg',
   description:
     'Submit the structured SDGs analysis result for a Korean local SME / social enterprise. Always call this tool instead of replying with prose.',

@@ -1,6 +1,6 @@
 import 'server-only'
 import { NextResponse, type NextRequest } from 'next/server'
-import { generateContent } from '@/server/ai'
+import { generateContent, toCompanyInput } from '@/server/ai'
 import { requireUserId } from '@/server/auth-guard'
 import { db } from '@/server/db'
 import { ApiError, withErrorHandler } from '@/server/errors'
@@ -42,18 +42,17 @@ export async function POST(
       throw new ApiError('NOT_FOUND', `Analysis not found: ${id}`, 404)
     }
 
-    const company = analysis.company
+    // 홍보 대상 SDG는 이 분석에서 실제로 매칭된 목표여야 한다 (#92)
+    if (!analysis.matches.some((m) => m.sdg === body.focusSdg)) {
+      throw new ApiError(
+        'VALIDATION_ERROR',
+        '이 분석에 매칭되지 않은 SDG입니다. 분석 결과의 SDG 중에서 선택해 주세요.',
+        400,
+      )
+    }
+
     const { result, usedFallback } = await generateContent(
-      {
-        name: company.name,
-        industry: company.industry,
-        region: company.region,
-        product: company.product,
-        activities: company.activities.map((a) => ({
-          title: a.title,
-          description: a.description,
-        })),
-      },
+      toCompanyInput(analysis.company),
       {
         matches: analysis.matches.map((m) => ({
           sdg: m.sdg,
@@ -67,12 +66,14 @@ export async function POST(
         publicMeaning: analysis.publicMeaning,
       },
       body.type,
+      body.focusSdg,
     )
 
     const created = await db.generatedContent.create({
       data: {
         analysisId: analysis.id,
         type: result.type,
+        focusSdg: body.focusSdg,
         body: result.body,
         hashtags: serializeJsonArray(result.hashtags),
         imagePrompt: result.imagePrompt ?? null,
@@ -84,6 +85,7 @@ export async function POST(
       id: created.id,
       analysisId: created.analysisId,
       type: created.type,
+      focusSdg: created.focusSdg,
       body: created.body,
       hashtags: parseJsonArray<string>(created.hashtags),
       imagePrompt: created.imagePrompt,
@@ -122,6 +124,7 @@ export async function GET(
     return contents.map((c) => ({
       id: c.id,
       type: c.type,
+      focusSdg: c.focusSdg,
       body: c.body,
       hashtags: parseJsonArray<string>(c.hashtags),
       imagePrompt: c.imagePrompt,

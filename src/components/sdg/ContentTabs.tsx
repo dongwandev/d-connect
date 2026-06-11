@@ -8,12 +8,16 @@ import { useToast } from '@/components/Toast'
 import {
   CONTENT_TYPE_LABEL,
   ContentTypeSchema,
+  SDG_COLOR,
+  SDG_GOAL_LABEL,
   type ContentType,
+  type SdgGoal,
 } from '@/lib/enums'
 
 export interface ContentItem {
   id: string
   type: ContentType
+  focusSdg: SdgGoal | null
   body: string
   hashtags: string[]
   imagePrompt: string | null
@@ -112,6 +116,14 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
               <div className="flex items-center justify-between gap-3">
                 <h3 className="font-semibold text-gray-900">
                   {CONTENT_TYPE_LABEL[c.type]}
+                  {c.focusSdg && (
+                    <span
+                      className="ml-2 rounded-full px-2 py-0.5 text-xs font-medium text-white"
+                      style={{ backgroundColor: SDG_COLOR[c.focusSdg] }}
+                    >
+                      {SDG_GOAL_LABEL[c.focusSdg]}
+                    </span>
+                  )}
                   {c.editedByUser && (
                     <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs text-amber-800">
                       편집됨
@@ -151,8 +163,8 @@ export function ContentTabs({ contents }: { contents: ContentItem[] }) {
                 </ul>
               )}
               {c.imagePrompt && (
-                <p className="border-l-2 border-purple-200 pl-3 text-xs italic text-gray-500">
-                  이미지 프롬프트: {c.imagePrompt}
+                <p className="whitespace-pre-wrap border-l-2 border-purple-200 pl-3 font-mono text-xs text-gray-600">
+                  생성 AI 프롬프트: {c.imagePrompt}
                 </p>
               )}
               <p className="text-xs text-gray-500">

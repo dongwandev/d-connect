@@ -57,15 +57,16 @@ export default async function AnalysisPage({ params }: PageProps) {
     analysis.socialFunctions,
   )
 
-  // ANTHROPIC_API_KEY 미설정 시 모든 분석이 mock fallback으로 떨어진다 (server/ai/index.ts).
+  // OPENAI_API_KEY 미설정 시 모든 분석이 mock fallback으로 떨어진다 (server/ai/index.ts).
   // 사용자에게 'mock 결과'임을 명시해 결과 신뢰도 오해를 방지.
   // 향후 DB schema에 fromMock 컬럼을 추가하면 분석마다 정확히 판정 가능 (위험 작업).
-  const usingMockFallback = !process.env.ANTHROPIC_API_KEY
+  const usingMockFallback = !process.env.OPENAI_API_KEY
 
   // ContentTabs는 client component — Date를 ISO string으로 직렬화해 전달
   const contentsForClient: ContentItem[] = analysis.contents.map((c) => ({
     id: c.id,
     type: c.type as ContentType,
+    focusSdg: c.focusSdg as SdgGoal | null,
     body: c.body,
     hashtags: parseJsonArray<string>(c.hashtags),
     imagePrompt: c.imagePrompt,
@@ -92,7 +93,7 @@ export default async function AnalysisPage({ params }: PageProps) {
             <div className="min-w-0 flex-1">
               <p className="font-semibold">API 키 미설정 — mock 결과입니다</p>
               <p className="mt-0.5 text-xs leading-relaxed text-amber-800/90">
-                서버에 <code className="rounded bg-amber-100 px-1 py-0.5 font-mono">ANTHROPIC_API_KEY</code> 가 없어 AI 호출 대신 고정 mock 응답을 표시합니다. 실제 분석은 환경 변수 설정 후 다시 실행해 주세요.
+                서버에 <code className="rounded bg-amber-100 px-1 py-0.5 font-mono">OPENAI_API_KEY</code> 가 없어 AI 호출 대신 고정 mock 응답을 표시합니다. 실제 분석은 환경 변수 설정 후 다시 실행해 주세요.
               </p>
             </div>
           </div>
@@ -196,7 +197,13 @@ export default async function AnalysisPage({ params }: PageProps) {
               <h2 className="text-lg font-semibold text-gray-900">
                 공공홍보 콘텐츠 ({analysis.contents.length})
               </h2>
-              <ContentGenerationButtons analysisId={analysis.id} />
+              <ContentGenerationButtons
+                analysisId={analysis.id}
+                matches={analysis.matches.map((m) => ({
+                  sdg: m.sdg as SdgGoal,
+                  score: m.score,
+                }))}
+              />
               <ContentTabs contents={contentsForClient} />
             </section>
           </div>

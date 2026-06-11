@@ -1,6 +1,6 @@
 import 'server-only'
 import { type NextRequest, type NextResponse } from 'next/server'
-import { analyzeSdg } from '@/server/ai'
+import { analyzeSdg, toCompanyInput } from '@/server/ai'
 import { requireUserId } from '@/server/auth-guard'
 import { db } from '@/server/db'
 import { ApiError, withErrorHandler } from '@/server/errors'
@@ -40,16 +40,7 @@ export async function POST(
       )
     }
 
-    const { result, usedFallback } = await analyzeSdg({
-      name: company.name,
-      industry: company.industry,
-      region: company.region,
-      product: company.product,
-      activities: company.activities.map((a) => ({
-        title: a.title,
-        description: a.description,
-      })),
-    })
+    const { result, usedFallback } = await analyzeSdg(toCompanyInput(company))
 
     const created = await db.sdgAnalysis.create({
       data: {

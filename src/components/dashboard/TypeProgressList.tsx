@@ -10,6 +10,7 @@ const TYPE_COLOR: Record<ContentType, string> = {
   CARD_NEWS: 'bg-blue-500',
   SHORT_VIDEO_SCRIPT: 'bg-amber-500',
   CAMPAIGN_SLOGAN: 'bg-emerald-500',
+  POSTER: 'bg-purple-500',
 }
 
 export function TypeProgressList({ data }: { data: Datum[] }) {
