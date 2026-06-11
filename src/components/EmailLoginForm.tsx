@@ -20,6 +20,7 @@ export function EmailLoginForm() {
   const params = useSearchParams()
   const callbackUrl = params.get('callbackUrl') ?? '/dashboard'
   const justRegistered = params.get('registered') === '1'
+  const justWithdrawn = params.get('withdrawn') === '1'
 
   const {
     register,
@@ -56,6 +57,12 @@ export function EmailLoginForm() {
       {justRegistered && (
         <p className="rounded border border-green-300 bg-green-50 p-3 text-sm text-green-800">
           ✅ 가입이 완료되었습니다. 로그인해 주세요.
+        </p>
+      )}
+
+      {justWithdrawn && (
+        <p className="rounded border border-gray-300 bg-gray-50 p-3 text-sm text-gray-700">
+          👋 회원탈퇴가 완료되었습니다. 그동안 이용해 주셔서 감사합니다.
         </p>
       )}
 
