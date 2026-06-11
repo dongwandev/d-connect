@@ -83,7 +83,7 @@ export const CONTENT_TYPE_HINT: Record<ContentType, string> = {
   CARD_NEWS: '슬라이드별 문안 (3~5장)',
   SHORT_VIDEO_SCRIPT: '영상 생성 AI에 붙여넣는 영어 프롬프트 + 한국어 안내',
   CAMPAIGN_SLOGAN: '캠페인 슬로건 후보 (구버전)',
-  POSTER: '이미지 생성 AI용 영어 프롬프트 + 포스터 문구',
+  POSTER: '이미지 생성 AI에 붙여넣는 완성형 프롬프트 (한글 문구 포함)',
 }
 
 // --- D2 enum 라벨 (디자인 이미지 2 기반) -------------------------------------
