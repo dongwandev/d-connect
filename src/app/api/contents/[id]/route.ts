@@ -77,6 +77,7 @@ export async function PATCH(
       id: updated.id,
       analysisId: updated.analysisId,
       type: updated.type,
+      focusSdg: updated.focusSdg,
       body: updated.body,
       hashtags: parseJsonArray<string>(updated.hashtags),
       imagePrompt: updated.imagePrompt,
