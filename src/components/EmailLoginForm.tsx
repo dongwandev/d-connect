@@ -79,15 +79,6 @@ export function EmailLoginForm() {
         />
       </Field>
 
-      <p className="text-right text-sm">
-        <Link
-          href="/find-account"
-          className="text-gray-500 hover:text-blue-600 hover:underline"
-        >
-          이메일·비밀번호를 잊으셨나요?
-        </Link>
-      </p>
-
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
@@ -101,6 +92,15 @@ export function EmailLoginForm() {
           ❌ {state.message}
         </p>
       )}
+
+      <p className="text-center text-sm">
+        <Link
+          href="/find-account"
+          className="text-gray-500 hover:text-blue-600 hover:underline"
+        >
+          이메일·비밀번호를 잊으셨나요?
+        </Link>
+      </p>
     </form>
   )
 }
