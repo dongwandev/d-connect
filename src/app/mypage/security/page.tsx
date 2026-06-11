@@ -18,9 +18,29 @@ import { db } from '@/server/db'
  */
 export const dynamic = 'force-dynamic'
 
-export default async function SecurityPage() {
+/** 소셜 연동 실패 코드별 안내 (login 페이지에서 전달됨) */
+const LINK_ERROR_MESSAGE: Record<string, string> = {
+  OAuthAccountNotLinked:
+    '이 소셜 계정은 이미 다른 D-Connect 계정에 연동되어 있습니다. 해당 계정으로 로그인해 연동을 해제한 뒤 다시 시도해 주세요.',
+  OAuthCallbackError:
+    '소셜 인증 처리 중 오류가 발생했습니다. 동의를 취소했거나 접근 권한이 없는 계정일 수 있어요.',
+}
+
+interface SecurityPageProps {
+  searchParams: Promise<{ error?: string }>
+}
+
+export default async function SecurityPage({
+  searchParams,
+}: SecurityPageProps) {
   const session = await auth()
   if (!session?.user?.id) redirect('/login')
+
+  const { error } = await searchParams
+  const linkError = error
+    ? (LINK_ERROR_MESSAGE[error] ??
+      '소셜 연동에 실패했습니다. 잠시 후 다시 시도해 주세요.')
+    : null
 
   const [user, accounts] = await Promise.all([
     db.user.findUnique({
@@ -63,6 +83,15 @@ export default async function SecurityPage() {
         <nav>
           <BackLink href="/mypage" label="마이페이지" />
         </nav>
+
+        {linkError && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700"
+          >
+            {linkError}
+          </p>
+        )}
 
         {/* 간편 로그인 연동 */}
         <section className="rounded-xl border border-border bg-surface p-6">

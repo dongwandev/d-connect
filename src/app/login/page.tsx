@@ -39,10 +39,17 @@ interface LoginPageProps {
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   const session = await auth()
-  if (session?.user) redirect('/dashboard')
+  const { error } = await searchParams
+
+  if (session?.user) {
+    // 로그인 상태에서 OAuth 에러와 함께 돌아온 경우 = 보안 설정의 소셜
+    // 연동 시도 실패 (예: 이미 다른 계정에 연동된 소셜 계정).
+    // 여기서 대시보드로 그냥 보내면 안내가 증발하므로 보안 설정에 전달.
+    if (error) redirect(`/mypage/security?error=${encodeURIComponent(error)}`)
+    redirect('/dashboard')
+  }
 
   const providers = enabledProviders()
-  const { error } = await searchParams
   const errorMessage = error
     ? (AUTH_ERROR_MESSAGE[error] ??
       '로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
