@@ -6,9 +6,11 @@ import { useEffect, useState } from 'react'
 import {
   IconBuilding,
   IconChart,
+  IconChat,
   IconDocument,
   IconGlobe,
   IconHome,
+  IconMegaphone,
   IconMenu,
   IconPlusCircle,
   IconSparkles,
@@ -54,10 +56,12 @@ const NAV_ITEMS = [
     isActive: (p: string) => p.startsWith('/contents'),
   },
   {
-    href: '/sdg-guide',
-    label: 'SDGs 가이드',
-    Icon: IconGlobe,
-    isActive: (p: string) => p.startsWith('/sdg-guide'),
+    href: '/companies',
+    label: '내 기업 관리',
+    Icon: IconBuilding,
+    isActive: (p: string) =>
+      p === '/companies' ||
+      (p.startsWith('/companies/') && p !== '/companies/new'),
   },
   {
     href: '/mypage',
@@ -66,12 +70,22 @@ const NAV_ITEMS = [
     isActive: (p: string) => p.startsWith('/mypage'),
   },
   {
-    href: '/companies',
-    label: '기업 관리',
-    Icon: IconBuilding,
-    isActive: (p: string) =>
-      p === '/companies' ||
-      (p.startsWith('/companies/') && p !== '/companies/new'),
+    href: '/sdg-guide',
+    label: 'SDGs 가이드',
+    Icon: IconGlobe,
+    isActive: (p: string) => p.startsWith('/sdg-guide'),
+  },
+  {
+    href: '/notices',
+    label: '공지사항',
+    Icon: IconMegaphone,
+    isActive: (p: string) => p.startsWith('/notices'),
+  },
+  {
+    href: '/inquiries',
+    label: '1:1 문의',
+    Icon: IconChat,
+    isActive: (p: string) => p.startsWith('/inquiries'),
   },
 ] as const
 

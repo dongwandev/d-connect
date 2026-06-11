@@ -128,6 +128,51 @@ export function IconChart(props: IconProps) {
   )
 }
 
+export function IconMegaphone(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3 11v3l13 5V6L3 11z" />
+      <path d="M16 8.5a4 4 0 0 1 0 8" />
+      <path d="M6.5 14.5V19a1.5 1.5 0 0 0 3 0v-3.5" />
+    </svg>
+  )
+}
+
+export function IconChat(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M21 12a8 8 0 0 1-8 8H4l2.3-2.9A8 8 0 1 1 21 12z" />
+      <path d="M8.5 11h.01M12 11h.01M15.5 11h.01" />
+    </svg>
+  )
+}
+
+export function IconCreditCard(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <rect x="3" y="5" width="18" height="14" rx="2" />
+      <path d="M3 10h18M7 15h4" />
+    </svg>
+  )
+}
+
+export function IconShield(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M12 3 5 6v5c0 4.5 3 8.4 7 9.9 4-1.5 7-5.4 7-9.9V6l-7-3z" />
+      <path d="m9.5 12 1.8 1.8 3.2-3.6" />
+    </svg>
+  )
+}
+
+export function IconChevronRight(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  )
+}
+
 export function IconEdit(props: IconProps) {
   return (
     <svg {...base(props)}>
