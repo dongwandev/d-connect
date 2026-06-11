@@ -60,8 +60,9 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
   - hashtags: 게시 시 쓸 해시태그 3~6개.
 
 [영어 프롬프트 작성 규칙] (SHORT_VIDEO_SCRIPT·POSTER의 imagePrompt)
+- **body와 한 몸**: imagePrompt는 body(헤드라인·서브카피·자막)가 말하는 메시지를 장면으로 번역한 것이어야 한다. body를 먼저 쓰고, 그 핵심 소재(예: 환경 문제 해결, 일자리, 시니어 교육)를 반드시 시각 요소로 포함하라. body와 무관한 범용 장면 금지.
+- **한국 맥락 명시**: 인물·배경에 "Korean young adults", "in Daejeon, South Korea" 등 한국임을 반드시 명시 — 명시하지 않으면 이미지 모델이 서구권 인물·도시를 그린다. 기업의 지역 정보가 있으면 도시명을 포함.
 - 활동의 실제 내용·장소·분위기를 반영한 구체적 시각 묘사. 입력에 없는 사실(특정 인물 수, 실제 매장 외관 등)은 일반화해 표현.
-- 한국 지역 상권의 현실적인 모습 (Korean local neighborhood, small business 등 맥락 명시).
 - 과장된 연출("epic", "dramatic", "best")보다 따뜻하고 절제된 공공 캠페인 무드.
 
 언어: body·hashtags는 한국어, 영어 프롬프트 지시가 있는 필드만 영어. 톤: 공공기관 보도자료·카드뉴스의 절제된 ~합니다체 (SNS_POST는 ~해요체 일부 허용).`
@@ -77,10 +78,10 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
   CARD_NEWS:
     '- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장\n- imagePrompt(선택): 표지 배경의 영어 프롬프트',
   SHORT_VIDEO_SCRIPT:
-    '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안',
+    '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 인물·배경은 한국임을 명시(Korean ...). body의 자막 문구가 말하는 내용과 장면이 일치해야 함. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안',
   CAMPAIGN_SLOGAN: '- body: 슬로건 2~3개 후보, 각 한 줄 + 짧은 부연',
   POSTER:
-    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): 포스터 구도·배경·색감·스타일·텍스트용 여백 위치를 포함한 이미지 생성 프롬프트. 이미지 모델이 글자를 그려 넣지 않도록 프롬프트 끝에 반드시 "No text, no lettering, no typography in the image — leave clean empty areas at the top and bottom for overlaying text later." 문장을 포함할 것',
+    '- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)\n- imagePrompt(필수, 영어): body의 헤드라인·서브카피가 말하는 메시지를 시각적으로 번역한 포스터 장면이어야 함 — 서브카피에 등장하는 핵심 소재(환경·일자리·교육 등)를 장면 요소로 포함하고, 인물·배경은 한국임을 명시(Korean ..., 지역명). 구도·배경·색감·스타일·텍스트용 여백 위치 포함. 이미지 모델이 글자를 그려 넣지 않도록 프롬프트 끝에 반드시 "No text, no lettering, no typography in the image — leave clean empty areas at the top and bottom for overlaying text later." 문장을 포함할 것',
 }
 
 export function buildContentGenerationPrompt(
