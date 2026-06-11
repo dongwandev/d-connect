@@ -13,11 +13,40 @@ import { EmailLoginForm } from '@/components/EmailLoginForm'
  */
 export const dynamic = 'force-dynamic'
 
-export default async function LoginPage() {
+/**
+ * NextAuth v5가 로그인(signIn) 단계 실패 시 /login?error=<code>로 되돌려보낸다.
+ * 코드별 한글 안내 — 미정의 코드는 generic 메시지.
+ *
+ * 키는 @auth/core v5의 실제 client-safe 에러 타입 기준
+ * (v4 코드명 OAuthSignin/OAuthCallback은 v5에서 사용되지 않음):
+ *   - OAuthAccountNotLinked — 같은 이메일의 기존 계정 존재
+ *   - OAuthCallbackError    — provider가 콜백에 에러 반환
+ *                              (예: 구글 테스트 사용자 미등록 access_denied)
+ *   - Configuration         — 서버 설정 오류 (client-safe 마스킹 포함)
+ */
+const AUTH_ERROR_MESSAGE: Record<string, string> = {
+  OAuthAccountNotLinked:
+    '이미 같은 이메일로 가입된 계정이 있습니다. 처음 가입했던 방법(이메일·비밀번호 또는 다른 소셜 계정)으로 로그인해 주세요.',
+  OAuthCallbackError:
+    '소셜 로그인 처리 중 오류가 발생했습니다. 로그인 동의를 취소했거나 접근 권한이 없는 계정일 수 있어요. 잠시 후 다시 시도해 주세요.',
+  Configuration:
+    '로그인 설정에 문제가 있습니다. 관리자에게 문의해 주세요.',
+}
+
+interface LoginPageProps {
+  searchParams: Promise<{ error?: string }>
+}
+
+export default async function LoginPage({ searchParams }: LoginPageProps) {
   const session = await auth()
   if (session?.user) redirect('/dashboard')
 
   const providers = enabledProviders()
+  const { error } = await searchParams
+  const errorMessage = error
+    ? (AUTH_ERROR_MESSAGE[error] ??
+      '로그인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.')
+    : null
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
@@ -28,6 +57,15 @@ export default async function LoginPage() {
             로그인하고 우리 기업의 SDGs 콘텐츠를 만들어 보세요.
           </p>
         </header>
+
+        {errorMessage && (
+          <p
+            role="alert"
+            className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm leading-relaxed text-red-700"
+          >
+            {errorMessage}
+          </p>
+        )}
 
         {/* 이메일/패스워드 — searchParams 사용을 위해 Suspense로 감싼다 */}
         <Suspense fallback={<div className="h-48" />}>
