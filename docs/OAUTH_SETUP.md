@@ -99,7 +99,28 @@ pnpm dev
 - [ ] 구글 로그인 (테스트 사용자로 등록된 계정) → 대시보드 진입
 - [ ] 소셜 첫 로그인 후 마이페이지에 프로필 표시 확인
 - [ ] 로그아웃 → 재로그인 정상
-- [ ] (ngrok 시연 시) ngrok 도메인 Redirect URI가 양쪽 콘솔에 등록되어 있는지 — **무료 ngrok은 재시작마다 도메인이 바뀌므로 시연 직전 확인 필수**
+- [ ] (ngrok 시연 시) 아래 'ngrok에서 소셜 로그인' 절차 완료 여부
+
+### ngrok에서 소셜 로그인 (외부 공유 시연)
+
+Next.js dev 서버는 프록시가 전달한 Host 헤더를 신뢰하지 않고 자신의 바인드 주소
+(localhost:3000)로 정규화한다. 따라서 ngrok 경유 소셜 로그인은 헤더 자동 감지로는
+동작하지 않으며 **`.env`의 `AUTH_URL`로 origin을 명시**해야 한다:
+
+```bash
+# .env — ngrok 시연 기간 동안 설정 (무료 플랜도 도메인은 계정 고정이라 안 바뀜)
+AUTH_URL="https://<내-ngrok-도메인>.ngrok-free.dev"
+```
+
+1. 양쪽 콘솔에 ngrok 콜백 URI 추가 등록:
+   - 카카오: `https://<ngrok도메인>/api/auth/callback/kakao`
+   - 구글:   `https://<ngrok도메인>/api/auth/callback/google`
+2. dev 서버 재시작 → **ngrok 탭에서** 소셜 로그인 테스트
+
+**규칙: 소셜 로그인은 `AUTH_URL`과 같은 origin의 탭에서만 동작한다**
+(OAuth 보안 쿠키(PKCE)가 origin에 묶이기 때문). 이메일·demo 로그인은
+localhost/ngrok 어디서나 항상 동작. 로컬 전용 개발로 돌아갈 땐 `AUTH_URL`을
+주석 처리하면 된다.
 
 ---
 
