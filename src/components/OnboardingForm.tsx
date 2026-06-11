@@ -44,7 +44,9 @@ export function OnboardingForm({ initialDisplayName, initialEmail }: Props) {
       needsEmail ? OnboardingWithEmailSchema : OnboardingSchema,
     ),
     defaultValues: {
-      email: '',
+      // 이메일 있는 계정(구글)은 입력칸을 렌더하지 않으므로 undefined —
+      // ''로 두면 보이지 않는 필드가 .email() 검증에 걸려 제출이 조용히 막힌다
+      email: needsEmail ? '' : undefined,
       realName: '',
       displayName: initialDisplayName ?? '',
       phone: '',
