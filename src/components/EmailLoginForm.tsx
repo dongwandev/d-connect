@@ -1,6 +1,7 @@
 'use client'
 
 import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { useState } from 'react'
@@ -77,6 +78,15 @@ export function EmailLoginForm() {
           className="w-full rounded border border-gray-300 px-3 py-2"
         />
       </Field>
+
+      <p className="text-right text-sm">
+        <Link
+          href="/find-account"
+          className="text-gray-500 hover:text-blue-600 hover:underline"
+        >
+          이메일·비밀번호를 잊으셨나요?
+        </Link>
+      </p>
 
       <button
         type="submit"
