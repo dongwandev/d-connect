@@ -66,6 +66,7 @@ export default async function AnalysisPage({ params }: PageProps) {
   const contentsForClient: ContentItem[] = analysis.contents.map((c) => ({
     id: c.id,
     type: c.type as ContentType,
+    focusSdg: c.focusSdg as SdgGoal | null,
     body: c.body,
     hashtags: parseJsonArray<string>(c.hashtags),
     imagePrompt: c.imagePrompt,
@@ -196,7 +197,13 @@ export default async function AnalysisPage({ params }: PageProps) {
               <h2 className="text-lg font-semibold text-gray-900">
                 공공홍보 콘텐츠 ({analysis.contents.length})
               </h2>
-              <ContentGenerationButtons analysisId={analysis.id} />
+              <ContentGenerationButtons
+                analysisId={analysis.id}
+                matches={analysis.matches.map((m) => ({
+                  sdg: m.sdg as SdgGoal,
+                  score: m.score,
+                }))}
+              />
               <ContentTabs contents={contentsForClient} />
             </section>
           </div>

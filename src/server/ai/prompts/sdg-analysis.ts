@@ -1,4 +1,4 @@
-import type { CompanyInput } from './index'
+import { buildCompanyBlock, type CompanyInput } from './index'
 
 /**
  * SDGs 분석용 시스템 프롬프트.
@@ -15,6 +15,10 @@ export const SDG_ANALYSIS_SYSTEM_PROMPT = `당신은 대전·세종·충남권 �
 - SDG: SDG_8 (양질의 일자리/경제성장), SDG_11 (지속가능한 도시/공동체), SDG_12 (책임 있는 소비/생산), SDG_17 (목표를 위한 파트너십) — 이 4종만 사용.
 - 사회적 기능: EMPLOYMENT, ENVIRONMENT, LOCAL_ECONOMY, COMMUNITY, COOPERATION — 이 5종만 사용.
 - 매칭 점수(score)는 0~100 정수. 활동과 연결성이 약한 SDG는 점수를 낮게 책정하거나 제외해도 됩니다. SDG 4종을 모두 포함할 필요는 없습니다.
+
+[분석 지침]
+- 매칭의 1차 근거는 **활동 내용**입니다. 업종·사업자 형태·지역은 활동 해석의 맥락으로 활용하세요 (예: 협동조합이라는 형태 자체가 SDG 17 파트너십과의 연결 단서가 될 수 있음).
+- rationale에는 어떤 활동의 어떤 측면이 해당 SDG와 연결되는지 구체적으로 적습니다.
 
 [톤·정확성 가드] (PRD §5.3, 절대 위반 금지)
 1. **광고성·과장 표현 금지** — 다음 패턴의 단어·문구는 사용하지 않습니다:
@@ -34,6 +38,7 @@ export const SDG_ANALYSIS_SYSTEM_PROMPT = `당신은 대전·세종·충남권 �
 /**
  * 사용자 메시지 빌더.
  * 입력 정보를 구조화해 모델이 일관된 출력을 만들도록 한다.
+ * 기업 정보는 등록 폼 전체 필드를 반영하되 미입력 항목은 생략 (#92).
  */
 export function buildSdgAnalysisPrompt(company: CompanyInput): string {
   const activitiesBlock = company.activities
@@ -46,10 +51,7 @@ export function buildSdgAnalysisPrompt(company: CompanyInput): string {
   return `다음 기업의 활동을 분석해 \`analyze_sdg\` 도구를 호출해 결과를 제출하세요.
 
 [기업 정보]
-- 이름: ${company.name}
-- 업종: ${company.industry ?? '미입력'}
-- 지역: ${company.region ?? '미입력'}
-- 제품·서비스: ${company.product ?? '미입력'}
+${buildCompanyBlock(company)}
 
 [활동]
 ${activitiesBlock}`

@@ -22,23 +22,23 @@ export const GENERATE_CONTENT_TOOL: Anthropic.Tool = {
     properties: {
       type: {
         type: 'string',
-        enum: ['SNS_POST', 'CARD_NEWS', 'SHORT_VIDEO_SCRIPT', 'CAMPAIGN_SLOGAN'],
+        enum: ['SNS_POST', 'CARD_NEWS', 'SHORT_VIDEO_SCRIPT', 'POSTER'],
       },
       body: {
         type: 'string',
         description:
-          '콘텐츠 본문. 유형별 권장 길이 준수. 광고성·과장 표현 금지.',
+          '한국어 본문. SNS_POST/CARD_NEWS는 완성 텍스트, SHORT_VIDEO_SCRIPT는 영상 의도·구성 안내, POSTER는 포스터 문구(헤드라인·서브카피·하단 정보). 광고성·과장 표현 금지.',
       },
       hashtags: {
         type: 'array',
         items: { type: 'string' },
         description:
-          '관련 해시태그. SNS_POST는 5~8개, 그 외 유형도 적절히. # 기호 제외.',
+          '관련 해시태그. SNS_POST는 5~8개, 그 외 유형은 3~6개. # 기호 제외.',
       },
       imagePrompt: {
         type: 'string',
         description:
-          '이미지 생성 도구에 그대로 입력할 수 있는 한국어 프롬프트 (배경·소품·색감·스타일).',
+          '생성형 AI에 그대로 붙여넣는 영어 프롬프트. SHORT_VIDEO_SCRIPT(영상 생성 AI)·POSTER(이미지 생성 AI)는 필수, SNS_POST·CARD_NEWS는 곁들일 이미지용 선택.',
       },
     },
     required: ['type', 'body', 'hashtags'],

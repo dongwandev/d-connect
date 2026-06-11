@@ -23,10 +23,11 @@ enum SdgGoal {
 }
 
 enum ContentType {
-  SNS_POST //           SNS 게시글
-  CARD_NEWS //          카드뉴스 문안
-  SHORT_VIDEO_SCRIPT // 숏폼 영상 대본
-  CAMPAIGN_SLOGAN //    캠페인 슬로건
+  SNS_POST //           SNS 게시글 (텍스트 완성형)
+  CARD_NEWS //          카드뉴스 문안 (슬라이드 완성형)
+  SHORT_VIDEO_SCRIPT // 숏폼 생성 프롬프트 (#92에서 영상 생성 AI용 프롬프트로 재정의)
+  CAMPAIGN_SLOGAN //    캠페인 슬로건 (deprecated — 신규 생성 제외, 기존 데이터 표시용)
+  POSTER //             포스터 (이미지 생성 AI용 프롬프트 + 문구, #92)
 }
 
 enum SocialCategory {
@@ -266,6 +267,8 @@ model GeneratedContent {
   id            String      @id @default(cuid())
   analysisId    String
   type          ContentType
+  /// 콘텐츠가 집중하는 SDG (#92 — 사용자가 분석 매칭 중 단일 선택). 구버전 행은 NULL.
+  focusSdg      SdgGoal?
   body          String
   /// string[] JSON 직렬화
   hashtags      String

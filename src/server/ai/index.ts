@@ -15,6 +15,7 @@ import {
   type ContentType,
   type GeneratedContent,
   type SdgAnalysisResult,
+  type SdgGoal,
   SdgAnalysisResultSchema,
 } from './schemas'
 import { ANALYZE_SDG_TOOL, GENERATE_CONTENT_TOOL } from './tools'
@@ -118,6 +119,7 @@ export async function generateContent(
   company: CompanyInput,
   analysis: SdgAnalysisResult,
   contentType: ContentType,
+  focusSdg: SdgGoal,
 ): Promise<GenerateContentOutput> {
   if (!hasApiKey()) {
     console.warn('[ai] mock — no API key')
@@ -126,7 +128,7 @@ export async function generateContent(
 
   try {
     const result = await withTimeout(
-      callAnthropicForContent(company, analysis, contentType),
+      callAnthropicForContent(company, analysis, contentType, focusSdg),
       AI_TIMEOUT_MS,
     )
     return { result, usedFallback: false }
@@ -140,6 +142,7 @@ async function callAnthropicForContent(
   company: CompanyInput,
   analysis: SdgAnalysisResult,
   contentType: ContentType,
+  focusSdg: SdgGoal,
 ): Promise<GeneratedContent> {
   const response = await anthropic.messages.create({
     model: env.LLM_MODEL_DEFAULT,
@@ -150,7 +153,12 @@ async function callAnthropicForContent(
     messages: [
       {
         role: 'user',
-        content: buildContentGenerationPrompt(company, analysis, contentType),
+        content: buildContentGenerationPrompt(
+          company,
+          analysis,
+          contentType,
+          focusSdg,
+        ),
       },
     ],
   })
@@ -173,9 +181,11 @@ async function callAnthropicForContent(
 
 // --- Public types (re-export) -----------------------------------------------
 
+export { toCompanyInput } from './company-input'
 export type { CompanyInput } from './prompts'
 export type {
   ContentType,
   GeneratedContent,
   SdgAnalysisResult,
+  SdgGoal,
 } from './schemas'

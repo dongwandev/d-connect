@@ -103,7 +103,7 @@ export function ContentEditForm({ contentId, initial }: Props) {
 
       <div className="space-y-1">
         <label className="block text-sm font-medium text-gray-700">
-          이미지 프롬프트 (선택)
+          생성 AI 프롬프트 (선택 — 숏폼·포스터는 외부 생성 AI용 영어 프롬프트)
         </label>
         <textarea
           value={imagePrompt}
