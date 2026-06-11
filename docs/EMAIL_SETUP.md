@@ -15,11 +15,25 @@
 
 ## 2. .env 설정
 
+**프로젝트 루트의 `.env` 파일**에 추가한다 (`.env.example`이 아님 — 없으면 `.env.example`을 복사해 생성).
+
+`EMAIL_SERVER`는 접속 정보를 한 줄에 담은 URL이다. 각 자리는 다음과 같다:
+
+```
+smtps://  <보내는 Gmail 주소>  :  <앱 비밀번호 16자리>  @smtp.gmail.com:465
+          (@ 는 %40 으로 표기)    (1번에서 발급, 공백 제거)
+```
+
+예 — Gmail이 `you@gmail.com`, 발급받은 앱 비밀번호가 `abcd efgh ijkl mnop`라면:
+
 ```bash
-# @ 는 %40 으로 URL 인코딩. 앱 비밀번호는 공백 없이 16자리.
-EMAIL_SERVER="smtps://you%40gmail.com:abcdabcdabcdabcd@smtp.gmail.com:465"
+EMAIL_SERVER="smtps://you%40gmail.com:abcdefghijklmnop@smtp.gmail.com:465"
 EMAIL_FROM="D-Connect <you@gmail.com>"
 ```
+
+- 이메일 주소의 `@`만 `%40`으로 바꾼다 (`you@gmail.com` → `you%40gmail.com`)
+- 앱 비밀번호는 발급 화면에 4자리씩 공백으로 표시되지만 **공백 없이** 붙여 넣는다
+- `EMAIL_FROM`의 주소는 인코딩 없이 그대로 쓴다
 
 설정 후 dev 서버 재시작.
 
