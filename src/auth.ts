@@ -58,6 +58,13 @@ function buildProviders(): NextAuthConfig['providers'] {
       Kakao({
         clientId: env.KAKAO_CLIENT_ID,
         clientSecret: env.KAKAO_CLIENT_SECRET,
+        // 카카오는 scope를 명시하지 않으면 닉네임/이메일 반환을 보장하지 않는다
+        // (구글과 달리 콘솔 동의항목 + scope 요청이 모두 있어야 함).
+        // ⚠️ 아래 3개가 콘솔 [카카오 로그인] > [동의항목]에 설정되어 있어야
+        // 한다 — 미설정 항목을 scope로 요청하면 카카오가 에러를 반환한다.
+        authorization: {
+          params: { scope: 'profile_nickname profile_image account_email' },
+        },
       }),
     )
   }
