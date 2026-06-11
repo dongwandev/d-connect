@@ -3,6 +3,7 @@ import { type NextRequest, type NextResponse } from 'next/server'
 import { requireUserId } from '@/server/auth-guard'
 import { db } from '@/server/db'
 import { ApiError, withErrorHandler } from '@/server/errors'
+import { sendVerificationEmail } from '@/server/verification'
 import { OnboardingSchema } from './schemas'
 
 /**
@@ -64,6 +65,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       },
       select: { id: true, name: true },
     })
+
+    // 직접 입력한 이메일(카카오)은 소유 확인이 안 됐으므로 인증 메일 발송 (#86).
+    // provider 제공 이메일(구글)도 emailVerified가 비어 있으면 셸 배너의
+    // 재발송으로 인증 가능 — 여기서는 새로 입력된 이메일만 발송한다.
+    if (email) await sendVerificationEmail(email)
+
     return user
   })
 }
