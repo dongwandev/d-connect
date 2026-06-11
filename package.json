@@ -16,7 +16,7 @@
     "db:studio": "prisma studio",
     "db:seed": "prisma db seed",
     "postinstall": "prisma generate",
-    "tunnel": "ngrok http 3000"
+    "tunnel": "ngrok http 3000 --host-header=preserve"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.98.0",

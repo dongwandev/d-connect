@@ -58,6 +58,17 @@ function buildProviders(): NextAuthConfig['providers'] {
       Kakao({
         clientId: env.KAKAO_CLIENT_ID,
         clientSecret: env.KAKAO_CLIENT_SECRET,
+        // 카카오는 scope를 명시하지 않으면 프로필 반환을 보장하지 않는다.
+        // 이메일(account_email)은 비즈 앱 전환이 필요해 수집하지 않는다 —
+        // 소셜 로그인은 '간편 로그인' 전용 정책 (이메일 없이 가입 허용).
+        // ⚠️ 아래 2개가 콘솔 [카카오 로그인] > [동의항목]에 설정되어 있어야
+        // 한다 — 미설정 항목을 scope로 요청하면 카카오가 에러를 반환한다.
+        // url을 함께 명시하는 이유: v5는 authorization 옵션을 얕은 병합해서
+        // params만 넘기면 provider 기본 인가 URL이 사라진다 (Invalid URL).
+        authorization: {
+          url: 'https://kauth.kakao.com/oauth/authorize',
+          params: { scope: 'profile_nickname profile_image' },
+        },
       }),
     )
   }
