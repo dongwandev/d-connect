@@ -21,7 +21,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
 
   let verified = false
   if (token) {
-    const email = await consumeVerificationToken(token)
+    const email = await consumeVerificationToken(token, 'verify')
     if (email) {
       const updated = await db.user.updateMany({
         where: { email },

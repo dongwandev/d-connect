@@ -28,7 +28,7 @@ export async function POST(_req: NextRequest): Promise<NextResponse> {
     if (me.emailVerified) {
       throw new ApiError('VALIDATION_ERROR', '이미 인증된 이메일입니다.', 400)
     }
-    if ((await msSinceLastToken(me.email)) < RESEND_COOLDOWN_MS) {
+    if ((await msSinceLastToken(me.email, 'verify')) < RESEND_COOLDOWN_MS) {
       throw new ApiError(
         'VALIDATION_ERROR',
         '잠시 후 다시 시도해 주세요. (재발송은 1분에 한 번)',
