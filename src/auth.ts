@@ -62,7 +62,10 @@ function buildProviders(): NextAuthConfig['providers'] {
         // (구글과 달리 콘솔 동의항목 + scope 요청이 모두 있어야 함).
         // ⚠️ 아래 3개가 콘솔 [카카오 로그인] > [동의항목]에 설정되어 있어야
         // 한다 — 미설정 항목을 scope로 요청하면 카카오가 에러를 반환한다.
+        // url을 함께 명시하는 이유: v5는 authorization 옵션을 얕은 병합해서
+        // params만 넘기면 provider 기본 인가 URL이 사라진다 (Invalid URL).
         authorization: {
+          url: 'https://kauth.kakao.com/oauth/authorize',
           params: { scope: 'profile_nickname profile_image account_email' },
         },
       }),
