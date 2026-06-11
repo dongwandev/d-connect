@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { type ReactNode } from 'react'
 import { auth } from '@/auth'
 import { db } from '@/server/db'
+import { EmailVerifyBanner } from './EmailVerifyBanner'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 
@@ -42,10 +43,13 @@ export async function AppShell({
   // user가 없으면 삭제된 계정의 잔여 세션 → 재로그인 유도.
   const me = await db.user.findUnique({
     where: { id: session.user.id },
-    select: { acceptedTermsAt: true },
+    select: { acceptedTermsAt: true, email: true, emailVerified: true },
   })
   if (!me) redirect('/login')
   if (!me.acceptedTermsAt) redirect('/welcome')
+
+  // 이메일 미인증 안내 (#86) — 이용은 막지 않고 배너로만 알린다
+  const needsEmailVerify = Boolean(me.email && !me.emailVerified)
 
   return (
     <div className="flex min-h-screen bg-surface-muted">
@@ -58,6 +62,9 @@ export async function AppShell({
           userName={session.user.name ?? null}
           userEmail={session.user.email ?? null}
         />
+        {needsEmailVerify && me.email && (
+          <EmailVerifyBanner email={me.email} />
+        )}
         <main className="min-w-0 flex-1">{children}</main>
       </div>
     </div>
