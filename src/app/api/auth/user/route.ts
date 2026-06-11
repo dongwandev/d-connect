@@ -133,7 +133,22 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
       )
     }
 
-    await db.user.delete({ where: { id: user.id } })
+    // VerificationToken은 User와 FK가 없어(이메일 키) cascade되지 않는다 —
+    // 같은 이메일 재가입 시 이전 계정의 토큰이 남지 않도록 함께 정리
+    await db.$transaction([
+      ...(user.email
+        ? [
+            db.verificationToken.deleteMany({
+              where: {
+                identifier: {
+                  in: [`verify:${user.email}`, `reset:${user.email}`],
+                },
+              },
+            }),
+          ]
+        : []),
+      db.user.delete({ where: { id: user.id } }),
+    ])
     return { ok: true }
   })
 }
