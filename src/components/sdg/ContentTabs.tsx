@@ -7,7 +7,7 @@ import { EmptyState } from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
 import {
   CONTENT_TYPE_LABEL,
-  ContentTypeSchema,
+  GENERATABLE_CONTENT_TYPES,
   SDG_COLOR,
   SDG_GOAL_LABEL,
   type ContentType,
@@ -27,7 +27,8 @@ export interface ContentItem {
 
 type TabKey = 'ALL' | ContentType
 
-const TYPES = ContentTypeSchema.options
+// 정렬 탭은 신규 생성 가능 4종만 — CAMPAIGN_SLOGAN은 구버전 (#100)
+const TYPES = GENERATABLE_CONTENT_TYPES
 
 /**
  * 콘텐츠 유형별 탭 (디자인 이미지 1 패턴).

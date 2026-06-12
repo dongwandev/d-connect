@@ -13,7 +13,7 @@ import {
   IconSparkles,
 } from '@/components/icons'
 import { db } from '@/server/db'
-import { ContentTypeSchema, type ContentType, type SdgGoal } from '@/lib/enums'
+import { GENERATABLE_CONTENT_TYPES, type ContentType, type SdgGoal } from '@/lib/enums'
 
 /**
  * 대시보드 (디자인 D4) — 본인 데이터에 기반한 통계 + SDGs donut + 콘텐츠 유형 progress.
@@ -81,7 +81,7 @@ export default async function DashboardPage() {
   const typeCounts = new Map<ContentType, number>(
     typeRaw.map((r) => [r.type as ContentType, r._count._all]),
   )
-  const typeData = ContentTypeSchema.options.map((t) => ({
+  const typeData = GENERATABLE_CONTENT_TYPES.map((t) => ({
     type: t,
     count: typeCounts.get(t) ?? 0,
   }))
