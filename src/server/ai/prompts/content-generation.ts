@@ -201,5 +201,10 @@ ${contentType} (${CONTENT_TYPE_LABEL[contentType]})
 ${buildOptionsBlock(contentType, options)}
 
 [이 유형의 출력 요구사항 — 반드시 준수]
-${TYPE_REQUIREMENTS[contentType]}`
+${TYPE_REQUIREMENTS[contentType]}
+
+[톤 리마인더 — sampling에서 가장 자주 어긴 패턴 (#110)]
+- "해결합니다/해결한다/만듭니다/조성합니다" 같은 단정 서술 금지 → "~에 기여합니다", "~을 돕습니다", "개선에 힘씁니다"로
+- 입력이 "지원한다"고 표현한 활동을 출력에서 "직접 해낸다"로 격상하지 말 것 (기업의 역할 범위를 입력 그대로 유지)
+- 본문 어미: SNS_POST만 ~해요체 허용, CARD_NEWS·POSTER·SHORT_VIDEO_SCRIPT 본문·문구는 ~합니다체`
 }
