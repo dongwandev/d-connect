@@ -14,6 +14,7 @@
 5. [Contents](#5-contents)
 6. [AI 호출 엔드포인트 동작](#6-ai-호출-엔드포인트-동작)
 7. [스키마 콜로케이션](#7-스키마-콜로케이션-컨벤션)
+8. [Inquiries](#8-inquiries-11-문의)
 
 ---
 
@@ -104,6 +105,9 @@ MVP에서는 적용하지 않는다. 모든 목록 응답은 `createdAt DESC`로
 | 16 | DELETE | `/api/auth/accounts/{provider}` | 소셜 연동 해제 (마지막 로그인 수단 잠금 방지 가드) | — |
 | 17 | POST   | `/api/auth/onboarding` | 소셜 가입 완료 (추가 정보 + 약관 동의 → acceptedTermsAt 기록) | — |
 | 18 | —      | `/api/auth/[...nextauth]` | NextAuth 표준 endpoint (sign-in / sign-out / callback / providers) | — |
+| 19 | POST   | `/api/inquiries` | 1:1 문의 접수 | — |
+| 20 | GET    | `/api/inquiries` | 내 문의 목록 | — |
+| 21 | DELETE | `/api/inquiries/{id}` | 문의 삭제 (본인 것만) | — |
 
 ---
 
@@ -520,6 +524,42 @@ src/app/api/
 
 ---
 
+## 8. Inquiries (1:1 문의)
+
+#116에서 localStorage 프로토타입을 DB 저장으로 전환. 모든 엔드포인트는 로그인 필수
+(`401 UNAUTHORIZED`)이며, 본인 문의만 조회·삭제할 수 있다 (ADR-0005 — 비소유는 404).
+
+### 8.1 POST `/api/inquiries` — 문의 접수
+
+**Request:**
+
+```json
+{
+  "type": "SERVICE | BUG | SUGGESTION | ETC",
+  "title": "문의 제목 (1~100자)",
+  "body": "문의 내용 (1~2000자)"
+}
+```
+
+**Response `200`:** 생성된 Inquiry 전체 (status는 `WAITING`으로 시작).
+
+### 8.2 GET `/api/inquiries` — 내 문의 목록
+
+**Response `200`:** 본인 Inquiry 배열, `createdAt DESC`. 답변(`answer`/`answeredAt`) 포함.
+
+### 8.3 DELETE `/api/inquiries/{id}` — 문의 삭제
+
+본인 소유 검증 후 hard delete. 답변 완료된 문의도 삭제 가능 (클라이언트 confirm에서
+답변 동반 삭제를 경고).
+
+**Response `200`:** `{ "id": "..." }`
+
+> 답변 작성(관리자) API는 운영 전환 과제 — 현재 답변은 Prisma Studio로 입력하며,
+> answer 입력 시 `status=ANSWERED`·`answeredAt`을 함께 갱신한다 (DB_SCHEMA §3.6).
+
+---
+
 ## 변경 이력
 
 - 2026-05-27: 초안 작성. 사용자 결정 8개 항목 반영 (usedFallback 비노출 포함).
+- 2026-06-12: §8 Inquiries 추가 (#116 — 1:1 문의 DB 전환).

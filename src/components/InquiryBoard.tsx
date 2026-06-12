@@ -1,35 +1,33 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
 import { useToast } from '@/components/Toast'
+import {
+  INQUIRY_STATUS_LABEL,
+  INQUIRY_TYPE_LABEL,
+  type InquiryStatus,
+  type InquiryType,
+} from '@/lib/enums'
 import { formatRelativeTime } from '@/lib/relative-time'
 
 /**
- * 1:1 문의 게시판 (D7 IA — 프로토타입).
+ * 1:1 문의 게시판 (#116 — DB 저장).
  *
- * DB 테이블 추가는 위험 작업이라 발표 단계에서는 localStorage에 저장한다
- * (이 브라우저에서만 보임, 답변 기능은 운영 전환 시 구현).
- * 상단 안내 배너로 프로토타입 한계를 명시한다.
+ * 목록은 서버 컴포넌트(inquiries/page.tsx)가 내려주고, 작성·삭제는
+ * /api/inquiries 호출 후 router.refresh()로 목록을 다시 받는다.
+ * 답변 작성 UI는 운영 전환 과제 — 답변은 운영팀이 입력하고 여기서 표시만 한다.
  */
 
-type InquiryType = 'SERVICE' | 'BUG' | 'SUGGESTION' | 'ETC'
-
-interface Inquiry {
+export interface InquiryItem {
   id: string
   type: InquiryType
   title: string
   body: string
+  status: InquiryStatus
+  answer: string | null
+  answeredAt: string | null // ISO
   createdAt: string // ISO
-  status: 'WAITING'
-}
-
-const STORAGE_KEY = 'dconnect.inquiries'
-
-const TYPE_LABEL: Record<InquiryType, string> = {
-  SERVICE: '서비스 이용',
-  BUG: '오류 신고',
-  SUGGESTION: '기능 제안',
-  ETC: '기타',
 }
 
 const TYPE_BADGE: Record<InquiryType, string> = {
@@ -39,40 +37,38 @@ const TYPE_BADGE: Record<InquiryType, string> = {
   ETC: 'bg-gray-200 text-gray-700',
 }
 
-function loadInquiries(): Inquiry[] {
+const STATUS_BADGE: Record<InquiryStatus, string> = {
+  WAITING: 'bg-amber-100 text-amber-700',
+  ANSWERED: 'bg-emerald-100 text-emerald-700',
+}
+
+/** API 에러 응답에서 사용자 메시지 추출 (zod details 1건 우선) */
+async function readErrorMessage(res: Response): Promise<string> {
   try {
-    const raw = window.localStorage.getItem(STORAGE_KEY)
-    const parsed: unknown = raw ? JSON.parse(raw) : []
-    return Array.isArray(parsed) ? (parsed as Inquiry[]) : []
+    const json: unknown = await res.json()
+    const error = (json as { error?: { message?: string; details?: unknown } })
+      .error
+    if (Array.isArray(error?.details) && error.details.length > 0) {
+      const first = error.details[0] as { message?: string }
+      if (first.message) return first.message
+    }
+    if (error?.message) return error.message
   } catch {
-    return []
+    // body가 JSON이 아니면 기본 메시지
   }
+  return '요청 처리에 실패했습니다. 잠시 후 다시 시도해주세요.'
 }
 
-function saveInquiries(items: Inquiry[]) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items))
-}
-
-export function InquiryBoard() {
+export function InquiryBoard({ items }: { items: InquiryItem[] }) {
   const toast = useToast()
-  const [items, setItems] = useState<Inquiry[]>([])
+  const router = useRouter()
   const [type, setType] = useState<InquiryType>('SERVICE')
   const [title, setTitle] = useState('')
   const [body, setBody] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  // localStorage는 클라이언트 전용 — SSR과 첫 렌더를 빈 목록으로 맞춰
-  // hydration mismatch를 피하고, microtask에서 채운다 (동기 setState 금지 룰 회피)
-  useEffect(() => {
-    let alive = true
-    Promise.resolve().then(() => {
-      if (alive) setItems(loadInquiries())
-    })
-    return () => {
-      alive = false
-    }
-  }, [])
-
-  function onSubmit(e: React.FormEvent) {
+  async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const t = title.trim()
     const b = body.trim()
@@ -85,29 +81,50 @@ export function InquiryBoard() {
       return
     }
 
-    const item: Inquiry = {
-      id: `inq-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-      type,
-      title: t,
-      body: b,
-      createdAt: new Date().toISOString(),
-      status: 'WAITING',
+    setSubmitting(true)
+    try {
+      const res = await fetch('/api/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, title: t, body: b }),
+      })
+      if (!res.ok) {
+        toast.error('문의 접수 실패', await readErrorMessage(res))
+        return
+      }
+      setTitle('')
+      setBody('')
+      setType('SERVICE')
+      toast.success('문의가 접수되었습니다', '답변이 등록되면 이곳에서 확인할 수 있어요.')
+      router.refresh()
+    } catch {
+      toast.error('문의 접수 실패', '네트워크 연결을 확인해주세요.')
+    } finally {
+      setSubmitting(false)
     }
-    const next = [item, ...items]
-    saveInquiries(next)
-    setItems(next)
-    setTitle('')
-    setBody('')
-    setType('SERVICE')
-    toast.success('문의가 접수되었습니다', '답변은 준비 중인 기능입니다.')
   }
 
-  function onDelete(id: string) {
-    if (!confirm('이 문의를 삭제하시겠습니까?')) return
-    const next = items.filter((i) => i.id !== id)
-    saveInquiries(next)
-    setItems(next)
-    toast.success('문의가 삭제되었습니다')
+  async function onDelete(q: InquiryItem) {
+    const warning =
+      q.status === 'ANSWERED'
+        ? '이 문의를 삭제하시겠습니까? 운영팀 답변도 함께 삭제됩니다.'
+        : '이 문의를 삭제하시겠습니까?'
+    if (!confirm(warning)) return
+
+    setDeletingId(q.id)
+    try {
+      const res = await fetch(`/api/inquiries/${q.id}`, { method: 'DELETE' })
+      if (!res.ok) {
+        toast.error('문의 삭제 실패', await readErrorMessage(res))
+        return
+      }
+      toast.success('문의가 삭제되었습니다')
+      router.refresh()
+    } catch {
+      toast.error('문의 삭제 실패', '네트워크 연결을 확인해주세요.')
+    } finally {
+      setDeletingId(null)
+    }
   }
 
   const inputCls =
@@ -115,12 +132,6 @@ export function InquiryBoard() {
 
   return (
     <div className="space-y-6">
-      {/* 프로토타입 안내 */}
-      <p className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-relaxed text-amber-800">
-        ⚠️ 프로토타입 안내 — 문의는 현재 <strong>이 브라우저에만 저장</strong>
-        되며 운영팀 전송·답변 기능은 준비 중입니다.
-      </p>
-
       {/* 작성 폼 */}
       <form
         onSubmit={onSubmit}
@@ -138,9 +149,9 @@ export function InquiryBoard() {
               onChange={(e) => setType(e.target.value as InquiryType)}
               className={inputCls}
             >
-              {(Object.keys(TYPE_LABEL) as InquiryType[]).map((t) => (
+              {(Object.keys(INQUIRY_TYPE_LABEL) as InquiryType[]).map((t) => (
                 <option key={t} value={t}>
-                  {TYPE_LABEL[t]}
+                  {INQUIRY_TYPE_LABEL[t]}
                 </option>
               ))}
             </select>
@@ -177,9 +188,10 @@ export function InquiryBoard() {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+            disabled={submitting}
+            className="rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            문의 접수
+            {submitting ? '접수 중…' : '문의 접수'}
           </button>
         </div>
       </form>
@@ -209,29 +221,51 @@ export function InquiryBoard() {
                     <span
                       className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${TYPE_BADGE[q.type]}`}
                     >
-                      {TYPE_LABEL[q.type]}
+                      {INQUIRY_TYPE_LABEL[q.type]}
                     </span>
                     <h3 className="truncate text-sm font-semibold text-gray-900">
                       {q.title}
                     </h3>
                   </div>
-                  <span className="shrink-0 rounded-full bg-amber-100 px-2.5 py-0.5 text-[11px] font-medium text-amber-700">
-                    답변 대기
+                  <span
+                    className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-medium ${STATUS_BADGE[q.status]}`}
+                  >
+                    {INQUIRY_STATUS_LABEL[q.status]}
                   </span>
                 </div>
                 <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
                   {q.body}
                 </p>
+
+                {q.answer && (
+                  <div className="mt-3 rounded-lg border border-accent-500/20 bg-accent-500/5 px-4 py-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-accent-600">
+                        운영팀 답변
+                      </span>
+                      {q.answeredAt && (
+                        <span className="text-xs text-gray-500">
+                          {formatRelativeTime(q.answeredAt)}
+                        </span>
+                      )}
+                    </div>
+                    <p className="mt-1.5 whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                      {q.answer}
+                    </p>
+                  </div>
+                )}
+
                 <div className="mt-3 flex items-center justify-between border-t border-border pt-3">
                   <span className="text-xs text-gray-500">
                     {formatRelativeTime(q.createdAt)}
                   </span>
                   <button
                     type="button"
-                    onClick={() => onDelete(q.id)}
-                    className="rounded-lg border border-red-200 bg-surface px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                    onClick={() => onDelete(q)}
+                    disabled={deletingId === q.id}
+                    className="rounded-lg border border-red-200 bg-surface px-3 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    삭제
+                    {deletingId === q.id ? '삭제 중…' : '삭제'}
                   </button>
                 </div>
               </li>
