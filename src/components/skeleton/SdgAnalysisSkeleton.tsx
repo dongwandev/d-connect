@@ -40,7 +40,7 @@ export function SdgAnalysisSkeleton() {
           {Array.from({ length: 2 }).map((_, i) => (
             <div
               key={i}
-              className="space-y-2 rounded-lg border border-border bg-surface-muted p-4"
+              className="space-y-2 rounded-2xl border border-border bg-surface-muted p-4"
             >
               <div className="flex items-center justify-between">
                 <Skeleton className="h-9 w-44 rounded-lg" />

@@ -12,7 +12,7 @@ export function DashboardSkeleton() {
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="space-y-3 rounded-lg border border-border bg-surface p-5"
+            className="space-y-3 rounded-2xl border border-border bg-surface p-5"
           >
             <Skeleton className="h-4 w-20" />
             <Skeleton className="h-8 w-24" />
@@ -22,7 +22,7 @@ export function DashboardSkeleton() {
       </section>
 
       <section className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-        <div className="flex flex-col gap-3 rounded-lg border border-border bg-surface p-5">
+        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-5">
           <Skeleton className="h-5 w-32" />
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="h-14 w-full" />

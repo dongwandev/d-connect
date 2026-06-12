@@ -213,7 +213,7 @@ function ContentCard({
   }
 
   return (
-    <li className="space-y-3 rounded-lg border border-border bg-surface p-4">
+    <li className="space-y-3 rounded-2xl border border-border bg-surface p-4">
       {/* 헤더: 유형·뱃지 | 생성 시각·편집·삭제 */}
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
         <h3 className="flex flex-wrap items-center gap-2 font-semibold text-gray-900">

@@ -68,7 +68,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   return (
     <AuthShell>
-      <div className="w-full max-w-md space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+      <div className="w-full max-w-md space-y-6 rounded-3xl border-2 border-green-100 bg-white p-8 shadow-sm">
         <header className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">D-Connect</h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -95,7 +95,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <p>
             <Link
               href="/find-account"
-              className="hover:text-blue-600 hover:underline"
+              className="hover:text-green-600 hover:underline"
             >
               이메일·비밀번호를 잊으셨나요?
             </Link>
@@ -104,7 +104,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             아직 계정이 없으신가요?{' '}
             <Link
               href="/signup"
-              className="font-medium text-blue-600 hover:underline"
+              className="font-medium text-green-600 hover:underline"
             >
               회원가입
             </Link>
@@ -129,7 +129,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 >
                   <button
                     type="submit"
-                    className="w-full rounded bg-[#FEE500] px-4 py-3 font-medium text-[#191919] hover:brightness-95"
+                    className="w-full rounded-full bg-[#FEE500] px-4 py-3 font-medium text-[#191919] hover:brightness-95"
                   >
                     카카오로 시작하기
                   </button>
@@ -145,7 +145,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
                 >
                   <button
                     type="submit"
-                    className="flex w-full items-center justify-center gap-2 rounded border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-full border border-gray-300 bg-white px-4 py-3 font-medium text-gray-700 hover:bg-gray-50"
                   >
                     Google로 시작하기
                   </button>
@@ -170,7 +170,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             >
               <button
                 type="submit"
-                className="w-full rounded border border-dashed border-purple-300 bg-purple-50 px-4 py-3 text-sm text-purple-800 hover:bg-purple-100"
+                className="w-full rounded-full border border-dashed border-purple-300 bg-purple-50 px-4 py-3 text-sm text-purple-800 hover:bg-purple-100"
               >
                 데모 계정으로 로그인 (demo@d-connect.kr)
               </button>

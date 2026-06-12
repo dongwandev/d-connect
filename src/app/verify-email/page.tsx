@@ -32,8 +32,8 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
-      <div className="w-full max-w-md space-y-5 rounded-lg border border-gray-200 bg-white p-8 text-center shadow-sm">
+    <main className="flex min-h-screen items-center justify-center bg-[#f8faf4] px-6 py-10">
+      <div className="w-full max-w-md space-y-5 rounded-3xl border-2 border-green-100 bg-white p-8 text-center shadow-sm">
         {verified ? (
           <>
             <p className="text-4xl">✅</p>
@@ -45,7 +45,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
             </p>
             <Link
               href={session?.user ? '/dashboard' : '/login'}
-              className="inline-block rounded bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
+              className="inline-block rounded-full bg-green-600 px-5 py-3 font-medium text-white hover:bg-green-700"
             >
               {session?.user ? '대시보드로 가기' : '로그인하러 가기'}
             </Link>
@@ -64,7 +64,7 @@ export default async function VerifyEmailPage({ searchParams }: Props) {
             </p>
             <Link
               href={session?.user ? '/dashboard' : '/login'}
-              className="inline-block rounded bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
+              className="inline-block rounded-full bg-green-600 px-5 py-3 font-medium text-white hover:bg-green-700"
             >
               {session?.user ? '대시보드로 가기' : '로그인하러 가기'}
             </Link>

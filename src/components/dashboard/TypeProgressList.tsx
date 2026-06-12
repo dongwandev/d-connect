@@ -7,7 +7,7 @@ interface Datum {
 
 const TYPE_COLOR: Record<ContentType, string> = {
   SNS_POST: 'bg-pink-500',
-  CARD_NEWS: 'bg-blue-500',
+  CARD_NEWS: 'bg-green-500',
   SHORT_VIDEO_SCRIPT: 'bg-amber-500',
   CAMPAIGN_SLOGAN: 'bg-emerald-500',
   POSTER: 'bg-purple-500',
@@ -17,7 +17,7 @@ export function TypeProgressList({ data }: { data: Datum[] }) {
   const total = data.reduce((s, d) => s + d.count, 0)
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-5">
+    <div className="rounded-2xl border border-border bg-surface p-5">
       <h3 className="mb-3 text-sm font-semibold text-gray-700">
         콘텐츠 유형별 생성 수
       </h3>

@@ -11,12 +11,14 @@
   --brand-600: #16a34a;
   --brand-700: #15803d;
 
-  --accent-500: #2563eb; /* CTA·강조 */
-  --accent-600: #1d4ed8;
+  /* 랜딩 리디자인(#119)에 맞춰 앱 전체를 그린 톤으로 통일 —
+     accent(블루)였던 CTA·강조·포커스 링이 모두 brand 그린으로 바뀐다 */
+  --accent-500: #16a34a;
+  --accent-600: #15803d;
 
   --surface: #ffffff;
-  --surface-muted: #f5f7fa; /* 목업의 연한 블루그레이 배경 */
-  --border: #e5e7eb;
+  --surface-muted: #f8faf4; /* 랜딩과 동일한 크림-그린 배경 */
+  --border: #dcfce7; /* green-100 — 랜딩 카드 테두리와 동일 */
 }
 
 @theme inline {

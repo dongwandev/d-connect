@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic'
 
 const TYPE_BADGE: Record<ContentType, string> = {
   SNS_POST: 'bg-pink-100 text-pink-800',
-  CARD_NEWS: 'bg-blue-100 text-blue-800',
+  CARD_NEWS: 'bg-green-100 text-green-800',
   SHORT_VIDEO_SCRIPT: 'bg-purple-100 text-purple-800',
   CAMPAIGN_SLOGAN: 'bg-emerald-100 text-emerald-800',
   POSTER: 'bg-amber-100 text-amber-800',
@@ -54,7 +54,7 @@ export default async function ContentsPage() {
             action={
               <Link
                 href="/companies"
-                className="inline-flex items-center gap-1 rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                className="inline-flex items-center gap-1 rounded-full bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
               >
                 기업 관리로 이동
               </Link>
@@ -113,7 +113,7 @@ export default async function ContentsPage() {
                       </Link>
                       <Link
                         href={`/contents/${c.id}`}
-                        className="rounded-lg bg-accent-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                        className="rounded-full bg-accent-500 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                       >
                         편집
                       </Link>

@@ -72,7 +72,7 @@ export function WithdrawForm({ hasPassword }: { hasPassword: boolean }) {
             autoComplete="current-password"
             value={secret}
             onChange={(e) => setSecret(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2"
           />
         </div>
       ) : (
@@ -91,7 +91,7 @@ export function WithdrawForm({ hasPassword }: { hasPassword: boolean }) {
             autoComplete="off"
             value={secret}
             onChange={(e) => setSecret(e.target.value)}
-            className="w-full rounded border border-gray-300 px-3 py-2"
+            className="w-full rounded-lg border border-gray-300 px-3 py-2"
             placeholder={WITHDRAW_CONFIRM_PHRASE}
           />
         </div>

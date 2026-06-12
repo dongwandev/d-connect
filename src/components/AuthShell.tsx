@@ -9,8 +9,8 @@ import Link from 'next/link'
  */
 export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
-      <header className="border-b border-gray-200 bg-white">
+    <div className="flex min-h-screen flex-col bg-[#f8faf4]">
+      <header className="border-b border-green-100 bg-white">
         <div className="mx-auto flex max-w-5xl items-center px-6 py-3.5">
           <Link
             href="/"

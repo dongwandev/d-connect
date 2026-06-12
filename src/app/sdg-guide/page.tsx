@@ -170,7 +170,7 @@ export default function SdgGuidePage() {
           <div className="mt-5 border-t border-border pt-4">
             <Link
               href="/companies/new"
-              className="inline-flex rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+              className="inline-flex rounded-full bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
             >
               지금 시작하기 — 새 기업 등록
             </Link>

@@ -35,7 +35,7 @@ export const dynamic = 'force-dynamic'
 
 // 활동 카테고리별 컬러 클래스 (SocialCategory별 시각적 구분)
 const CATEGORY_BADGE: Record<SocialCategory, string> = {
-  EMPLOYMENT: 'bg-blue-100 text-blue-800',
+  EMPLOYMENT: 'bg-green-100 text-green-800',
   ENVIRONMENT: 'bg-emerald-100 text-emerald-800',
   LOCAL_ECONOMY: 'bg-amber-100 text-amber-800',
   COMMUNITY: 'bg-purple-100 text-purple-800',
@@ -98,7 +98,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
       <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
         {/* 헤더 카드 — 브랜드 그린 그라데이션 + 이니셜 아바타 */}
         <header className="overflow-hidden rounded-xl border border-border bg-surface shadow-sm">
-          <div className="flex items-center gap-4 bg-gradient-to-br from-brand-50 to-blue-50 px-6 py-5">
+          <div className="flex items-center gap-4 bg-gradient-to-br from-brand-50 to-green-50 px-6 py-5">
             <div
               className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-brand-500 text-2xl font-bold text-white shadow-sm"
               aria-hidden
@@ -198,7 +198,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                         {targets.map((t) => (
                           <span
                             key={t}
-                            className="rounded-full bg-blue-100 px-2 py-0.5 text-xs text-blue-800"
+                            className="rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-800"
                           >
                             {TARGET_AUDIENCE_LABEL[t]}
                           </span>
@@ -259,7 +259,7 @@ export default async function CompanyDetailPage({ params }: PageProps) {
                 return (
                   <li
                     key={a.id}
-                    className="rounded-lg border border-border bg-surface-muted p-4 transition-colors hover:border-brand-500"
+                    className="rounded-2xl border border-border bg-surface-muted p-4 transition-colors hover:border-brand-500"
                   >
                     <div className="mb-1 flex items-center gap-2">
                       <span

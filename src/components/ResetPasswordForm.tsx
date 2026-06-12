@@ -63,7 +63,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
         </p>
         <Link
           href="/login"
-          className="inline-block rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          className="inline-block rounded-full bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700"
         >
           로그인하러 가기
         </Link>
@@ -99,7 +99,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
-        className="w-full rounded bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full rounded-full bg-green-600 px-4 py-3 font-medium text-white hover:bg-green-700 disabled:bg-gray-400"
       >
         {state.kind === 'submitting' ? '재설정 중...' : '비밀번호 재설정'}
       </button>
@@ -113,7 +113,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
   )
 }
 
-const INPUT_CLS = 'w-full rounded border border-gray-300 px-3 py-2'
+const INPUT_CLS = 'w-full rounded-lg border border-gray-300 px-3 py-2'
 
 function Field({
   label,

@@ -132,7 +132,7 @@ export function ContentGenerationButtons({
     ]
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-surface p-4">
+    <div className="space-y-4 rounded-2xl border border-border bg-surface p-4">
       <fieldset className="space-y-2">
         <legend className="text-sm font-semibold text-gray-900">
           1. 홍보할 SDGs 분야
@@ -182,8 +182,8 @@ export function ContentGenerationButtons({
                 disabled={submitting}
                 className={`rounded border px-3 py-2.5 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
                   active
-                    ? 'border-blue-500 bg-blue-50 ring-1 ring-blue-500'
-                    : 'border-gray-200 bg-white hover:border-blue-400 hover:bg-blue-50'
+                    ? 'border-green-500 bg-green-50 ring-1 ring-green-500'
+                    : 'border-gray-200 bg-white hover:border-green-400 hover:bg-green-50'
                 }`}
               >
                 <span className="block text-sm font-medium text-gray-800">
@@ -279,7 +279,7 @@ export function ContentGenerationButtons({
             type="button"
             onClick={generate}
             disabled={submitting || !focusSdg}
-            className="w-full rounded bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-gray-400"
+            className="w-full rounded-full bg-green-600 px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-green-700 disabled:cursor-not-allowed disabled:bg-gray-400"
           >
             {submitting
               ? '생성 중...'
@@ -291,11 +291,11 @@ export function ContentGenerationButtons({
       {state.kind === 'submitting' && type ? (
         <div className="space-y-3" role="status" aria-live="polite">
           <div
-            className="h-1.5 w-full overflow-hidden rounded-full bg-blue-100"
+            className="h-1.5 w-full overflow-hidden rounded-full bg-green-100"
             role="progressbar"
             aria-label="콘텐츠 생성 진행 중"
           >
-            <div className="indeterminate-bar h-full rounded-full bg-blue-500" />
+            <div className="indeterminate-bar h-full rounded-full bg-green-500" />
           </div>
           <p className="text-xs text-gray-600">
             ✨ {progressMessage}
@@ -305,9 +305,9 @@ export function ContentGenerationButtons({
           </p>
 
           {/* 결과가 도착할 자리의 스켈레톤 카드 */}
-          <div className="animate-pulse space-y-2 rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+          <div className="animate-pulse space-y-2 rounded-lg border border-green-100 bg-green-50/50 p-4">
             <div className="flex items-center gap-2">
-              <span className="rounded bg-blue-200 px-2 py-0.5 text-xs font-medium text-blue-800">
+              <span className="rounded bg-green-200 px-2 py-0.5 text-xs font-medium text-green-800">
                 {CONTENT_TYPE_LABEL[type]}
               </span>
               {focusSdg && (
@@ -319,9 +319,9 @@ export function ContentGenerationButtons({
                 </span>
               )}
             </div>
-            <div className="h-3 w-3/4 rounded bg-blue-100" />
-            <div className="h-3 w-full rounded bg-blue-100" />
-            <div className="h-3 w-2/3 rounded bg-blue-100" />
+            <div className="h-3 w-3/4 rounded bg-green-100" />
+            <div className="h-3 w-full rounded bg-green-100" />
+            <div className="h-3 w-2/3 rounded bg-green-100" />
           </div>
         </div>
       ) : (
@@ -371,8 +371,8 @@ function Chip({
       disabled={disabled}
       className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-60 ${
         active
-          ? 'border-blue-500 bg-blue-500 text-white'
-          : 'border-gray-300 bg-white text-gray-700 hover:border-blue-400'
+          ? 'border-green-500 bg-green-500 text-white'
+          : 'border-gray-300 bg-white text-gray-700 hover:border-green-400'
       }`}
     >
       {label}

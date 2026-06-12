@@ -12,7 +12,7 @@ import { NOTICES, type Notice, type NoticeCategory } from '@/lib/notices'
 export const dynamic = 'force-dynamic'
 
 const CATEGORY_BADGE: Record<NoticeCategory, string> = {
-  공지: 'bg-accent-500/10 text-accent-600',
+  공지: 'bg-sky-100 text-sky-700',
   업데이트: 'bg-emerald-100 text-emerald-700',
   점검: 'bg-amber-100 text-amber-700',
 }

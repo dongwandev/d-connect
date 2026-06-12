@@ -40,7 +40,7 @@ export default async function CompaniesPage() {
       actions={
         <Link
           href="/companies/new"
-          className="rounded-lg bg-accent-500 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+          className="rounded-full bg-accent-500 px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
         >
           + 새 기업 등록
         </Link>
@@ -55,7 +55,7 @@ export default async function CompaniesPage() {
             action={
               <Link
                 href="/companies/new"
-                className="inline-flex items-center gap-1 rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                className="inline-flex items-center gap-1 rounded-full bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
               >
                 <span aria-hidden>➕</span>
                 <span>첫 기업 등록하기</span>
@@ -112,7 +112,7 @@ export default async function CompaniesPage() {
                   <div className="mt-4 flex gap-2 border-t border-border pt-4">
                     <Link
                       href={`/companies/${c.id}`}
-                      className="flex-1 rounded-lg bg-accent-500 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                      className="flex-1 rounded-full bg-accent-500 px-3 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                     >
                       상세 보기
                     </Link>

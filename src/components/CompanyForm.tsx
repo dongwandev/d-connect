@@ -404,7 +404,7 @@ export function CompanyForm({
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
-        className="w-full rounded-lg bg-accent-500 px-4 py-3 font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:bg-gray-400"
+        className="w-full rounded-full bg-accent-500 px-4 py-3 font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:bg-gray-400"
       >
         {state.kind === 'submitting'
           ? '저장 중...'

@@ -71,8 +71,8 @@ const VARIANT_STYLE: Record<
     icon: '⚠️',
   },
   info: {
-    container: 'border-blue-200 bg-blue-50',
-    text: 'text-blue-900',
+    container: 'border-green-200 bg-green-50',
+    text: 'text-green-900',
     icon: 'ℹ️',
   },
 }

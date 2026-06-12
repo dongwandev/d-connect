@@ -84,7 +84,7 @@ export function ContentEditForm({ contentId, initial }: Props) {
           value={body}
           onChange={(e) => setBody(e.target.value)}
           rows={10}
-          className="w-full rounded border border-gray-300 px-3 py-2 font-mono text-sm leading-relaxed"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 font-mono text-sm leading-relaxed"
         />
       </div>
 
@@ -97,7 +97,7 @@ export function ContentEditForm({ contentId, initial }: Props) {
           onChange={(e) => setHashtagsText(e.target.value)}
           rows={2}
           placeholder="쉼표(,) 또는 줄바꿈으로 구분. # 기호는 자동 제거됩니다."
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
         />
       </div>
 
@@ -109,7 +109,7 @@ export function ContentEditForm({ contentId, initial }: Props) {
           value={imagePrompt}
           onChange={(e) => setImagePrompt(e.target.value)}
           rows={3}
-          className="w-full rounded border border-gray-300 px-3 py-2 text-sm"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm"
         />
       </div>
 
@@ -117,7 +117,7 @@ export function ContentEditForm({ contentId, initial }: Props) {
         <button
           type="submit"
           disabled={state.kind === 'submitting'}
-          className="rounded bg-blue-600 px-4 py-2 font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
+          className="rounded-full bg-green-600 px-4 py-2 font-medium text-white hover:bg-green-700 disabled:bg-gray-400"
         >
           {state.kind === 'submitting' ? '저장 중...' : '저장'}
         </button>

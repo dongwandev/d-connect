@@ -177,7 +177,7 @@ export function SignupForm() {
       </Section>
 
       <Section title="이메일 인증">
-        <p className="rounded border border-blue-200 bg-blue-50 p-3 text-xs text-blue-800">
+        <p className="rounded border border-green-200 bg-green-50 p-3 text-xs text-green-800">
           📧 가입하면 입력하신 이메일로 인증 링크가 발송됩니다.
           <br />
           인증 전에도 서비스를 이용할 수 있으며, 화면 상단 배너에서 인증
@@ -205,7 +205,7 @@ export function SignupForm() {
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
-        className="w-full rounded bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full rounded-full bg-green-600 px-4 py-3 font-medium text-white hover:bg-green-700 disabled:bg-gray-400"
       >
         {state.kind === 'submitting' ? '가입 중...' : '회원가입'}
       </button>
@@ -221,7 +221,7 @@ export function SignupForm() {
 
 // --- helpers -------------------------------------------------------------
 
-const INPUT_CLS = 'w-full rounded border border-gray-300 px-3 py-2'
+const INPUT_CLS = 'w-full rounded-lg border border-gray-300 px-3 py-2'
 
 function Section({
   title,
