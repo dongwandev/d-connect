@@ -3,6 +3,7 @@ import {
   AUDIENCES,
   CTA,
   DIFFERENTIATORS,
+  EXAMPLES,
   FOOTER_TAGLINE,
   HERO,
   SDGS,
@@ -12,7 +13,8 @@ import { VariantSwitcher } from '../VariantSwitcher'
 
 /**
  * 랜딩 시안 2 — 밝고 둥근 캠페인 톤 (#119 임시 라우트).
- * 크림 배경 + 도트 패턴, SDG 컬러 모자이크, 키워드 마키, 라운드 카드.
+ * 크림 배경 + 도트 패턴, SDG 컬러 모자이크, SDG별 변환 예시, 라운드 카드.
+ * 섹션 순서: 히어로 → 이용 흐름 → 변환 예시(4종) → 차별점 → 타겟 → CTA.
  */
 export const metadata = { title: '랜딩 시안 2 | D-Connect' }
 
@@ -52,8 +54,7 @@ export default function LandingVariant2() {
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,#bbe5c4_1px,transparent_1px)] bg-[size:22px_22px] opacity-40"
           />
-          <div className="relative mx-auto max-w-5xl px-6 pb-16 pt-20">
-            <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_1fr]">
+          <div className="relative mx-auto grid max-w-5xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.2fr_1fr]">
             <div className="animate-fade-up text-center lg:text-left">
               <p className="inline-block rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700">
                 🌱 {HERO.badge}
@@ -105,66 +106,11 @@ export default function LandingVariant2() {
                 ))}
               </div>
             </div>
-            </div>
-
-            {/* 변환 예시 카드 — 히어로와 같은 도트 배경·폭 안에 얹어 위아래 흐름을 연결 (PRD 시나리오 A) */}
-            <div className="relative mt-14 rounded-3xl border-2 border-green-100 bg-white p-6 pt-9 shadow-lg shadow-green-100/60 sm:p-8 sm:pt-10">
-              <p className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-600 px-4 py-1.5 text-xs font-bold text-white">
-                예시 — 대전의 한 친환경 카페라면
-              </p>
-              <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
-              {/* 입력: 담당자가 적는 활동 한 줄 */}
-              <div className="rounded-2xl rounded-bl-sm bg-gray-100 px-5 py-4">
-                <p className="text-xs font-semibold text-gray-400">
-                  입력한 활동
-                </p>
-                <p className="mt-1.5 text-sm leading-relaxed text-gray-700">
-                  &ldquo;지역 카페 모임과 함께 일회용품 줄이기 캠페인을
-                  진행했어요&rdquo;
-                </p>
-              </div>
-
-              {/* 변환 화살표 — 모바일은 ↓, 데스크톱은 → */}
-              <div className="flex flex-col items-center gap-1 text-brand-600">
-                <span aria-hidden className="hidden text-2xl font-bold sm:block">
-                  →
-                </span>
-                <span aria-hidden className="text-2xl font-bold sm:hidden">
-                  ↓
-                </span>
-                <span className="whitespace-nowrap text-[11px] font-bold tracking-wide">
-                  AI 분석
-                </span>
-              </div>
-
-              {/* 출력: SDG 연결 + 공공홍보 톤 문구 */}
-              <div className="rounded-2xl rounded-br-sm bg-brand-50 px-5 py-4">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <span
-                    className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
-                    style={{ backgroundColor: '#BF8B2E' }}
-                  >
-                    SDG 12 지속가능한 소비와 생산
-                  </span>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-brand-700">
-                    #일회용품_저감
-                  </span>
-                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-brand-700">
-                    #다회용컵
-                  </span>
-                </div>
-                <p className="mt-2.5 text-sm leading-relaxed text-gray-700">
-                  매장에서 다회용 컵 사용을 안내하며, 일회용품을 줄이는 실천을
-                  이웃과 함께하고 있습니다.
-                </p>
-              </div>
-              </div>
-            </div>
           </div>
         </section>
 
         {/* 이용 흐름 — 점선 연결 + 컬러 뱃지 */}
-        <section className="mx-auto max-w-5xl px-6 pb-20 pt-14">
+        <section className="mx-auto max-w-5xl px-6 py-20">
           <h2 className="text-center text-2xl font-extrabold text-gray-900 sm:text-3xl">
             이렇게 진행됩니다 👀
           </h2>
@@ -191,26 +137,117 @@ export default function LandingVariant2() {
           </ol>
         </section>
 
-        {/* 차별점 — 이모지 라운드 카드 */}
+        {/* SDG별 변환 예시 — 입력 활동 → SDG 연결 + 공공홍보 문구 (PRD §4 시나리오 변형) */}
         <section className="bg-white">
           <div className="mx-auto max-w-5xl px-6 py-20">
             <h2 className="text-center text-2xl font-extrabold text-gray-900 sm:text-3xl">
-              일반 AI 콘텐츠 도구와 무엇이 다른가요?
+              이런 활동이 이렇게 바뀝니다 ✨
             </h2>
-            <div className="mt-12 grid gap-6 sm:grid-cols-3">
-              {DIFFERENTIATORS.map((item, i) => (
+            <p className="mt-3 text-center text-sm text-gray-500">
+              우선 지원하는 SDGs 4개 목표별 예시입니다.
+            </p>
+            <div className="mt-12 grid gap-6 lg:grid-cols-2">
+              {EXAMPLES.map((ex) => (
                 <div
-                  key={item.title}
-                  className="rounded-3xl bg-[#f8faf4] p-7 transition hover:rotate-1 hover:shadow-md"
+                  key={ex.sdgNo}
+                  className="rounded-3xl bg-[#f8faf4] p-6 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-green-100 sm:p-7"
                 >
-                  <span aria-hidden className="text-3xl">
-                    {DIFF_EMOJI[i]}
-                  </span>
-                  <h3 className="mt-4 text-lg font-bold text-gray-900">
-                    {item.title}
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span
+                      className="rounded-full px-3 py-1 text-xs font-bold text-white"
+                      style={{ backgroundColor: ex.color }}
+                    >
+                      SDG {ex.sdgNo} · {ex.sdgName}
+                    </span>
+                    <span className="text-xs font-semibold text-gray-400">
+                      {ex.persona}
+                    </span>
+                  </div>
+
+                  {/* 입력: 담당자가 적는 활동 한 줄 */}
+                  <div className="mt-4 rounded-2xl rounded-bl-sm bg-white px-4 py-3">
+                    <p className="text-xs font-semibold text-gray-400">
+                      입력한 활동
+                    </p>
+                    <p className="mt-1 text-sm leading-relaxed text-gray-700">
+                      &ldquo;{ex.input}&rdquo;
+                    </p>
+                  </div>
+
+                  <p
+                    aria-hidden
+                    className="my-2 text-center text-xs font-bold text-brand-600"
+                  >
+                    ↓ AI 분석
+                  </p>
+
+                  {/* 출력: 매칭 키워드 + 공공홍보 톤 문구 */}
+                  <div className="rounded-2xl rounded-br-sm bg-brand-100/50 px-4 py-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {ex.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-brand-700"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                      {ex.output}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 차별점 — 이모지 라운드 카드 */}
+        <section className="mx-auto max-w-5xl px-6 py-20">
+          <h2 className="text-center text-2xl font-extrabold text-gray-900 sm:text-3xl">
+            일반 AI 콘텐츠 도구와 무엇이 다른가요?
+          </h2>
+          <div className="mt-12 grid gap-6 sm:grid-cols-3">
+            {DIFFERENTIATORS.map((item, i) => (
+              <div
+                key={item.title}
+                className="rounded-3xl border-2 border-green-100 bg-white p-7 transition hover:rotate-1 hover:shadow-md"
+              >
+                <span aria-hidden className="text-3xl">
+                  {DIFF_EMOJI[i]}
+                </span>
+                <h3 className="mt-4 text-lg font-bold text-gray-900">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                  {item.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 타겟 사용자 — 말풍선 예시 */}
+        <section className="bg-white">
+          <div className="mx-auto max-w-5xl px-6 py-20">
+            <h2 className="text-center text-2xl font-extrabold text-gray-900 sm:text-3xl">
+              이런 분께 도움이 됩니다
+            </h2>
+            <div className="mt-12 grid gap-6 sm:grid-cols-2">
+              {AUDIENCES.map((audience) => (
+                <div
+                  key={audience.title}
+                  className="rounded-3xl border-2 border-green-100 bg-[#f8faf4] p-7 transition hover:border-brand-500/40"
+                >
+                  <h3 className="text-lg font-bold text-gray-900">
+                    {audience.title}
                   </h3>
                   <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                    {item.description}
+                    {audience.description}
+                  </p>
+                  <p className="mt-4 rounded-2xl rounded-tl-sm bg-brand-100/60 px-4 py-3 text-sm font-medium leading-relaxed text-brand-700">
+                    💬 {audience.example}
                   </p>
                 </div>
               ))}
@@ -218,33 +255,8 @@ export default function LandingVariant2() {
           </div>
         </section>
 
-        {/* 타겟 사용자 — 말풍선 예시 */}
-        <section className="mx-auto max-w-5xl px-6 py-20">
-          <h2 className="text-center text-2xl font-extrabold text-gray-900 sm:text-3xl">
-            이런 분께 도움이 됩니다
-          </h2>
-          <div className="mt-12 grid gap-6 sm:grid-cols-2">
-            {AUDIENCES.map((audience) => (
-              <div
-                key={audience.title}
-                className="rounded-3xl border-2 border-green-100 bg-white p-7 transition hover:border-brand-500/40"
-              >
-                <h3 className="text-lg font-bold text-gray-900">
-                  {audience.title}
-                </h3>
-                <p className="mt-2 text-sm leading-relaxed text-gray-600">
-                  {audience.description}
-                </p>
-                <p className="mt-4 rounded-2xl rounded-tl-sm bg-brand-100/60 px-4 py-3 text-sm font-medium leading-relaxed text-brand-700">
-                  💬 {audience.example}
-                </p>
-              </div>
-            ))}
-          </div>
-        </section>
-
         {/* 하단 CTA — 큰 라운드 박스 */}
-        <section className="mx-auto max-w-5xl px-6 pb-20">
+        <section className="mx-auto max-w-5xl px-6 py-20">
           <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-brand-600 to-green-700 px-6 py-16 text-center shadow-xl shadow-green-200">
             <div
               aria-hidden
