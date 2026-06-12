@@ -67,6 +67,7 @@ export default async function AnalysisPage({ params }: PageProps) {
     id: c.id,
     type: c.type as ContentType,
     focusSdg: c.focusSdg as SdgGoal | null,
+    options: c.options,
     body: c.body,
     hashtags: parseJsonArray<string>(c.hashtags),
     imagePrompt: c.imagePrompt,

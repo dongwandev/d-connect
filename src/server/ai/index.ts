@@ -10,6 +10,7 @@ import {
   SDG_ANALYSIS_SYSTEM_PROMPT,
   buildSdgAnalysisPrompt,
 } from './prompts/sdg-analysis'
+import type { GenerationOptions } from '@/lib/enums'
 import {
   GeneratedContentSchema,
   type ContentType,
@@ -147,6 +148,7 @@ export async function generateContent(
   analysis: SdgAnalysisResult,
   contentType: ContentType,
   focusSdg: SdgGoal,
+  options: GenerationOptions,
 ): Promise<GenerateContentOutput> {
   if (!hasApiKey()) {
     console.warn('[ai] mock — no API key')
@@ -155,7 +157,7 @@ export async function generateContent(
 
   try {
     const result = await withTimeout(
-      callLlmForContent(company, analysis, contentType, focusSdg),
+      callLlmForContent(company, analysis, contentType, focusSdg, options),
       AI_TIMEOUT_MS,
     )
     return { result, usedFallback: false }
@@ -170,11 +172,12 @@ async function callLlmForContent(
   analysis: SdgAnalysisResult,
   contentType: ContentType,
   focusSdg: SdgGoal,
+  options: GenerationOptions,
 ): Promise<GeneratedContent> {
   // 카드뉴스 장별 프롬프트 등 출력이 길어 1500이면 잘려 mock 폴백될 수 있다 (#98)
   const raw = await callTool(
     CONTENT_GENERATION_SYSTEM_PROMPT,
-    buildContentGenerationPrompt(company, analysis, contentType, focusSdg),
+    buildContentGenerationPrompt(company, analysis, contentType, focusSdg, options),
     GENERATE_CONTENT_TOOL,
     3000,
   )

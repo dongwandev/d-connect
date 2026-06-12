@@ -86,6 +86,70 @@ export const CONTENT_TYPE_HINT: Record<ContentType, string> = {
   POSTER: '이미지 생성 AI에 붙여넣는 완성형 프롬프트 (한글 문구 포함)',
 }
 
+// --- 콘텐츠 생성 세부 설정 (#104) --------------------------------------------
+
+export const SnsPlatformSchema = z.enum([
+  'INSTAGRAM',
+  'FACEBOOK',
+  'X',
+  'OTHER',
+])
+export type SnsPlatform = z.infer<typeof SnsPlatformSchema>
+export const SNS_PLATFORM_LABEL: Record<SnsPlatform, string> = {
+  INSTAGRAM: '인스타그램',
+  FACEBOOK: '페이스북',
+  X: 'X (트위터)',
+  OTHER: '기타',
+}
+
+export const AspectRatioSchema = z.enum([
+  '1:1',
+  '4:5',
+  '16:9',
+  '9:16',
+  '2:3',
+  '4:3',
+  '16:10',
+])
+export type AspectRatio = z.infer<typeof AspectRatioSchema>
+
+export const ImageStyleSchema = z.enum([
+  'ILLUSTRATION',
+  'PHOTO',
+  'WATERCOLOR',
+  'MINIMAL',
+])
+export type ImageStyle = z.infer<typeof ImageStyleSchema>
+export const IMAGE_STYLE_LABEL: Record<ImageStyle, string> = {
+  ILLUSTRATION: '일러스트',
+  PHOTO: '실사 사진풍',
+  WATERCOLOR: '수채화',
+  MINIMAL: '미니멀',
+}
+
+/** 생성 세부 설정 — GeneratedContent.options JSON과 동일 구조 (#104) */
+export interface GenerationOptions {
+  platform: SnsPlatform
+  aspectRatio: AspectRatio
+  imageStyle: ImageStyle
+  /** CARD_NEWS 전용 — 카드 장 수 (3~8) */
+  slideCount?: number
+  /** 강조하고 싶은 내용 등 자유 요청 (≤200자) */
+  extraRequest?: string
+}
+
+/** 유형별 추천 기본 비율 — 숏폼은 세로 영상, 포스터는 세로 인쇄물 관행 */
+export const DEFAULT_ASPECT_RATIO: Record<ContentType, AspectRatio> = {
+  SNS_POST: '1:1',
+  CARD_NEWS: '1:1',
+  SHORT_VIDEO_SCRIPT: '9:16',
+  CAMPAIGN_SLOGAN: '1:1',
+  POSTER: '2:3',
+}
+
+export const DEFAULT_SLIDE_COUNT = 4
+export const SLIDE_COUNT_RANGE = [3, 4, 5, 6, 7, 8] as const
+
 // --- D2 enum 라벨 (디자인 이미지 2 기반) -------------------------------------
 
 export const BusinessTypeSchema = z.enum([
