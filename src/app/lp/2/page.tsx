@@ -52,7 +52,8 @@ export default function LandingVariant2() {
             aria-hidden
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,#bbe5c4_1px,transparent_1px)] bg-[size:22px_22px] opacity-40"
           />
-          <div className="relative mx-auto grid max-w-5xl items-center gap-12 px-6 py-20 lg:grid-cols-[1.2fr_1fr]">
+          <div className="relative mx-auto max-w-5xl px-6 pb-16 pt-20">
+            <div className="grid items-center gap-12 lg:grid-cols-[1.2fr_1fr]">
             <div className="animate-fade-up text-center lg:text-left">
               <p className="inline-block rounded-full bg-brand-100 px-4 py-1.5 text-sm font-semibold text-brand-700">
                 🌱 {HERO.badge}
@@ -104,16 +105,14 @@ export default function LandingVariant2() {
                 ))}
               </div>
             </div>
-          </div>
-        </section>
+            </div>
 
-        {/* 변환 예시 — 활동 한 줄이 SDG 연결 + 공공홍보 문구가 되는 과정 (PRD 시나리오 A 카페 사례) */}
-        <section className="relative mx-auto max-w-4xl px-6 pb-6">
-          <div className="rounded-3xl border-2 border-green-100 bg-white p-6 shadow-xl shadow-green-100/70 sm:p-8">
-            <p className="text-center text-xs font-semibold tracking-wide text-gray-400">
-              예시 — 대전의 한 친환경 카페라면
-            </p>
-            <div className="mt-5 grid items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
+            {/* 변환 예시 카드 — 히어로와 같은 도트 배경·폭 안에 얹어 위아래 흐름을 연결 (PRD 시나리오 A) */}
+            <div className="relative mt-14 rounded-3xl border-2 border-green-100 bg-white p-6 pt-9 shadow-lg shadow-green-100/60 sm:p-8 sm:pt-10">
+              <p className="absolute -top-3.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-brand-600 px-4 py-1.5 text-xs font-bold text-white">
+                예시 — 대전의 한 친환경 카페라면
+              </p>
+              <div className="grid items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
               {/* 입력: 담당자가 적는 활동 한 줄 */}
               <div className="rounded-2xl rounded-bl-sm bg-gray-100 px-5 py-4">
                 <p className="text-xs font-semibold text-gray-400">
@@ -159,12 +158,13 @@ export default function LandingVariant2() {
                   이웃과 함께하고 있습니다.
                 </p>
               </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* 이용 흐름 — 점선 연결 + 컬러 뱃지 */}
-        <section className="mx-auto max-w-5xl px-6 py-20">
+        <section className="mx-auto max-w-5xl px-6 pb-20 pt-14">
           <h2 className="text-center text-2xl font-extrabold text-gray-900 sm:text-3xl">
             이렇게 진행됩니다 👀
           </h2>
