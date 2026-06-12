@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import { auth, enabledProviders, signIn } from '@/auth'
+import { AuthShell } from '@/components/AuthShell'
 import { EmailLoginForm } from '@/components/EmailLoginForm'
 import { db } from '@/server/db'
 
@@ -66,7 +67,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     : null
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
+    <AuthShell>
       <div className="w-full max-w-md space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
         <header className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">D-Connect</h1>
@@ -177,6 +178,6 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           </>
         )}
       </div>
-    </main>
+    </AuthShell>
   )
 }

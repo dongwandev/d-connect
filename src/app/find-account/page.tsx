@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { AuthShell } from '@/components/AuthShell'
 import { FindAccountForm } from '@/components/FindAccountForm'
 
 /**
@@ -15,7 +16,7 @@ export default async function FindAccountPage() {
   if (session?.user) redirect('/dashboard')
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
+    <AuthShell>
       <div className="w-full max-w-md space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
         <header className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">계정 찾기</h1>
@@ -35,6 +36,6 @@ export default async function FindAccountPage() {
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   )
 }
