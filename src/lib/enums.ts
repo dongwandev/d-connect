@@ -80,7 +80,7 @@ export const CONTENT_TYPE_LABEL: Record<ContentType, string> = {
 /** 유형별 산출물 한 줄 설명 — 생성 버튼·콘텐츠 카드 안내용 (#92) */
 export const CONTENT_TYPE_HINT: Record<ContentType, string> = {
   SNS_POST: '바로 게시할 수 있는 완성 텍스트',
-  CARD_NEWS: '슬라이드별 문안 (3~5장)',
+  CARD_NEWS: '슬라이드별 문안 + 장별 카드 생성 프롬프트',
   SHORT_VIDEO_SCRIPT: '영상 생성 AI에 붙여넣는 영어 프롬프트 + 한국어 안내',
   CAMPAIGN_SLOGAN: '캠페인 슬로건 후보 (구버전)',
   POSTER: '이미지 생성 AI에 붙여넣는 완성형 프롬프트 (한글 문구 포함)',

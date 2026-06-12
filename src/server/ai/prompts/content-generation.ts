@@ -46,10 +46,10 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
   - body: 바로 게시 가능한 본문 200~400자. 친근하고 짧은 단락. 이모지 1~3개 절제 사용. ~해요체 허용, 광고 톤 금지.
   - hashtags: 5~8개.
   - imagePrompt: 게시글에 곁들일 이미지 1장의 영어 생성 프롬프트 (선택).
-- CARD_NEWS (카드뉴스 문안) — 완성형 텍스트:
+- CARD_NEWS (카드뉴스 문안) — 완성형 텍스트 + 장별 카드 생성 프롬프트:
   - body: 3~5장 슬라이드. "[1장]" 형식 표기 후 줄바꿈 분리, 슬라이드별 1~2문장, 총 400~700자. 슬라이드마다 하나의 명확한 사실 정보.
   - hashtags: 3~6개.
-  - imagePrompt: 표지(1장) 배경 이미지의 영어 생성 프롬프트 (선택).
+  - imagePrompt (**필수**): body의 각 장과 1:1 대응하는 "Card 1:" ~ "Card N:" 블록. 각 블록은 이미지 생성 AI에 단독으로 붙여넣으면 그 장의 한글 문구가 렌더링된 1:1 정사각 카드 1장이 나오는 완전한 프롬프트.
 - SHORT_VIDEO_SCRIPT (숏폼 생성 프롬프트) — 영상 생성 AI용:
   - imagePrompt (**필수**): Sora·Veo·Runway 등 영상 생성 AI에 그대로 붙여넣는 **영어** 프롬프트. 15~30초 분량의 장면 구성(shot-by-shot), 카메라 움직임, 분위기, 색감, 자막 삽입 위치를 포함. 실존 인물·브랜드 로고 묘사 금지.
   - body: 한국어 안내 — 영상의 의도, 장면별 구성 요약, 생성 후 덧붙일 자막 문구(한국어) 제안. 300~500자.
@@ -59,7 +59,7 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
   - body: 포스터에 들어갈 한국어 문구 — 헤드라인 1줄, 서브카피 1~2줄, 하단 정보(기업명·지역) 형식으로 구분 표기. imagePrompt의 인용 문구와 동일해야 함.
   - hashtags: 게시 시 쓸 해시태그 3~6개.
 
-[영어 프롬프트 작성 규칙] (SHORT_VIDEO_SCRIPT·POSTER의 imagePrompt)
+[영어 프롬프트 작성 규칙] (SHORT_VIDEO_SCRIPT·POSTER·CARD_NEWS의 imagePrompt)
 - **[홍보 대상 SDG]가 이미지의 중심 테마다.** SDG별 시각 서사:
   - SDG_8 (일자리·경제성장): 교육받고 → 성장하고 → 일하는 사람의 서사. 강의·멘토링 장면, 일터에서 자신감 있게 일하는 모습, 상승 그래프 모티프. 환경 상징 금지.
   - SDG_11 (도시·공동체): 동네 골목·시장·공공 공간에서 주민들이 어울리는 장면.
@@ -70,6 +70,7 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
 - **body와 한 몸**: imagePrompt는 body(헤드라인·서브카피·자막)가 말하는 메시지를 장면으로 번역한 것이어야 한다.
 - **한국 맥락 명시**: 인물·배경에 "Korean young adults", "in Daejeon, South Korea" 등 한국임을 반드시 명시 — 명시하지 않으면 이미지 모델이 서구권 인물·도시를 그린다. 기업의 지역 정보가 있으면 도시명을 포함.
 - **장면 묘사에 고유명사 금지**: 과정명·기업명·캠페인명을 장면 묘사에 따옴표로 넣지 말 것 — 이미지 모델이 의도치 않은 간판·현수막으로 그려 넣는다. 이름 없이 장면으로만 묘사하라 (예: "'데이터 탐험가 과정'" 대신 "a data analysis bootcamp class"). 렌더링할 문구는 오직 POSTER의 Typography layout 섹션에서만 정확히 인용한다 (SHORT_VIDEO_SCRIPT는 영상에 글자를 넣지 않는다 — 자막은 body가 담당).
+- **로고·실존 인물 묘사 금지**: 기업 로고를 그리라고 지시하지 말 것 — 이미지 모델은 실제 로고를 모르므로 가짜 로고를 만들어낸다. 실존 인물 묘사도 금지. 일반화된 장면·인물로만.
 - 과장된 연출("epic", "dramatic", "best")보다 따뜻하고 절제된 공공 캠페인 무드.
 
 언어: body·hashtags는 한국어, 영어 프롬프트 지시가 있는 필드만 영어. 톤: 공공기관 보도자료·카드뉴스의 절제된 ~합니다체 (SNS_POST는 ~해요체 일부 허용).`
@@ -83,7 +84,14 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
   SNS_POST:
     '- body: 바로 게시 가능한 한국어 본문 200~400자, 이모지 1~3개\n- hashtags(필수): 5~8개, # 기호 제외\n- imagePrompt(선택): 곁들일 이미지 1장의 영어 프롬프트',
   CARD_NEWS:
-    '- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장\n- hashtags(필수): 3~6개, # 기호 제외\n- imagePrompt(선택): 표지 배경의 영어 프롬프트',
+    `- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장
+- hashtags(필수): 3~6개, # 기호 제외
+- imagePrompt(필수): body의 장 수와 동일한 개수의 "Card 1:" ~ "Card N:" 블록 (줄바꿈 2번으로 구분). **각 블록은 단독으로 이미지 생성 AI에 붙여넣어도 완전하도록** 다음을 모두 포함:
+  · 1:1 정사각 카드뉴스 규격 명시 ("A 1:1 square card-news slide...")
+  · 그 장의 내용을 시각화한 장면(영어) — [영어 프롬프트 작성 규칙] 준수, 해당 장이 말하는 활동·사실을 그릴 것
+  · 그 장의 body 문구를 따옴표로 **한 글자도 바꾸지 말고 인용** — Card N의 인용 문구는 body의 [N장] 문구와 정확히 동일해야 하며, 요약·재작성·새 문장 생성 금지 ("[1장]" 같은 장 라벨만 제외). 배치 지시: Card 1은 표지 — 큰 제목 스타일, 2장부터는 상단 또는 하단 텍스트 영역
+  · 세트 일관성: 모든 카드에 동일한 스타일 문장 반복 ("Consistent flat illustration style and the same warm color palette across all cards in this set.")
+  · 한글 가드: "Render the Korean text EXACTLY as written with correct Hangul glyphs. No other text or lettering in the image."`,
   SHORT_VIDEO_SCRIPT:
     '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 인물·배경은 한국임을 명시(Korean ...). body의 자막 문구가 말하는 내용과 장면이 일치해야 함. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안\n- hashtags(필수): 영상 게시 시 쓸 해시태그 3~6개, # 기호 제외',
   CAMPAIGN_SLOGAN: '- body: 슬로건 2~3개 후보, 각 한 줄 + 짧은 부연',
