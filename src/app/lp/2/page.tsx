@@ -5,7 +5,6 @@ import {
   DIFFERENTIATORS,
   FOOTER_TAGLINE,
   HERO,
-  KEYWORDS,
   SDGS,
   STEPS,
 } from '@/lib/landing-content'
@@ -108,22 +107,61 @@ export default function LandingVariant2() {
           </div>
         </section>
 
-        {/* 활동 키워드 — 정적 칩 띠 (마키는 시선을 빼앗아 정적으로 교체) */}
-        <div className="border-y border-green-100 bg-brand-600 py-6">
-          <p className="text-center text-xs font-semibold tracking-wide text-brand-100">
-            이런 활동이 SDGs와 연결됩니다
-          </p>
-          <ul className="mx-auto mt-3 flex max-w-4xl flex-wrap items-center justify-center gap-2 px-6">
-            {KEYWORDS.map((k) => (
-              <li
-                key={k}
-                className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white"
-              >
-                {k}
-              </li>
-            ))}
-          </ul>
-        </div>
+        {/* 변환 예시 — 활동 한 줄이 SDG 연결 + 공공홍보 문구가 되는 과정 (PRD 시나리오 A 카페 사례) */}
+        <section className="relative mx-auto max-w-4xl px-6 pb-6">
+          <div className="rounded-3xl border-2 border-green-100 bg-white p-6 shadow-xl shadow-green-100/70 sm:p-8">
+            <p className="text-center text-xs font-semibold tracking-wide text-gray-400">
+              예시 — 대전의 한 친환경 카페라면
+            </p>
+            <div className="mt-5 grid items-center gap-4 sm:grid-cols-[1fr_auto_1fr]">
+              {/* 입력: 담당자가 적는 활동 한 줄 */}
+              <div className="rounded-2xl rounded-bl-sm bg-gray-100 px-5 py-4">
+                <p className="text-xs font-semibold text-gray-400">
+                  입력한 활동
+                </p>
+                <p className="mt-1.5 text-sm leading-relaxed text-gray-700">
+                  &ldquo;지역 카페 모임과 함께 일회용품 줄이기 캠페인을
+                  진행했어요&rdquo;
+                </p>
+              </div>
+
+              {/* 변환 화살표 — 모바일은 ↓, 데스크톱은 → */}
+              <div className="flex flex-col items-center gap-1 text-brand-600">
+                <span aria-hidden className="hidden text-2xl font-bold sm:block">
+                  →
+                </span>
+                <span aria-hidden className="text-2xl font-bold sm:hidden">
+                  ↓
+                </span>
+                <span className="whitespace-nowrap text-[11px] font-bold tracking-wide">
+                  AI 분석
+                </span>
+              </div>
+
+              {/* 출력: SDG 연결 + 공공홍보 톤 문구 */}
+              <div className="rounded-2xl rounded-br-sm bg-brand-50 px-5 py-4">
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span
+                    className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
+                    style={{ backgroundColor: '#BF8B2E' }}
+                  >
+                    SDG 12 지속가능한 소비와 생산
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-brand-700">
+                    #일회용품_저감
+                  </span>
+                  <span className="rounded-full bg-white px-2.5 py-1 text-[11px] font-semibold text-brand-700">
+                    #다회용컵
+                  </span>
+                </div>
+                <p className="mt-2.5 text-sm leading-relaxed text-gray-700">
+                  매장에서 다회용 컵 사용을 안내하며, 일회용품을 줄이는 실천을
+                  이웃과 함께하고 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* 이용 흐름 — 점선 연결 + 컬러 뱃지 */}
         <section className="mx-auto max-w-5xl px-6 py-20">
