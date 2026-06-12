@@ -108,25 +108,21 @@ export default function LandingVariant2() {
           </div>
         </section>
 
-        {/* 활동 키워드 마키 — 흐르는 띠 */}
-        <div className="overflow-hidden border-y border-green-100 bg-brand-600 py-3">
-          <div className="animate-marquee flex w-max items-center gap-8">
-            {/* 동일 목록 2회 렌더 → -50% 이동으로 이음새 제거 */}
-            {[0, 1].map((dup) => (
-              <ul
-                key={dup}
-                aria-hidden={dup === 1}
-                className="flex items-center gap-8 text-sm font-semibold text-white"
+        {/* 활동 키워드 — 정적 칩 띠 (마키는 시선을 빼앗아 정적으로 교체) */}
+        <div className="border-y border-green-100 bg-brand-600 py-6">
+          <p className="text-center text-xs font-semibold tracking-wide text-brand-100">
+            이런 활동이 SDGs와 연결됩니다
+          </p>
+          <ul className="mx-auto mt-3 flex max-w-4xl flex-wrap items-center justify-center gap-2 px-6">
+            {KEYWORDS.map((k) => (
+              <li
+                key={k}
+                className="rounded-full bg-white/15 px-4 py-1.5 text-sm font-semibold text-white"
               >
-                {KEYWORDS.map((k) => (
-                  <li key={k} className="flex items-center gap-8">
-                    <span>{k}</span>
-                    <span className="text-brand-100/70">●</span>
-                  </li>
-                ))}
-              </ul>
+                {k}
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
 
         {/* 이용 흐름 — 점선 연결 + 컬러 뱃지 */}
