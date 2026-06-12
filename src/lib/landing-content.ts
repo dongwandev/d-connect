@@ -128,18 +128,6 @@ export const EXAMPLES = [
   },
 ] as const
 
-/** 마키(흐르는 띠)용 활동 키워드 — PRD §1.2의 기여 활동 예시 */
-export const KEYWORDS = [
-  '지역 고용',
-  '친환경 소비',
-  '로컬푸드',
-  '지역 행사 참여',
-  '공공기관 협력',
-  '원도심 활성화',
-  '공동체 활동',
-  '지역상생',
-] as const
-
 export const CTA = {
   title: '지금 우리 기업의 활동을 입력해 보세요',
   subtitle: '회원가입 후 기업 정보 입력부터 콘텐츠 생성까지 바로 사용할 수 있습니다.',
