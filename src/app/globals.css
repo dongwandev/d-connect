@@ -53,3 +53,20 @@ body {
   animation: indeterminate-slide 1.4s ease-in-out infinite;
   will-change: transform, width;
 }
+
+/* 랜딩 페이지 모션 (#119) — prefers-reduced-motion 사용자는 정적 표시 */
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* 트랙에 동일 콘텐츠를 2회 렌더하고 -50%까지 이동 → 이음새 없는 무한 흐름 */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-fade-up { animation: fade-up 0.7s ease-out both; }
+  .animate-marquee { animation: marquee 28s linear infinite; }
+}
