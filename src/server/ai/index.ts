@@ -171,11 +171,12 @@ async function callLlmForContent(
   contentType: ContentType,
   focusSdg: SdgGoal,
 ): Promise<GeneratedContent> {
+  // 카드뉴스 장별 프롬프트 등 출력이 길어 1500이면 잘려 mock 폴백될 수 있다 (#98)
   const raw = await callTool(
     CONTENT_GENERATION_SYSTEM_PROMPT,
     buildContentGenerationPrompt(company, analysis, contentType, focusSdg),
     GENERATE_CONTENT_TOOL,
-    1500,
+    3000,
   )
   // 모델이 type을 다른 값으로 반환할 수 있어 호출 측에서 강제 덮어쓰기.
   return GeneratedContentSchema.parse({
