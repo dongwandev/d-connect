@@ -275,3 +275,21 @@ export const PROMO_GOAL_LABEL: Record<PromoGoal, string> = {
   INVESTMENT: '투자·후원 유치',
   OTHER: '기타',
 }
+
+// --- 1:1 문의 (#116) ----------------------------------------------------------
+
+export const InquiryTypeSchema = z.enum(['SERVICE', 'BUG', 'SUGGESTION', 'ETC'])
+export type InquiryType = z.infer<typeof InquiryTypeSchema>
+export const INQUIRY_TYPE_LABEL: Record<InquiryType, string> = {
+  SERVICE: '서비스 이용',
+  BUG: '오류 신고',
+  SUGGESTION: '기능 제안',
+  ETC: '기타',
+}
+
+export const InquiryStatusSchema = z.enum(['WAITING', 'ANSWERED'])
+export type InquiryStatus = z.infer<typeof InquiryStatusSchema>
+export const INQUIRY_STATUS_LABEL: Record<InquiryStatus, string> = {
+  WAITING: '답변 대기',
+  ANSWERED: '답변 완료',
+}

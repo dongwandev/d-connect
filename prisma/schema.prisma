@@ -97,6 +97,20 @@ enum PromoGoal {
   OTHER //           기타
 }
 
+// --- 1:1 문의 (#116) ----------------------------------------------------------
+
+enum InquiryType {
+  SERVICE //    서비스 이용
+  BUG //        오류 신고
+  SUGGESTION // 기능 제안
+  ETC //        기타
+}
+
+enum InquiryStatus {
+  WAITING //  답변 대기
+  ANSWERED // 답변 완료
+}
+
 // -----------------------------------------------------------------------------
 // Auth.js (NextAuth v5) 표준 모델 — ADR-0004 / ADR-0005
 // -----------------------------------------------------------------------------
@@ -128,6 +142,7 @@ model User {
   accounts  Account[]
   sessions  Session[]
   companies Company[]
+  inquiries Inquiry[]
 }
 
 model Account {
@@ -261,6 +276,27 @@ model SdgMatch {
 
   @@unique([analysisId, sdg])
   @@index([analysisId])
+}
+
+model Inquiry {
+  id     String        @id @default(cuid())
+  userId String
+  type   InquiryType
+  title  String
+  body   String
+  status InquiryStatus @default(WAITING)
+  /// 운영팀 답변. 답변 작성 UI는 운영 전환 과제 — 현재는 Prisma Studio로 입력하고,
+  /// answer 입력 시 status=ANSWERED·answeredAt도 함께 갱신한다 (application 규약).
+  answer     String?
+  answeredAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model GeneratedContent {

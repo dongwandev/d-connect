@@ -177,6 +177,29 @@ User → Company는 1:N. 자식 리소스(Activity / SdgAnalysis / SdgMatch / Ge
 
 ---
 
+### 3.6 `Inquiry` — 1:1 문의 (#116)
+
+| 필드         | 타입            | 제약                    | 설명                                         |
+|--------------|-----------------|-------------------------|----------------------------------------------|
+| `id`         | String          | PK, `cuid()`            |                                              |
+| `userId`     | String          | FK → User.id, cascade   | 작성자 (탈퇴 시 문의도 삭제)                 |
+| `type`       | `InquiryType`   | required (enum)         | 서비스 이용 / 오류 신고 / 기능 제안 / 기타   |
+| `title`      | String          | required                | 100자 이내 (application 검증)                |
+| `body`       | String          | required                | 2000자 이내 (application 검증)               |
+| `status`     | `InquiryStatus` | `@default(WAITING)`     | 답변 대기 / 답변 완료                        |
+| `answer`     | String?         | optional                | 운영팀 답변. 입력 시 status·answeredAt도 갱신 (application 규약) |
+| `answeredAt` | DateTime?       | optional                | 답변 시점                                    |
+| `createdAt`  | DateTime        | `@default(now())`       |                                              |
+| `updatedAt`  | DateTime        | `@updatedAt`            |                                              |
+
+**관계:** `user User`
+
+**인덱스:** `userId`, `createdAt`
+
+> 답변 작성 UI(관리자)는 운영 전환 과제 — 현재는 Prisma Studio로 입력한다.
+
+---
+
 ## 4. Enum 정의
 
 ```prisma
@@ -248,6 +271,18 @@ enum PromoGoal {
   LOCAL_AWARENESS     // 지역 인지도
   INVESTMENT          // 투자 유치
   OTHER               // 기타
+}
+
+enum InquiryType {
+  SERVICE     // 서비스 이용
+  BUG         // 오류 신고
+  SUGGESTION  // 기능 제안
+  ETC         // 기타
+}
+
+enum InquiryStatus {
+  WAITING   // 답변 대기
+  ANSWERED  // 답변 완료
 }
 ```
 
@@ -328,3 +363,4 @@ pnpm db:studio          # GUI 확인
 ## 변경 이력
 
 - 2026-05-27: 초안 작성. 엔티티 5종 + enum 3종 확정.
+- 2026-06-12: `Inquiry` 엔티티 + `InquiryType`/`InquiryStatus` enum 추가 (#116 — 1:1 문의 DB 전환).
