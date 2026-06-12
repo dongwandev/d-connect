@@ -81,14 +81,15 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
  */
 const TYPE_REQUIREMENTS: Record<ContentType, string> = {
   SNS_POST:
-    '- body: 바로 게시 가능한 한국어 본문 200~400자, 이모지 1~3개\n- imagePrompt(선택): 곁들일 이미지 1장의 영어 프롬프트',
+    '- body: 바로 게시 가능한 한국어 본문 200~400자, 이모지 1~3개\n- hashtags(필수): 5~8개, # 기호 제외\n- imagePrompt(선택): 곁들일 이미지 1장의 영어 프롬프트',
   CARD_NEWS:
-    '- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장\n- imagePrompt(선택): 표지 배경의 영어 프롬프트',
+    '- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장\n- hashtags(필수): 3~6개, # 기호 제외\n- imagePrompt(선택): 표지 배경의 영어 프롬프트',
   SHORT_VIDEO_SCRIPT:
-    '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 인물·배경은 한국임을 명시(Korean ...). body의 자막 문구가 말하는 내용과 장면이 일치해야 함. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안',
+    '- imagePrompt(필수, 영어): 반드시 "Scene 1:", "Scene 2:" 형식으로 4~6개 장면을 나눈 15~30초 영상 생성 프롬프트. 각 장면에 카메라 움직임·분위기·피사체를 구체적으로. 인물·배경은 한국임을 명시(Korean ...). body의 자막 문구가 말하는 내용과 장면이 일치해야 함. 전체 영상의 색감·자막 위치로 마무리\n- body: 한국어 안내 — 영상 의도, 장면 구성 요약, 생성 후 얹을 한국어 자막 문구 제안\n- hashtags(필수): 영상 게시 시 쓸 해시태그 3~6개, # 기호 제외',
   CAMPAIGN_SLOGAN: '- body: 슬로건 2~3개 후보, 각 한 줄 + 짧은 부연',
   POSTER:
     `- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)
+- hashtags(필수): 포스터 게시·아카이브용 해시태그 3~6개, # 기호 제외 — body가 아닌 hashtags 필드에 담을 것
 - imagePrompt(필수): 한글 문구가 포함된 완성 포스터를 한 번에 생성하는 프롬프트. 두 부분으로 구성:
   ① 장면(영어): [홍보 대상 SDG]의 시각 서사를 중심 테마로, [활동] 중 그 SDG와 맞는 활동의 실제 현장 ([영어 프롬프트 작성 규칙] 준수). 인물·배경은 한국임을 명시(Korean ..., 지역명). 세로형(2:3) 포스터 구도·색감·스타일 포함.
   ② Typography layout 섹션: body의 세 구획 문구를 **한 글자도 바꾸지 말고 따옴표로 정확히 인용**해 배치 지시. 단, "[헤드라인]" "[서브카피]" "[하단 정보]" 같은 구획 라벨은 body 표기용일 뿐이므로 **인용에서 제외하고 문구만** 넣는다 (라벨이 들어가면 이미지에 그대로 그려진다) — TOP: 헤드라인(large bold white Korean text on a soft dark overlay band) / BOTTOM: 서브카피(medium white, centered) / BOTTOM EDGE: 하단 정보(small, light gray, below a thin divider). 반드시 다음 가드 문장들을 포함: "render all Korean text EXACTLY as written, character by character, with correct and complete Hangul glyphs — do not translate, alter, or add any other text" 그리고 "The image must contain ONLY these Korean text blocks — no English words, no watermarks, no other lettering anywhere."`,
