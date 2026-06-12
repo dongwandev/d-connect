@@ -48,7 +48,7 @@ interface MatchSeed {
 }
 
 interface ContentSeed {
-  type: 'SNS_POST' | 'CARD_NEWS' | 'SHORT_VIDEO_SCRIPT' | 'CAMPAIGN_SLOGAN'
+  type: 'SNS_POST' | 'CARD_NEWS' | 'SHORT_VIDEO_SCRIPT' | 'POSTER'
   body: string
   hashtags: string[]
   imagePrompt?: string | null
@@ -177,9 +177,11 @@ const COMPANIES: CompanySeed[] = [
           editedByUser: true,
         },
         {
-          type: 'CAMPAIGN_SLOGAN',
-          body: '오롯한 한 잔, 오롯한 지구.',
-          hashtags: ['오롯카페', '캠페인'],
+          type: 'POSTER',
+          body: '[헤드라인] 오롯한 한 잔, 오롯한 지구\n[서브카피] 다회용 컵 보증금제로 일회용 컵을 줄여갑니다.\n[하단 정보] 오롯 친환경 카페 · 대전',
+          hashtags: ['오롯카페', '포스터', '환경캠페인'],
+          imagePrompt:
+            `A vertical (2:3) public-campaign poster of a cozy Korean neighborhood cafe counter in Daejeon, South Korea, with reusable cups being handed to customers, warm flat illustration style. Typography layout: TOP: "오롯한 한 잔, 오롯한 지구" (large bold white Korean text on a soft dark overlay band) / BOTTOM: "다회용 컵 보증금제로 일회용 컵을 줄여갑니다." (medium white, centered) / BOTTOM EDGE: "오롯 친환경 카페 · 대전" (small, light gray, below a thin divider). ${'Render all Korean text EXACTLY as written with correct Hangul glyphs. No other text or lettering in the image.'}`,
         },
       ],
     },
@@ -322,9 +324,11 @@ const COMPANIES: CompanySeed[] = [
           hashtags: ['카드뉴스', '천안', '농부시장', '마을상회'],
         },
         {
-          type: 'CAMPAIGN_SLOGAN',
-          body: '천안의 식탁, 천안의 손에서.',
-          hashtags: ['천안마을상회', '캠페인'],
+          type: 'POSTER',
+          body: '[헤드라인] 천안의 식탁, 천안의 손에서\n[서브카피] 17개 지역 농가의 먹거리를 동네 가게에서 만나보세요.\n[하단 정보] 천안 마을상회 협동조합 · 천안',
+          hashtags: ['천안마을상회', '포스터', '지역상생'],
+          imagePrompt:
+            `A vertical (2:3) public-campaign poster of a small Korean local grocery in Cheonan, South Korea, shelves of fresh produce from nearby farms, neighbors chatting, warm flat illustration style. Typography layout: TOP: "천안의 식탁, 천안의 손에서" (large bold white Korean text on a soft dark overlay band) / BOTTOM: "17개 지역 농가의 먹거리를 동네 가게에서 만나보세요." (medium white, centered) / BOTTOM EDGE: "천안 마을상회 협동조합 · 천안" (small, light gray, below a thin divider). ${'Render all Korean text EXACTLY as written with correct Hangul glyphs. No other text or lettering in the image.'}`,
         },
       ],
     },
@@ -394,9 +398,11 @@ const COMPANIES: CompanySeed[] = [
             '공주 원도심의 리모델링된 작업실에서 도예 작가가 가족 손님에게 물레 시범을 보이는 따뜻한 장면',
         },
         {
-          type: 'CAMPAIGN_SLOGAN',
-          body: '혼자의 손, 함께의 브랜드.',
-          hashtags: ['공주공예', '협동'],
+          type: 'POSTER',
+          body: '[헤드라인] 혼자의 손, 함께의 브랜드\n[서브카피] 공주 원도심 공방에서 작가들의 수공예를 만나보세요.\n[하단 정보] 공주 공예작가 협동조합 · 공주',
+          hashtags: ['공주공예', '포스터', '수공예'],
+          imagePrompt:
+            `A vertical (2:3) public-campaign poster of a renovated hanok craft studio in Gongju, South Korea, Korean artisans shaping pottery together at a shared worktable, warm flat illustration style. Typography layout: TOP: "혼자의 손, 함께의 브랜드" (large bold white Korean text on a soft dark overlay band) / BOTTOM: "공주 원도심 공방에서 작가들의 수공예를 만나보세요." (medium white, centered) / BOTTOM EDGE: "공주 공예작가 협동조합 · 공주" (small, light gray, below a thin divider). ${'Render all Korean text EXACTLY as written with correct Hangul glyphs. No other text or lettering in the image.'}`,
           editedByUser: true,
         },
       ],
