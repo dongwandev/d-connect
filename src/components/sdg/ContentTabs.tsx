@@ -8,9 +8,12 @@ import { useToast } from '@/components/Toast'
 import {
   CONTENT_TYPE_LABEL,
   GENERATABLE_CONTENT_TYPES,
+  IMAGE_STYLE_LABEL,
   SDG_COLOR,
   SDG_GOAL_LABEL,
+  SNS_PLATFORM_LABEL,
   type ContentType,
+  type GenerationOptions,
   type SdgGoal,
 } from '@/lib/enums'
 import { formatRelativeTime } from '@/lib/relative-time'
@@ -19,6 +22,8 @@ export interface ContentItem {
   id: string
   type: ContentType
   focusSdg: SdgGoal | null
+  /** 생성 세부 설정 JSON (#104) — 구버전 행은 null */
+  options: string | null
   body: string
   hashtags: string[]
   imagePrompt: string | null
@@ -39,6 +44,23 @@ const BODY_CLAMP_LINES = 6
  * 클립보드 복사 — Clipboard API 실패 시(웹뷰·권한 차단 환경)
  * execCommand 폴백으로 한 번 더 시도한다.
  */
+/** options JSON → "인스타그램 · 1:1 · 일러스트 · 4장" 메타 문자열 (#104) */
+function formatOptions(raw: string | null): string | null {
+  if (!raw) return null
+  try {
+    const o = JSON.parse(raw) as Partial<GenerationOptions>
+    const parts = [
+      o.platform ? SNS_PLATFORM_LABEL[o.platform] : null,
+      o.aspectRatio ?? null,
+      o.imageStyle ? IMAGE_STYLE_LABEL[o.imageStyle] : null,
+      o.slideCount ? `${o.slideCount}장` : null,
+    ].filter(Boolean)
+    return parts.length ? parts.join(' · ') : null
+  } catch {
+    return null
+  }
+}
+
 async function copyText(text: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(text)
@@ -176,6 +198,7 @@ function ContentCard({
     c.body.split('\n').length > BODY_CLAMP_LINES
 
   const createdAt = new Date(c.createdAt)
+  const optionsMeta = formatOptions(c.options)
 
   async function copyPrompt() {
     if (!c.imagePrompt) return
@@ -206,6 +229,11 @@ function ContentCard({
           {c.editedByUser && (
             <span className="rounded bg-amber-100 px-1.5 py-0.5 text-xs font-normal text-amber-800">
               편집됨
+            </span>
+          )}
+          {optionsMeta && (
+            <span className="text-xs font-normal text-gray-400">
+              {optionsMeta}
             </span>
           )}
         </h3>

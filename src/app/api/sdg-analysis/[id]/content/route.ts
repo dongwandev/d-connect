@@ -51,6 +51,17 @@ export async function POST(
       )
     }
 
+    // 세부 설정 (#104) — 프롬프트 반영 + DB 저장용
+    const options = {
+      platform: body.platform,
+      aspectRatio: body.aspectRatio,
+      imageStyle: body.imageStyle,
+      ...(body.type === 'CARD_NEWS' ? { slideCount: body.slideCount } : {}),
+      ...(body.extraRequest?.trim()
+        ? { extraRequest: body.extraRequest.trim() }
+        : {}),
+    }
+
     const { result, usedFallback } = await generateContent(
       toCompanyInput(analysis.company),
       {
@@ -67,6 +78,7 @@ export async function POST(
       },
       body.type,
       body.focusSdg,
+      options,
     )
 
     const created = await db.generatedContent.create({
@@ -74,6 +86,7 @@ export async function POST(
         analysisId: analysis.id,
         type: result.type,
         focusSdg: body.focusSdg,
+        options: JSON.stringify(options),
         body: result.body,
         hashtags: serializeJsonArray(result.hashtags),
         imagePrompt: result.imagePrompt ?? null,
@@ -86,6 +99,7 @@ export async function POST(
       analysisId: created.analysisId,
       type: created.type,
       focusSdg: created.focusSdg,
+      options: created.options,
       body: created.body,
       hashtags: parseJsonArray<string>(created.hashtags),
       imagePrompt: created.imagePrompt,
@@ -125,6 +139,7 @@ export async function GET(
       id: c.id,
       type: c.type,
       focusSdg: c.focusSdg,
+      options: c.options,
       body: c.body,
       hashtags: parseJsonArray<string>(c.hashtags),
       imagePrompt: c.imagePrompt,

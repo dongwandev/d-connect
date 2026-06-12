@@ -1,7 +1,10 @@
 import {
   CONTENT_TYPE_LABEL,
+  IMAGE_STYLE_LABEL,
   SDG_GOAL_LABEL,
+  SNS_PLATFORM_LABEL,
   type ContentType,
+  type GenerationOptions,
   type SdgGoal,
 } from '@/lib/enums'
 import type { SdgAnalysisResult } from '../schemas'
@@ -84,10 +87,10 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
   SNS_POST:
     '- body: 바로 게시 가능한 한국어 본문 200~400자, 이모지 1~3개\n- hashtags(필수): 5~8개, # 기호 제외\n- imagePrompt(선택): 곁들일 이미지 1장의 영어 프롬프트',
   CARD_NEWS:
-    `- body: 반드시 "[1장]" "[2장]" 표기로 3~5장 분리, 슬라이드별 1~2문장
+    `- body: 반드시 "[1장]" "[2장]" 표기로 [세부 설정]의 카드 수만큼 정확히 분리 (더 적거나 많으면 안 됨), 슬라이드별 1~2문장
 - hashtags(필수): 3~6개, # 기호 제외
 - imagePrompt(필수): body의 장 수와 동일한 개수의 "Card 1:" ~ "Card N:" 블록 (줄바꿈 2번으로 구분). **각 블록은 단독으로 이미지 생성 AI에 붙여넣어도 완전하도록** 다음을 모두 포함:
-  · 1:1 정사각 카드뉴스 규격 명시 ("A 1:1 square card-news slide...")
+  · [세부 설정]의 비율을 카드 규격으로 명시 (예: "A 1:1 square card-news slide..." — 비율이 다르면 그에 맞게)
   · 그 장의 내용을 시각화한 장면(영어) — [영어 프롬프트 작성 규칙] 준수, 해당 장이 말하는 활동·사실을 그릴 것
   · 그 장의 body 문구를 따옴표로 **한 글자도 바꾸지 말고 인용** — Card N의 인용 문구는 body의 [N장] 문구와 정확히 동일해야 하며, 요약·재작성·새 문장 생성 금지 ("[1장]" 같은 장 라벨만 제외). 배치 지시: Card 1은 표지 — 큰 제목 스타일, 2장부터는 상단 또는 하단 텍스트 영역
   · 세트 일관성: 모든 카드에 동일한 스타일 문장 반복 ("Consistent flat illustration style and the same warm color palette across all cards in this set.")
@@ -99,8 +102,54 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
     `- body: 반드시 "[헤드라인]" 1줄 / "[서브카피]" 1~2줄 / "[하단 정보]" 형식의 세 구획으로만 구성 (해시태그는 body에 넣지 말 것)
 - hashtags(필수): 포스터 게시·아카이브용 해시태그 3~6개, # 기호 제외 — body가 아닌 hashtags 필드에 담을 것
 - imagePrompt(필수): 한글 문구가 포함된 완성 포스터를 한 번에 생성하는 프롬프트. 두 부분으로 구성:
-  ① 장면(영어): [홍보 대상 SDG]의 시각 서사를 중심 테마로, [활동] 중 그 SDG와 맞는 활동의 실제 현장 ([영어 프롬프트 작성 규칙] 준수). 인물·배경은 한국임을 명시(Korean ..., 지역명). 세로형(2:3) 포스터 구도·색감·스타일 포함.
+  ① 장면(영어): [홍보 대상 SDG]의 시각 서사를 중심 테마로, [활동] 중 그 SDG와 맞는 활동의 실제 현장 ([영어 프롬프트 작성 규칙] 준수). 인물·배경은 한국임을 명시(Korean ..., 지역명). [세부 설정]의 비율을 포스터 규격으로 명시하고 구도·색감·스타일 포함.
   ② Typography layout 섹션: body의 세 구획 문구를 **한 글자도 바꾸지 말고 따옴표로 정확히 인용**해 배치 지시. 단, "[헤드라인]" "[서브카피]" "[하단 정보]" 같은 구획 라벨은 body 표기용일 뿐이므로 **인용에서 제외하고 문구만** 넣는다 (라벨이 들어가면 이미지에 그대로 그려진다) — TOP: 헤드라인(large bold white Korean text on a soft dark overlay band) / BOTTOM: 서브카피(medium white, centered) / BOTTOM EDGE: 하단 정보(small, light gray, below a thin divider). 반드시 다음 가드 문장들을 포함: "render all Korean text EXACTLY as written, character by character, with correct and complete Hangul glyphs — do not translate, alter, or add any other text" 그리고 "The image must contain ONLY these Korean text blocks — no English words, no watermarks, no other lettering anywhere."`,
+}
+
+/** 플랫폼별 작성 가이드 — body 분량·해시태그·어조에 반영 (#104) */
+const PLATFORM_GUIDE: Record<GenerationOptions['platform'], string> = {
+  INSTAGRAM:
+    '인스타그램 — 이모지·해시태그 친화적, 첫 문장으로 시선을 끌 것, 줄바꿈으로 가독성 확보',
+  FACEBOOK:
+    '페이스북 — 차분한 설명형 톤 허용, 본문이 다소 길어도 좋음, 해시태그는 3~5개로 절제',
+  X: 'X(트위터) — **본문 전체를 280자 이내로 반드시 제한** (초과 금지). 핵심 한 문장 + 보조 한두 문장. 해시태그 1~3개만',
+  OTHER: '플랫폼 불특정 — 범용 톤, 기본 분량 가이드 준수',
+}
+
+const IMAGE_STYLE_PROMPT: Record<GenerationOptions['imageStyle'], string> = {
+  ILLUSTRATION: 'warm flat illustration style',
+  PHOTO: 'realistic photography style, natural lighting',
+  WATERCOLOR: 'soft watercolor painting style',
+  MINIMAL: 'minimal clean design with generous whitespace',
+}
+
+/** [세부 설정] 블록 — 유형 공통 요구사항보다 우선 적용된다 */
+function buildOptionsBlock(
+  contentType: ContentType,
+  options: GenerationOptions,
+): string {
+  const lines = [
+    `- 대상 SNS: ${SNS_PLATFORM_LABEL[options.platform]} — ${PLATFORM_GUIDE[options.platform]}`,
+    `- 비율: ${options.aspectRatio} — imagePrompt의 모든 이미지/영상 규격에 이 비율을 명시할 것 (예: "${options.aspectRatio} aspect ratio")`,
+    `- 이미지 스타일: ${IMAGE_STYLE_LABEL[options.imageStyle]} — imagePrompt의 스타일 문장은 "${IMAGE_STYLE_PROMPT[options.imageStyle]}" 계열로 통일`,
+  ]
+  if (contentType === 'CARD_NEWS' && options.slideCount) {
+    lines.push(
+      `- 카드 수: 정확히 ${options.slideCount}장 — body는 [1장]~[${options.slideCount}장], imagePrompt는 Card 1~Card ${options.slideCount}`,
+    )
+  }
+  if (options.extraRequest) {
+    lines.push(
+      `- 추가 요청: ${options.extraRequest} (톤·정확성 가드를 어기지 않는 범위에서 반영)`,
+    )
+  }
+  return lines.join('\n')
+}
+
+export const DEFAULT_GENERATION_OPTIONS: GenerationOptions = {
+  platform: 'OTHER',
+  aspectRatio: '1:1',
+  imageStyle: 'ILLUSTRATION',
 }
 
 export function buildContentGenerationPrompt(
@@ -108,6 +157,7 @@ export function buildContentGenerationPrompt(
   analysis: SdgAnalysisResult,
   contentType: ContentType,
   focusSdg: SdgGoal,
+  options: GenerationOptions = DEFAULT_GENERATION_OPTIONS,
 ): string {
   const focusMatch = analysis.matches.find((m) => m.sdg === focusSdg)
   const otherMatches = analysis.matches.filter((m) => m.sdg !== focusSdg)
@@ -146,6 +196,9 @@ ${othersBlock}
 
 [요청 유형]
 ${contentType} (${CONTENT_TYPE_LABEL[contentType]})
+
+[세부 설정 — 아래 출력 요구사항과 충돌하면 이 설정이 우선]
+${buildOptionsBlock(contentType, options)}
 
 [이 유형의 출력 요구사항 — 반드시 준수]
 ${TYPE_REQUIREMENTS[contentType]}`

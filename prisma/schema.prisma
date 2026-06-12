@@ -269,6 +269,8 @@ model GeneratedContent {
   type          ContentType
   /// 콘텐츠가 집중하는 SDG (#92 — 사용자가 분석 매칭 중 단일 선택). 구버전 행은 NULL.
   focusSdg      SdgGoal?
+  /// 생성 세부 설정 JSON (#104 — platform/aspectRatio/imageStyle/slideCount/extraRequest). 구버전 행은 NULL.
+  options       String?
   body          String
   /// string[] JSON 직렬화
   hashtags      String
