@@ -131,7 +131,7 @@ export function AccountForm({ initial }: Props) {
         <button
           type="submit"
           disabled={state.kind === 'submitting'}
-          className="rounded bg-accent-500 px-4 py-2 font-medium text-white hover:bg-accent-600 disabled:bg-gray-400"
+          className="rounded-full bg-accent-500 px-4 py-2 font-medium text-white hover:bg-accent-600 disabled:bg-gray-400"
         >
           {state.kind === 'submitting' ? '저장 중...' : '저장'}
         </button>
@@ -140,7 +140,7 @@ export function AccountForm({ initial }: Props) {
   )
 }
 
-const INPUT_CLS = 'w-full rounded border border-gray-300 px-3 py-2'
+const INPUT_CLS = 'w-full rounded-lg border border-gray-300 px-3 py-2'
 
 function Field({
   label,

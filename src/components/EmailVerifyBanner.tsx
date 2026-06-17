@@ -59,7 +59,7 @@ export function EmailVerifyBanner({ email }: { email: string }) {
           type="button"
           onClick={resend}
           disabled={state.kind === 'sending'}
-          className="rounded border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"
+          className="rounded-full border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 hover:bg-amber-100 disabled:opacity-50"
         >
           {state.kind === 'sending' ? '발송 중...' : '인증 메일 재발송'}
         </button>
@@ -74,7 +74,7 @@ export function EmailVerifyBanner({ email }: { email: string }) {
             🔧 메일 서버 미설정(MVP) —{' '}
             <a
               href={state.verifyUrl}
-              className="font-medium text-blue-700 underline"
+              className="font-medium text-green-700 underline"
             >
               이 링크로 바로 인증
             </a>

@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { peekVerificationToken } from '@/server/verification'
+import { AuthShell } from '@/components/AuthShell'
 import { ResetPasswordForm } from '@/components/ResetPasswordForm'
 
 /**
@@ -19,8 +20,8 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
   const valid = token ? await peekVerificationToken(token, 'reset') : false
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
-      <div className="w-full max-w-md space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+    <AuthShell>
+      <div className="w-full max-w-md space-y-6 rounded-3xl border-2 border-green-100 bg-white p-8 shadow-sm">
         {valid && token ? (
           <>
             <header className="text-center">
@@ -45,13 +46,13 @@ export default async function ResetPasswordPage({ searchParams }: Props) {
             </p>
             <Link
               href="/find-account"
-              className="inline-block rounded bg-blue-600 px-5 py-3 font-medium text-white hover:bg-blue-700"
+              className="inline-block rounded-full bg-green-600 px-5 py-3 font-medium text-white hover:bg-green-700"
             >
               재설정 다시 요청하기
             </Link>
           </div>
         )}
       </div>
-    </main>
+    </AuthShell>
   )
 }

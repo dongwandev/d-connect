@@ -178,7 +178,7 @@ function FindEmailTab() {
           </ul>
           <Link
             href="/login"
-            className="inline-block text-sm font-medium text-blue-600 hover:underline"
+            className="inline-block text-sm font-medium text-green-600 hover:underline"
           >
             로그인하러 가기 →
           </Link>
@@ -263,7 +263,7 @@ function ResetPasswordTab() {
             🔧 메일 서버 미설정(MVP) —{' '}
             <a
               href={verifyUrl}
-              className="font-medium text-blue-700 underline"
+              className="font-medium text-green-700 underline"
             >
               이 링크로 바로 재설정
             </a>
@@ -311,9 +311,9 @@ function ResetPasswordTab() {
 
 // --- helpers -------------------------------------------------------------
 
-const INPUT_CLS = 'w-full rounded border border-gray-300 px-3 py-2'
+const INPUT_CLS = 'w-full rounded-lg border border-gray-300 px-3 py-2'
 const SUBMIT_CLS =
-  'w-full rounded bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-gray-400'
+  'w-full rounded-full bg-green-600 px-4 py-3 font-medium text-white hover:bg-green-700 disabled:bg-gray-400'
 
 function Field({
   label,

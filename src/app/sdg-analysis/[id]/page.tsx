@@ -103,7 +103,7 @@ export default async function AnalysisPage({ params }: PageProps) {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
           {/* 좌측: 기업 정보 사이드 카드 (디자인 이미지 1 패턴) */}
           <aside className="space-y-4">
-            <div className="rounded-lg border border-border bg-surface p-5">
+            <div className="rounded-2xl border border-border bg-surface p-5">
               <div className="mb-3 flex items-center gap-2 text-xs font-medium text-brand-700">
                 <span aria-hidden>🏢</span>
                 <span>선택된 기업 정보</span>
@@ -146,7 +146,7 @@ export default async function AnalysisPage({ params }: PageProps) {
             </div>
 
             {/* 사회적 기능 */}
-            <div className="rounded-lg border border-border bg-surface p-5">
+            <div className="rounded-2xl border border-border bg-surface p-5">
               <h3 className="text-xs font-medium text-brand-700">
                 사회적 기능 분류
               </h3>
@@ -163,7 +163,7 @@ export default async function AnalysisPage({ params }: PageProps) {
             </div>
 
             {/* 공공적 의미 */}
-            <div className="rounded-lg border border-border bg-surface p-5">
+            <div className="rounded-2xl border border-border bg-surface p-5">
               <h3 className="text-xs font-medium text-brand-700">
                 공공적 의미
               </h3>

@@ -71,7 +71,7 @@ export function EmailLoginForm() {
           type="email"
           autoComplete="email"
           {...register('email')}
-          className="w-full rounded border border-gray-300 px-3 py-2"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2"
           placeholder="you@example.com"
         />
       </Field>
@@ -81,14 +81,14 @@ export function EmailLoginForm() {
           type="password"
           autoComplete="current-password"
           {...register('password')}
-          className="w-full rounded border border-gray-300 px-3 py-2"
+          className="w-full rounded-lg border border-gray-300 px-3 py-2"
         />
       </Field>
 
       <button
         type="submit"
         disabled={state.kind === 'submitting'}
-        className="w-full rounded bg-blue-600 px-4 py-3 font-medium text-white hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full rounded-full bg-green-600 px-4 py-3 font-medium text-white hover:bg-green-700 disabled:bg-gray-400"
       >
         {state.kind === 'submitting' ? '로그인 중...' : '로그인'}
       </button>

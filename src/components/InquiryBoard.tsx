@@ -31,7 +31,7 @@ export interface InquiryItem {
 }
 
 const TYPE_BADGE: Record<InquiryType, string> = {
-  SERVICE: 'bg-blue-100 text-blue-700',
+  SERVICE: 'bg-green-100 text-green-700',
   BUG: 'bg-red-100 text-red-700',
   SUGGESTION: 'bg-emerald-100 text-emerald-700',
   ETC: 'bg-gray-200 text-gray-700',
@@ -189,7 +189,7 @@ export function InquiryBoard({ items }: { items: InquiryItem[] }) {
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-lg bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {submitting ? '접수 중…' : '문의 접수'}
           </button>

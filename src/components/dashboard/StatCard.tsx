@@ -27,7 +27,7 @@ export function StatCard({
   }[accent]
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4">
+    <div className="flex items-center gap-3 rounded-2xl border border-border bg-surface p-4">
       <div
         className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-lg ${accentClass}`}
         aria-hidden

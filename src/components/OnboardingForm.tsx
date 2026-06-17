@@ -180,7 +180,7 @@ export function OnboardingForm({ initialDisplayName, initialEmail }: Props) {
       <button
         type="submit"
         disabled={submitting}
-        className="w-full rounded-lg bg-accent-500 px-4 py-3 font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:bg-gray-400"
+        className="w-full rounded-full bg-accent-500 px-4 py-3 font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 disabled:bg-gray-400"
       >
         {submitting ? '처리 중...' : '가입 완료'}
       </button>

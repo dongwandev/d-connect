@@ -135,7 +135,7 @@ export default async function DashboardPage() {
 
         {/* 좌 — 기업 목록 / 우 — 차트 2종. 양쪽 grid item이 stretch + 내부 flex로 높이 정렬 */}
         <section className="grid grid-cols-1 items-stretch gap-4 lg:grid-cols-2">
-          <div className="flex flex-col rounded-lg border border-border bg-surface p-5">
+          <div className="flex flex-col rounded-2xl border border-border bg-surface p-5">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="text-lg font-semibold text-gray-900">
                 내 기업 ({companies.length})
@@ -150,7 +150,7 @@ export default async function DashboardPage() {
                   action={
                     <Link
                       href="/companies/new"
-                      className="inline-flex items-center gap-1 rounded bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
+                      className="inline-flex items-center gap-1 rounded-full bg-accent-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500"
                     >
                       <span aria-hidden>➕</span>
                       <span>첫 기업 등록하기</span>
@@ -163,7 +163,7 @@ export default async function DashboardPage() {
                 {companies.map((c) => (
                   <li
                     key={c.id}
-                    className="rounded-lg border border-border bg-surface-muted p-3 transition-colors hover:border-accent-500"
+                    className="rounded-2xl border border-border bg-surface-muted p-3 transition-colors hover:border-accent-500"
                   >
                     <Link
                       href={`/companies/${c.id}`}

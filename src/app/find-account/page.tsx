@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import { AuthShell } from '@/components/AuthShell'
 import { FindAccountForm } from '@/components/FindAccountForm'
 
 /**
@@ -15,8 +16,8 @@ export default async function FindAccountPage() {
   if (session?.user) redirect('/dashboard')
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
-      <div className="w-full max-w-md space-y-6 rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+    <AuthShell>
+      <div className="w-full max-w-md space-y-6 rounded-3xl border-2 border-green-100 bg-white p-8 shadow-sm">
         <header className="text-center">
           <h1 className="text-2xl font-bold text-gray-900">계정 찾기</h1>
           <p className="mt-1 text-sm text-gray-500">
@@ -29,12 +30,12 @@ export default async function FindAccountPage() {
         <p className="text-center text-sm text-gray-500">
           <Link
             href="/login"
-            className="font-medium text-blue-600 hover:underline"
+            className="font-medium text-green-600 hover:underline"
           >
             ← 로그인으로 돌아가기
           </Link>
         </p>
       </div>
-    </main>
+    </AuthShell>
   )
 }
