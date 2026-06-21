@@ -75,11 +75,12 @@ export const ANALYZE_SDG_TOOL: ToolDef = {
               type: 'array',
               minItems: 1,
               items: { type: 'string' },
-              description: '활동에서 추출한 매칭 키워드 (한국어, 1~6개)',
+              description: '활동에서 추출한 매칭 키워드 (한국어, 3~8개)',
             },
             rationale: {
               type: 'string',
-              description: '왜 이 SDG와 연결되는지 한국어 1~2문장 근거',
+              description:
+                '왜 이 SDG와 연결되는지 한국어 2~4문장의 구체적 근거 — 어떤 활동의 어떤 측면이 어떤 SDG 세부 타깃과 연결되는지 포함. 입력에 근거가 있는 내용만.',
             },
           },
           required: ['sdg', 'score', 'keywords', 'rationale'],
@@ -103,7 +104,7 @@ export const ANALYZE_SDG_TOOL: ToolDef = {
       publicMeaning: {
         type: 'string',
         description:
-          '공공기관/지자체 카드뉴스·캠페인 자료에 활용 가능한 공공적 의미 요약. 2~4문장. 광고성·과장 금지.',
+          '공공기관/지자체 카드뉴스·캠페인 자료에 활용 가능한 공공적 의미 요약. 3~6문장. 광고성·과장 금지.',
       },
     },
     required: ['matches', 'socialFunctions', 'publicMeaning'],

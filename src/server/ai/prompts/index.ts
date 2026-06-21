@@ -22,6 +22,8 @@ export interface CompanyInput {
   /** 지역 (예: 대전광역시 유성구) */
   region?: string | null
   product?: string | null
+  /** 사업 목적·미션 자유서술 (SDG 연결의 강한 맥락, #125) */
+  mission?: string | null
   /** 타겟 한국어 라벨 목록 (예: 청년, 지역주민) */
   targetAudiences?: ReadonlyArray<string>
   /** 홍보 목표 한국어 라벨 목록 (예: 지역사회 인식 개선) */
@@ -29,6 +31,8 @@ export interface CompanyInput {
   activities: ReadonlyArray<{
     title: string
     description: string
+    /** 활동 사회적 기능 분류 한국어 라벨 (사람이 등록 시 지정, #125) */
+    category?: string
   }>
 }
 
@@ -41,6 +45,7 @@ export function buildCompanyBlock(company: CompanyInput): string {
     company.industry ? `- 업종: ${company.industry}` : null,
     company.region ? `- 지역: ${company.region}` : null,
     company.product ? `- 제품·서비스: ${company.product}` : null,
+    company.mission ? `- 사업 목적·미션: ${company.mission}` : null,
     company.targetAudiences?.length
       ? `- 홍보 타겟: ${company.targetAudiences.join(', ')}`
       : null,

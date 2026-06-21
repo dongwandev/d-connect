@@ -308,7 +308,10 @@ export function buildContentGenerationPrompt(
     : '- 없음'
 
   const activitiesBlock = company.activities
-    .map((a, i) => `[활동 ${i + 1}] ${a.title} — ${a.description}`)
+    .map((a, i) => {
+      const cat = a.category ? ` (분류: ${a.category})` : ''
+      return `[활동 ${i + 1}] ${a.title} — ${a.description}${cat}`
+    })
     .join('\n')
 
   return `다음 정보를 바탕으로 ${CONTENT_TYPE_LABEL[contentType]} 1건을 생성해 \`generate_content\` 도구로 제출하세요.

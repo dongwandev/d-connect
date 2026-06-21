@@ -3,12 +3,14 @@ import {
   BUSINESS_TYPE_LABEL,
   INDUSTRY_CATEGORY_LABEL,
   SIDO_LABEL,
+  SOCIAL_CATEGORY_LABEL,
   TARGET_AUDIENCE_LABEL,
   PROMO_GOAL_LABEL,
   type BusinessType,
   type IndustryCategory,
   type PromoGoal,
   type Sido,
+  type SocialCategory,
   type TargetAudience,
 } from '@/lib/enums'
 import { parseJsonArray } from '@/lib/json-array'
@@ -50,11 +52,14 @@ export function toCompanyInput(
     industry,
     region,
     product: company.product,
+    mission: company.purpose,
     targetAudiences,
     promoGoals,
     activities: company.activities.map((a) => ({
       title: a.title,
       description: a.description,
+      // 등록 시 사람이 지정한 사회적 기능 분류 — 강한 매칭 신호 (#125)
+      category: SOCIAL_CATEGORY_LABEL[a.category as SocialCategory] ?? undefined,
     })),
   }
 }

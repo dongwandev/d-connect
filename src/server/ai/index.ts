@@ -39,7 +39,12 @@ import { env } from '../env'
  * 비용 사유로 Anthropic에서 전환. 프롬프트·스키마는 프로바이더 중립 유지).
  */
 
-const AI_TIMEOUT_MS = 30_000
+// 시연 품질 우선 (#125) — 긴 고품질 생성이 완주하도록 타임아웃을 넉넉히,
+// 출력 토큰을 크게 잡아 잘림→mock 폴백을 구조적으로 줄인다.
+const AI_TIMEOUT_MS = 60_000
+const AI_MAX_ATTEMPTS = 2
+const SDG_ANALYSIS_MAX_TOKENS = 4096
+const CONTENT_MAX_TOKENS = 8000
 
 async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
@@ -56,6 +61,26 @@ async function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 }
 
 /**
+ * mock 폴백 전 최대 N회 재시도 (#125).
+ * 잘림·타임아웃·일시적 4xx/5xx는 재호출로 자주 복구되므로, 단 1회 실패로
+ * 정적 mock(저품질)이 노출되는 것을 막는다.
+ */
+async function withRetry<T>(fn: () => Promise<T>, attempts: number): Promise<T> {
+  let lastError: unknown
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await fn()
+    } catch (e) {
+      lastError = e
+      if (attempt < attempts) {
+        console.warn(`[ai] retry ${attempt}/${attempts} after error:`, e)
+      }
+    }
+  }
+  throw lastError
+}
+
+/**
  * 함수 호출 강제 1회 — 도구 인자(JSON)를 파싱해 반환. zod 검증은 호출자 몫.
  */
 async function callTool(
@@ -63,10 +88,12 @@ async function callTool(
   user: string,
   tool: ToolDef,
   maxTokens: number,
+  temperature?: number,
 ): Promise<unknown> {
   const response = await getOpenAI().chat.completions.create({
     model: env.LLM_MODEL_DEFAULT,
     max_completion_tokens: maxTokens,
+    ...(temperature !== undefined ? { temperature } : {}),
     messages: [
       { role: 'system', content: system },
       { role: 'user', content: user },
@@ -83,6 +110,13 @@ async function callTool(
     ],
     tool_choice: { type: 'function', function: { name: tool.name } },
   })
+
+  // 토큰 상한에 걸려 잘리면 JSON이 미완성→파싱/검증 실패의 숨은 원인이므로 가시화 (#125)
+  if (response.choices[0]?.finish_reason === 'length') {
+    console.warn(
+      `[ai] output truncated (finish_reason=length, max_completion_tokens=${maxTokens}, tool=${tool.name}) — 토큰 상한을 더 올릴 것`,
+    )
+  }
 
   const call = response.choices[0]?.message.tool_calls?.[0]
   if (!call || call.type !== 'function') {
@@ -116,9 +150,9 @@ export async function analyzeSdg(
   }
 
   try {
-    const result = await withTimeout(
-      callLlmForSdgAnalysis(company),
-      AI_TIMEOUT_MS,
+    const result = await withRetry(
+      () => withTimeout(callLlmForSdgAnalysis(company), AI_TIMEOUT_MS),
+      AI_MAX_ATTEMPTS,
     )
     return { result, usedFallback: false }
   } catch (e) {
@@ -134,7 +168,9 @@ async function callLlmForSdgAnalysis(
     SDG_ANALYSIS_SYSTEM_PROMPT,
     buildSdgAnalysisPrompt(company),
     ANALYZE_SDG_TOOL,
-    1024,
+    SDG_ANALYSIS_MAX_TOKENS,
+    // 분류·점수의 일관성·재현성이 품질이므로 변동성을 낮춘다 (#125)
+    0.3,
   )
   // SdgAnalysisResultSchema가 enum / 길이 / score 범위까지 함께 검증.
   // 실패 시 throw → 호출자(analyzeSdg)가 mock으로 폴백.
@@ -156,9 +192,13 @@ export async function generateContent(
   }
 
   try {
-    const result = await withTimeout(
-      callLlmForContent(company, analysis, contentType, focusSdg, options),
-      AI_TIMEOUT_MS,
+    const result = await withRetry(
+      () =>
+        withTimeout(
+          callLlmForContent(company, analysis, contentType, focusSdg, options),
+          AI_TIMEOUT_MS,
+        ),
+      AI_MAX_ATTEMPTS,
     )
     return { result, usedFallback: false }
   } catch (e) {
@@ -174,12 +214,12 @@ async function callLlmForContent(
   focusSdg: SdgGoal,
   options: GenerationOptionsStored,
 ): Promise<GeneratedContent> {
-  // 카드뉴스 장별 프롬프트 등 출력이 길어 1500이면 잘려 mock 폴백될 수 있다 (#98)
+  // 카드뉴스 장별 프롬프트 등 출력이 길어 잘리면 mock 폴백되므로 토큰을 넉넉히 (#98, #125)
   const raw = await callTool(
     CONTENT_GENERATION_SYSTEM_PROMPT,
     buildContentGenerationPrompt(company, analysis, contentType, focusSdg, options),
     GENERATE_CONTENT_TOOL,
-    3000,
+    CONTENT_MAX_TOKENS,
   )
   // 모델이 type을 다른 값으로 반환할 수 있어 호출 측에서 강제 덮어쓰기.
   return GeneratedContentSchema.parse({
