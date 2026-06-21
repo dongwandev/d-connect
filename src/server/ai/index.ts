@@ -42,7 +42,8 @@ import { env } from '../env'
 // 시연 품질 우선 (#125) — 긴 고품질 생성이 완주하도록 타임아웃을 넉넉히,
 // 출력 토큰을 크게 잡아 잘림→mock 폴백을 구조적으로 줄인다.
 const AI_TIMEOUT_MS = 60_000
-const AI_MAX_ATTEMPTS = 2
+// 품질 우선 (#125, #127) — 잘림·부분출력·일시 오류를 충분히 흡수하도록 재시도 여유
+const AI_MAX_ATTEMPTS = 3
 const SDG_ANALYSIS_MAX_TOKENS = 4096
 const CONTENT_MAX_TOKENS = 8000
 
@@ -222,10 +223,24 @@ async function callLlmForContent(
     CONTENT_MAX_TOKENS,
   )
   // 모델이 type을 다른 값으로 반환할 수 있어 호출 측에서 강제 덮어쓰기.
-  return GeneratedContentSchema.parse({
+  const parsed = GeneratedContentSchema.parse({
     ...(raw as Record<string, unknown>),
     type: contentType,
   })
+
+  // 카드뉴스 완결성 검증 (#127) — 모델이 드물게 body를 [1장]만 쓰고 끝내는데
+  // GeneratedContentSchema는 카드 수를 검증하지 않아 부분 출력이 통과한다.
+  // 장 수가 모자라면 throw → withRetry가 재생성한다.
+  if (contentType === 'CARD_NEWS' && options.slideCount) {
+    const cardCount = (parsed.body.match(/\[\d+장\]/g) ?? []).length
+    if (cardCount < options.slideCount) {
+      throw new Error(
+        `AI_INCOMPLETE_CARD_NEWS: body ${cardCount}/${options.slideCount}장`,
+      )
+    }
+  }
+
+  return parsed
 }
 
 // --- Public types (re-export) -----------------------------------------------
