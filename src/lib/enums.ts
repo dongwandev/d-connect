@@ -92,6 +92,8 @@ export const SnsPlatformSchema = z.enum([
   'INSTAGRAM',
   'FACEBOOK',
   'X',
+  'TIKTOK',
+  'THREADS',
   'OTHER',
 ])
 export type SnsPlatform = z.infer<typeof SnsPlatformSchema>
@@ -99,6 +101,8 @@ export const SNS_PLATFORM_LABEL: Record<SnsPlatform, string> = {
   INSTAGRAM: '인스타그램',
   FACEBOOK: '페이스북',
   X: 'X (트위터)',
+  TIKTOK: '틱톡',
+  THREADS: '스레드',
   OTHER: '기타',
 }
 
