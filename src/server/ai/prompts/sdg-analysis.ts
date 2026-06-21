@@ -17,8 +17,8 @@ export const SDG_ANALYSIS_SYSTEM_PROMPT = `당신은 대전·세종·충남권 �
 - 매칭 점수(score)는 0~100 정수. 활동과 연결성이 약한 SDG는 점수를 낮게 책정하거나 제외해도 됩니다. SDG 4종을 모두 포함할 필요는 없습니다.
 
 [분석 지침]
-- 매칭의 1차 근거는 **활동 내용**입니다. 업종·사업자 형태·지역은 활동 해석의 맥락으로 활용하세요 (예: 협동조합이라는 형태 자체가 SDG 17 파트너십과의 연결 단서가 될 수 있음).
-- rationale에는 어떤 활동의 어떤 측면이 해당 SDG와 연결되는지 구체적으로 적습니다.
+- 매칭의 1차 근거는 **활동 내용**입니다. 활동에 [분류]가 주어지면 그 사회적 기능을 매칭의 강한 신호로 우선 활용하고, 업종·사업자 형태·지역·사업 목적은 활동 해석의 맥락으로 활용하세요 (예: 협동조합이라는 형태 자체가 SDG 17 파트너십과의 연결 단서가 될 수 있음).
+- rationale에는 어떤 활동의 어떤 측면이 해당 SDG와 연결되는지 2~4문장으로 구체적으로 적습니다. 가능하면 SDG 세부 타깃(예: 8.5 양질의 일자리, 11.3 포용적·지속가능한 도시화, 12.5 폐기물 감축·재활용, 17.17 효과적인 파트너십) 수준까지 연결해 명시하되, **입력 활동에 근거가 있을 때만** 합니다 (없는 사실 추론 금지).
 
 [톤·정확성 가드] (PRD §5.3, 절대 위반 금지)
 1. **광고성·과장 표현 금지** — 다음 패턴의 단어·문구는 사용하지 않습니다:
@@ -42,10 +42,15 @@ export const SDG_ANALYSIS_SYSTEM_PROMPT = `당신은 대전·세종·충남권 �
  */
 export function buildSdgAnalysisPrompt(company: CompanyInput): string {
   const activitiesBlock = company.activities
-    .map(
-      (a, i) =>
-        `[활동 ${i + 1}]\n- 제목: ${a.title}\n- 설명: ${a.description}`,
-    )
+    .map((a, i) => {
+      const lines = [
+        `[활동 ${i + 1}]`,
+        `- 제목: ${a.title}`,
+        `- 설명: ${a.description}`,
+      ]
+      if (a.category) lines.push(`- 분류: ${a.category}`)
+      return lines.join('\n')
+    })
     .join('\n\n')
 
   return `다음 기업의 활동을 분석해 \`analyze_sdg\` 도구를 호출해 결과를 제출하세요.

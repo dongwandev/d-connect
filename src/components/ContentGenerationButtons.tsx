@@ -192,7 +192,7 @@ const FIELDS: Record<GeneratableType, Field[]> = {
 const DEFAULT_OPTIONS: Record<GeneratableType, GenerationOptionsStored> = {
   SNS_POST: {
     platform: 'INSTAGRAM',
-    bodyLength: 'NORMAL',
+    bodyLength: 'LONG',
     tone: 'CASUAL',
     withImage: false,
     aspectRatio: DEFAULT_ASPECT_RATIO.SNS_POST,
@@ -203,7 +203,7 @@ const DEFAULT_OPTIONS: Record<GeneratableType, GenerationOptionsStored> = {
     aspectRatio: DEFAULT_ASPECT_RATIO.CARD_NEWS,
     imageStyle: 'ILLUSTRATION',
     slideCount: DEFAULT_SLIDE_COUNT,
-    density: 'SUMMARY',
+    density: 'DETAILED',
     closingCard: true,
     extraRequest: '',
   },
@@ -488,7 +488,7 @@ export function ContentGenerationButtons({
           <p className="text-xs text-gray-600">
             ✨ {progressMessage}
             <span className="ml-2 tabular-nums text-gray-400">
-              {elapsed}초 경과 · 최대 30초
+              {elapsed}초 경과 · 최대 60초
             </span>
           </p>
 
@@ -516,7 +516,7 @@ export function ContentGenerationButtons({
         !type && (
           <p className="text-xs text-gray-500">
             콘텐츠 종류를 선택하면 세부 설정이 열립니다. 선택한 SDGs 분야를
-            중심 메시지로 콘텐츠 1건을 생성합니다 (최대 30초).
+            중심 메시지로 콘텐츠 1건을 생성합니다 (최대 60초).
           </p>
         )
       )}
