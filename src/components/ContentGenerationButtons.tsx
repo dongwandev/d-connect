@@ -145,7 +145,7 @@ const FIELDS: Record<GeneratableType, Field[]> = {
       choices: CardDensitySchema.options,
       labelOf: fromRecord(CARD_DENSITY_LABEL),
     },
-    { kind: 'toggle', key: 'closingCard', label: '마무리 장(출처·문의)', on: '추가', off: '없음' },
+    { kind: 'toggle', key: 'closingCard', label: '마지막 장 용도', on: '마무리(CTA)', off: '정보' },
   ],
   SHORT_VIDEO_SCRIPT: [
     {

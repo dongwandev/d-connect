@@ -69,7 +69,7 @@ function formatOptions(raw: string | null): string | null {
       o.tone ? POST_TONE_LABEL[o.tone] : null,
       o.withImage ? '이미지 포함' : null,
       o.density ? CARD_DENSITY_LABEL[o.density] : null,
-      o.closingCard ? '마무리장' : null,
+      o.closingCard ? '마무리 CTA' : null,
       o.videoDuration ? `${o.videoDuration}초` : null,
       o.sceneCount ? `씬 ${o.sceneCount}개` : null,
       o.subtitles ? '자막' : null,
