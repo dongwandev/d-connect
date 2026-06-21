@@ -4,12 +4,63 @@ import { generateContent, toCompanyInput } from '@/server/ai'
 import { requireUserId } from '@/server/auth-guard'
 import { db } from '@/server/db'
 import { ApiError, withErrorHandler } from '@/server/errors'
-import type { SocialCategory } from '@/lib/enums'
+import type { GenerationOptionsStored, SocialCategory } from '@/lib/enums'
 import { parseJsonArray, serializeJsonArray } from '@/lib/json-array'
-import { CreateContentSchema } from './schemas'
+import { CreateContentSchema, type CreateContentInput } from './schemas'
 
 interface Params {
   params: Promise<{ id: string }>
+}
+
+/**
+ * 검증된 요청(유형별 union)을 저장·프롬프트용 wide 옵션으로 펼친다 (#123).
+ * 각 유형이 가진 필드만 담는다 — POSTER엔 platform 없음, SNS_POST는
+ * 이미지 미포함 시 비율/스타일 없음.
+ */
+function toStoredOptions(body: CreateContentInput): GenerationOptionsStored {
+  const extra = body.extraRequest?.trim()
+  const common = extra ? { extraRequest: extra } : {}
+  switch (body.type) {
+    case 'SNS_POST':
+      return {
+        ...common,
+        platform: body.platform,
+        bodyLength: body.bodyLength,
+        tone: body.tone,
+        withImage: body.withImage,
+        ...(body.withImage
+          ? { aspectRatio: body.aspectRatio, imageStyle: body.imageStyle }
+          : {}),
+      }
+    case 'CARD_NEWS':
+      return {
+        ...common,
+        aspectRatio: body.aspectRatio,
+        imageStyle: body.imageStyle,
+        slideCount: body.slideCount,
+        density: body.density,
+        closingCard: body.closingCard,
+      }
+    case 'SHORT_VIDEO_SCRIPT':
+      return {
+        ...common,
+        platform: body.platform,
+        aspectRatio: body.aspectRatio,
+        imageStyle: body.imageStyle,
+        videoDuration: body.videoDuration,
+        sceneCount: body.sceneCount,
+        subtitles: body.subtitles,
+        mood: body.mood,
+      }
+    case 'POSTER':
+      return {
+        ...common,
+        aspectRatio: body.aspectRatio,
+        imageStyle: body.imageStyle,
+        usage: body.usage,
+        textAmount: body.textAmount,
+      }
+  }
 }
 
 /**
@@ -51,16 +102,8 @@ export async function POST(
       )
     }
 
-    // 세부 설정 (#104) — 프롬프트 반영 + DB 저장용
-    const options = {
-      platform: body.platform,
-      aspectRatio: body.aspectRatio,
-      imageStyle: body.imageStyle,
-      ...(body.type === 'CARD_NEWS' ? { slideCount: body.slideCount } : {}),
-      ...(body.extraRequest?.trim()
-        ? { extraRequest: body.extraRequest.trim() }
-        : {}),
-    }
+    // 세부 설정 (#104, #123) — 유형별 옵션을 프롬프트 반영 + DB 저장용 wide shape로
+    const options = toStoredOptions(body)
 
     const { result, usedFallback } = await generateContent(
       toCompanyInput(analysis.company),

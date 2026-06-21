@@ -6,14 +6,20 @@ import { useState, useTransition } from 'react'
 import { EmptyState } from '@/components/EmptyState'
 import { useToast } from '@/components/Toast'
 import {
+  BODY_LENGTH_LABEL,
+  CARD_DENSITY_LABEL,
   CONTENT_TYPE_LABEL,
   GENERATABLE_CONTENT_TYPES,
   IMAGE_STYLE_LABEL,
+  POSTER_TEXT_AMOUNT_LABEL,
+  POSTER_USAGE_LABEL,
+  POST_TONE_LABEL,
   SDG_COLOR,
   SDG_GOAL_LABEL,
   SNS_PLATFORM_LABEL,
+  VIDEO_MOOD_LABEL,
   type ContentType,
-  type GenerationOptions,
+  type GenerationOptionsStored,
   type SdgGoal,
 } from '@/lib/enums'
 import { formatRelativeTime } from '@/lib/relative-time'
@@ -44,16 +50,32 @@ const BODY_CLAMP_LINES = 6
  * 클립보드 복사 — Clipboard API 실패 시(웹뷰·권한 차단 환경)
  * execCommand 폴백으로 한 번 더 시도한다.
  */
-/** options JSON → "인스타그램 · 1:1 · 일러스트 · 4장" 메타 문자열 (#104) */
+/**
+ * options JSON → "인스타그램 · 1:1 · 일러스트 · 4장" 류 메타 문자열 (#104, #123).
+ * 유형별 특화 옵션을 모두 표시하되, 존재하는 필드만. 구버전 행(필드 일부)도
+ * filter(Boolean)이 누락 키를 자동 제거하므로 안전하다.
+ */
 function formatOptions(raw: string | null): string | null {
   if (!raw) return null
   try {
-    const o = JSON.parse(raw) as Partial<GenerationOptions>
+    const o = JSON.parse(raw) as GenerationOptionsStored
     const parts = [
       o.platform ? SNS_PLATFORM_LABEL[o.platform] : null,
       o.aspectRatio ?? null,
       o.imageStyle ? IMAGE_STYLE_LABEL[o.imageStyle] : null,
       o.slideCount ? `${o.slideCount}장` : null,
+      // 유형별 특화 (#123)
+      o.bodyLength ? BODY_LENGTH_LABEL[o.bodyLength] : null,
+      o.tone ? POST_TONE_LABEL[o.tone] : null,
+      o.withImage ? '이미지 포함' : null,
+      o.density ? CARD_DENSITY_LABEL[o.density] : null,
+      o.closingCard ? '마무리 CTA' : null,
+      o.videoDuration ? `${o.videoDuration}초` : null,
+      o.sceneCount ? `씬 ${o.sceneCount}개` : null,
+      o.subtitles ? '자막' : null,
+      o.mood ? VIDEO_MOOD_LABEL[o.mood] : null,
+      o.usage ? POSTER_USAGE_LABEL[o.usage] : null,
+      o.textAmount ? POSTER_TEXT_AMOUNT_LABEL[o.textAmount] : null,
     ].filter(Boolean)
     return parts.length ? parts.join(' · ') : null
   } catch {
