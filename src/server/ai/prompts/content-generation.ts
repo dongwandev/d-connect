@@ -195,11 +195,17 @@ function buildOptionsBlock(
     )
   }
   if (options.closingCard === true) {
+    const n = options.slideCount
+    const split = n
+      ? ` 앞 ${n - 1}개 장은 정보 전달, 마지막 ${n}번째 장만 마무리.`
+      : ''
     lines.push(
-      '- 마무리 장: 마지막 장은 활동 출처·문의·참여 안내 등 마무리 카드로 구성',
+      `- 마무리 장: 포함 — 마지막 장을 정보 카드가 아닌 **마무리(CTA) 카드**로 구성한다. 활동의 출처·문의처·참여 방법(후원·방문·SNS 팔로우 등) 중 입력 근거가 있는 것만 담고, 앞 장들과 구분되는 마감 톤으로 작성한다 (예: "함께해요", "더 알아보기").${split} 이 장의 body 문구와 imagePrompt(Card ${n ?? 'N'})도 정보 카드가 아닌 안내·행동유도 카드로 작성한다.`,
     )
   } else if (options.closingCard === false) {
-    lines.push('- 마무리 장: 별도 마무리 카드 없이 정보 카드로만 구성')
+    lines.push(
+      '- 마무리 장: 미포함 — 모든 장을 정보 전달 카드로 구성한다. 출처·문의·참여 안내 등 별도의 마무리(CTA) 카드를 만들지 않는다 (마지막 장도 활동 정보).',
+    )
   }
 
   // SNS_POST
