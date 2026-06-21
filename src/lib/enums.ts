@@ -131,7 +131,104 @@ export const IMAGE_STYLE_LABEL: Record<ImageStyle, string> = {
   MINIMAL: '미니멀',
 }
 
-/** 생성 세부 설정 — GeneratedContent.options JSON과 동일 구조 (#104) */
+// --- 유형별 특화 옵션 enum (#123) --------------------------------------------
+
+/** SNS_POST 본문 길이 */
+export const BodyLengthSchema = z.enum(['SHORT', 'NORMAL', 'LONG'])
+export type BodyLength = z.infer<typeof BodyLengthSchema>
+export const BODY_LENGTH_LABEL: Record<BodyLength, string> = {
+  SHORT: '짧게',
+  NORMAL: '보통',
+  LONG: '길게',
+}
+
+/** SNS_POST 어조 */
+export const PostToneSchema = z.enum(['CASUAL', 'FORMAL'])
+export type PostTone = z.infer<typeof PostToneSchema>
+export const POST_TONE_LABEL: Record<PostTone, string> = {
+  CASUAL: '캐주얼(해요체)',
+  FORMAL: '정중(합니다체)',
+}
+
+/** CARD_NEWS 정보 밀도 */
+export const CardDensitySchema = z.enum(['SUMMARY', 'DETAILED'])
+export type CardDensity = z.infer<typeof CardDensitySchema>
+export const CARD_DENSITY_LABEL: Record<CardDensity, string> = {
+  SUMMARY: '요약형',
+  DETAILED: '상세형',
+}
+
+/** SHORT_VIDEO_SCRIPT 영상 분위기 */
+export const VideoMoodSchema = z.enum(['BRIGHT', 'CALM', 'DYNAMIC', 'WARM'])
+export type VideoMood = z.infer<typeof VideoMoodSchema>
+export const VIDEO_MOOD_LABEL: Record<VideoMood, string> = {
+  BRIGHT: '밝게',
+  CALM: '차분하게',
+  DYNAMIC: '다이내믹',
+  WARM: '따뜻하게',
+}
+
+/** POSTER 용도 */
+export const PosterUsageSchema = z.enum(['ONLINE', 'PRINT'])
+export type PosterUsage = z.infer<typeof PosterUsageSchema>
+export const POSTER_USAGE_LABEL: Record<PosterUsage, string> = {
+  ONLINE: '온라인 게시',
+  PRINT: '인쇄용',
+}
+
+/** POSTER 텍스트 양 */
+export const PosterTextAmountSchema = z.enum([
+  'MINIMAL',
+  'STANDARD',
+  'INFOGRAPHIC',
+])
+export type PosterTextAmount = z.infer<typeof PosterTextAmountSchema>
+export const POSTER_TEXT_AMOUNT_LABEL: Record<PosterTextAmount, string> = {
+  MINIMAL: '미니멀',
+  STANDARD: '표준',
+  INFOGRAPHIC: '정보형',
+}
+
+/**
+ * 생성 세부 설정 — GeneratedContent.options JSON 저장/프롬프트 정규화 shape (#123).
+ *
+ * 모든 필드 optional 평면 객체. 입력 검증은 유형별 discriminated union
+ * (api/.../content/schemas.ts)이 담당하고, route 파싱 직후 이 wide shape로
+ * 펼쳐 저장·프롬프트에 넘긴다. 구버전 행(평면 일부 필드)도 그대로 수용된다.
+ */
+export interface GenerationOptionsStored {
+  platform?: SnsPlatform
+  aspectRatio?: AspectRatio
+  imageStyle?: ImageStyle
+  /** CARD_NEWS — 카드 장 수 (3~8) */
+  slideCount?: number
+  /** SNS_POST — 본문 길이 */
+  bodyLength?: BodyLength
+  /** SNS_POST — 어조 */
+  tone?: PostTone
+  /** SNS_POST — 곁들일 이미지 포함 여부 */
+  withImage?: boolean
+  /** CARD_NEWS — 정보 밀도 */
+  density?: CardDensity
+  /** CARD_NEWS — 출처·문의 등 마무리 장 추가 */
+  closingCard?: boolean
+  /** SHORT_VIDEO_SCRIPT — 영상 길이(초) */
+  videoDuration?: number
+  /** SHORT_VIDEO_SCRIPT — 씬 수 */
+  sceneCount?: number
+  /** SHORT_VIDEO_SCRIPT — 자막 삽입 여부 */
+  subtitles?: boolean
+  /** SHORT_VIDEO_SCRIPT — 영상 분위기 */
+  mood?: VideoMood
+  /** POSTER — 용도 */
+  usage?: PosterUsage
+  /** POSTER — 텍스트 양 */
+  textAmount?: PosterTextAmount
+  /** 강조하고 싶은 내용 등 자유 요청 (≤200자) */
+  extraRequest?: string
+}
+
+/** 생성 세부 설정 (구버전 — #104). #123에서 GenerationOptionsStored로 대체 예정 */
 export interface GenerationOptions {
   platform: SnsPlatform
   aspectRatio: AspectRatio
@@ -153,6 +250,14 @@ export const DEFAULT_ASPECT_RATIO: Record<ContentType, AspectRatio> = {
 
 export const DEFAULT_SLIDE_COUNT = 4
 export const SLIDE_COUNT_RANGE = [3, 4, 5, 6, 7, 8] as const
+
+/** SHORT_VIDEO_SCRIPT — 영상 길이(초) 선택지·기본값 (#123) */
+export const VIDEO_DURATION_RANGE = [15, 30, 60] as const
+export const DEFAULT_VIDEO_DURATION = 30
+
+/** SHORT_VIDEO_SCRIPT — 씬 수 선택지·기본값 (#123) */
+export const SCENE_COUNT_RANGE = [3, 4, 5, 6] as const
+export const DEFAULT_SCENE_COUNT = 4
 
 // --- D2 enum 라벨 (디자인 이미지 2 기반) -------------------------------------
 

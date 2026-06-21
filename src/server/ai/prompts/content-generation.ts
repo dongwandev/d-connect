@@ -1,11 +1,20 @@
 import {
+  BODY_LENGTH_LABEL,
+  CARD_DENSITY_LABEL,
   CONTENT_TYPE_LABEL,
   IMAGE_STYLE_LABEL,
+  POSTER_TEXT_AMOUNT_LABEL,
+  POSTER_USAGE_LABEL,
+  POST_TONE_LABEL,
   SDG_GOAL_LABEL,
   SNS_PLATFORM_LABEL,
+  VIDEO_MOOD_LABEL,
   type ContentType,
   type GenerationOptions,
+  type GenerationOptionsStored,
+  type ImageStyle,
   type SdgGoal,
+  type SnsPlatform,
 } from '@/lib/enums'
 import type { SdgAnalysisResult } from '../schemas'
 import { buildCompanyBlock, type CompanyInput } from './index'
@@ -107,7 +116,7 @@ const TYPE_REQUIREMENTS: Record<ContentType, string> = {
 }
 
 /** 플랫폼별 작성 가이드 — body 분량·해시태그·어조에 반영 (#104) */
-const PLATFORM_GUIDE: Record<GenerationOptions['platform'], string> = {
+const PLATFORM_GUIDE: Record<SnsPlatform, string> = {
   INSTAGRAM:
     '인스타그램 — 이모지·해시태그 친화적, 첫 문장으로 시선을 끌 것, 줄바꿈으로 가독성 확보',
   FACEBOOK:
@@ -120,33 +129,149 @@ const PLATFORM_GUIDE: Record<GenerationOptions['platform'], string> = {
   OTHER: '플랫폼 불특정 — 범용 톤, 기본 분량 가이드 준수',
 }
 
-const IMAGE_STYLE_PROMPT: Record<GenerationOptions['imageStyle'], string> = {
+const IMAGE_STYLE_PROMPT: Record<ImageStyle, string> = {
   ILLUSTRATION: 'warm flat illustration style',
   PHOTO: 'realistic photography style, natural lighting',
   WATERCOLOR: 'soft watercolor painting style',
   MINIMAL: 'minimal clean design with generous whitespace',
 }
 
-/** [세부 설정] 블록 — 유형 공통 요구사항보다 우선 적용된다 */
+const BODY_LENGTH_GUIDE: Record<NonNullable<GenerationOptionsStored['bodyLength']>, string> =
+  {
+    SHORT: 'body를 150~250자로 짧고 간결하게',
+    NORMAL: 'body를 250~400자로',
+    LONG: 'body를 400~600자로 배경·맥락까지 충분히',
+  }
+
+const DENSITY_GUIDE: Record<NonNullable<GenerationOptionsStored['density']>, string> =
+  {
+    SUMMARY: '슬라이드당 핵심 1문장으로 간결하게',
+    DETAILED: '슬라이드당 2~3문장으로 배경·맥락까지 상세하게',
+  }
+
+const TEXT_AMOUNT_GUIDE: Record<NonNullable<GenerationOptionsStored['textAmount']>, string> =
+  {
+    MINIMAL: '헤드라인 중심으로 문구를 최소화하고 비주얼을 강조',
+    STANDARD: '헤드라인 + 서브카피의 표준 분량',
+    INFOGRAPHIC: '핵심 정보를 여러 항목으로 구조화해 정보 전달을 강조',
+  }
+
+/**
+ * [세부 설정] 블록 — 유형 공통 요구사항보다 우선 적용된다 (#123).
+ * GenerationOptionsStored의 필드를 존재할 때만 한 줄씩 추가한다 (유형별 특화).
+ */
 function buildOptionsBlock(
   contentType: ContentType,
-  options: GenerationOptions,
+  options: GenerationOptionsStored,
 ): string {
-  const lines = [
-    `- 대상 SNS: ${SNS_PLATFORM_LABEL[options.platform]} — ${PLATFORM_GUIDE[options.platform]}`,
-    `- 비율: ${options.aspectRatio} — imagePrompt의 모든 이미지/영상 규격에 이 비율을 명시할 것 (예: "${options.aspectRatio} aspect ratio")`,
-    `- 이미지 스타일: ${IMAGE_STYLE_LABEL[options.imageStyle]} — imagePrompt의 스타일 문장은 "${IMAGE_STYLE_PROMPT[options.imageStyle]}" 계열로 통일`,
-  ]
+  const lines: string[] = []
+
+  // 공통 — 존재하는 경우만 (POSTER엔 platform 없음, SNS_POST는 이미지 미포함 시 비율/스타일 없음)
+  if (options.platform) {
+    lines.push(
+      `- 대상 SNS: ${SNS_PLATFORM_LABEL[options.platform]} — ${PLATFORM_GUIDE[options.platform]}`,
+    )
+  }
+  if (options.aspectRatio) {
+    lines.push(
+      `- 비율: ${options.aspectRatio} — imagePrompt의 모든 이미지/영상 규격에 이 비율을 명시할 것 (예: "${options.aspectRatio} aspect ratio")`,
+    )
+  }
+  if (options.imageStyle) {
+    lines.push(
+      `- 이미지 스타일: ${IMAGE_STYLE_LABEL[options.imageStyle]} — imagePrompt의 스타일 문장은 "${IMAGE_STYLE_PROMPT[options.imageStyle]}" 계열로 통일`,
+    )
+  }
+
+  // CARD_NEWS
   if (contentType === 'CARD_NEWS' && options.slideCount) {
     lines.push(
       `- 카드 수: 정확히 ${options.slideCount}장 — body는 [1장]~[${options.slideCount}장], imagePrompt는 Card 1~Card ${options.slideCount}`,
     )
   }
+  if (options.density) {
+    lines.push(
+      `- 정보 밀도: ${CARD_DENSITY_LABEL[options.density]} — ${DENSITY_GUIDE[options.density]}`,
+    )
+  }
+  if (options.closingCard === true) {
+    lines.push(
+      '- 마무리 장: 마지막 장은 활동 출처·문의·참여 안내 등 마무리 카드로 구성',
+    )
+  } else if (options.closingCard === false) {
+    lines.push('- 마무리 장: 별도 마무리 카드 없이 정보 카드로만 구성')
+  }
+
+  // SNS_POST
+  if (options.bodyLength) {
+    lines.push(
+      `- 본문 길이: ${BODY_LENGTH_LABEL[options.bodyLength]} — ${BODY_LENGTH_GUIDE[options.bodyLength]} 작성`,
+    )
+  }
+  if (options.tone) {
+    const toneGuide =
+      options.tone === 'CASUAL'
+        ? '~해요체의 친근한 어조 (단, 광고 톤 금지)'
+        : '~합니다체의 정중한 어조'
+    lines.push(`- 어조: ${POST_TONE_LABEL[options.tone]} — ${toneGuide}`)
+  }
+  if (options.withImage === false) {
+    lines.push(
+      '- 곁들일 이미지: 없음 — imagePrompt는 비우고 body·hashtags 텍스트만 작성',
+    )
+  } else if (options.withImage === true) {
+    lines.push(
+      '- 곁들일 이미지: 포함 — 게시글에 어울리는 이미지 1장의 영어 imagePrompt도 작성',
+    )
+  }
+
+  // SHORT_VIDEO_SCRIPT
+  if (options.videoDuration) {
+    lines.push(
+      `- 영상 길이: 약 ${options.videoDuration}초 — 전체 씬 구성을 이 길이에 맞출 것`,
+    )
+  }
+  if (options.sceneCount) {
+    lines.push(
+      `- 씬 수: 정확히 ${options.sceneCount}개 — imagePrompt를 Scene 1~Scene ${options.sceneCount}으로 구성`,
+    )
+  }
+  if (options.subtitles === true) {
+    lines.push(
+      '- 자막: 포함 — 각 씬에 얹을 한국어 자막 문구를 body에 씬별로 제시하고, imagePrompt에 자막 영역 위치를 명시',
+    )
+  } else if (options.subtitles === false) {
+    lines.push(
+      '- 자막: 없음 — 자막 없이 영상 비주얼과 장면 흐름 중심으로 구성',
+    )
+  }
+  if (options.mood) {
+    lines.push(
+      `- 영상 분위기: ${VIDEO_MOOD_LABEL[options.mood]} — 색감·편집 호흡·음악 분위기를 여기에 맞출 것`,
+    )
+  }
+
+  // POSTER
+  if (options.usage) {
+    const usageGuide =
+      options.usage === 'PRINT'
+        ? '고해상도, 여백·가독성 우선, 과한 효과 자제'
+        : '썸네일에서도 헤드라인이 읽히도록 대비 강조'
+    lines.push(`- 포스터 용도: ${POSTER_USAGE_LABEL[options.usage]} — ${usageGuide}`)
+  }
+  if (options.textAmount) {
+    lines.push(
+      `- 텍스트 양: ${POSTER_TEXT_AMOUNT_LABEL[options.textAmount]} — ${TEXT_AMOUNT_GUIDE[options.textAmount]}`,
+    )
+  }
+
+  // 공통 — 자유 요청
   if (options.extraRequest) {
     lines.push(
       `- 추가 요청: ${options.extraRequest} (톤·정확성 가드를 어기지 않는 범위에서 반영)`,
     )
   }
+
   return lines.join('\n')
 }
 
@@ -161,7 +286,7 @@ export function buildContentGenerationPrompt(
   analysis: SdgAnalysisResult,
   contentType: ContentType,
   focusSdg: SdgGoal,
-  options: GenerationOptions = DEFAULT_GENERATION_OPTIONS,
+  options: GenerationOptionsStored = DEFAULT_GENERATION_OPTIONS,
 ): string {
   const focusMatch = analysis.matches.find((m) => m.sdg === focusSdg)
   const otherMatches = analysis.matches.filter((m) => m.sdg !== focusSdg)

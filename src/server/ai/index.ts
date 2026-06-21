@@ -10,7 +10,7 @@ import {
   SDG_ANALYSIS_SYSTEM_PROMPT,
   buildSdgAnalysisPrompt,
 } from './prompts/sdg-analysis'
-import type { GenerationOptions } from '@/lib/enums'
+import type { GenerationOptionsStored } from '@/lib/enums'
 import {
   GeneratedContentSchema,
   type ContentType,
@@ -148,7 +148,7 @@ export async function generateContent(
   analysis: SdgAnalysisResult,
   contentType: ContentType,
   focusSdg: SdgGoal,
-  options: GenerationOptions,
+  options: GenerationOptionsStored,
 ): Promise<GenerateContentOutput> {
   if (!hasApiKey()) {
     console.warn('[ai] mock — no API key')
@@ -172,7 +172,7 @@ async function callLlmForContent(
   analysis: SdgAnalysisResult,
   contentType: ContentType,
   focusSdg: SdgGoal,
-  options: GenerationOptions,
+  options: GenerationOptionsStored,
 ): Promise<GeneratedContent> {
   // 카드뉴스 장별 프롬프트 등 출력이 길어 1500이면 잘려 mock 폴백될 수 있다 (#98)
   const raw = await callTool(

@@ -5,23 +5,36 @@ import { useEffect, useState } from 'react'
 import { useToast } from '@/components/Toast'
 import {
   AspectRatioSchema,
+  BODY_LENGTH_LABEL,
+  BodyLengthSchema,
+  CARD_DENSITY_LABEL,
   CONTENT_TYPE_HINT,
   CONTENT_TYPE_LABEL,
+  CardDensitySchema,
   DEFAULT_ASPECT_RATIO,
+  DEFAULT_SCENE_COUNT,
   DEFAULT_SLIDE_COUNT,
+  DEFAULT_VIDEO_DURATION,
   GENERATABLE_CONTENT_TYPES,
   IMAGE_STYLE_LABEL,
   ImageStyleSchema,
+  POSTER_TEXT_AMOUNT_LABEL,
+  POSTER_USAGE_LABEL,
+  POST_TONE_LABEL,
+  PostToneSchema,
+  PosterTextAmountSchema,
+  PosterUsageSchema,
+  SCENE_COUNT_RANGE,
   SDG_COLOR,
   SDG_GOAL_LABEL,
   SLIDE_COUNT_RANGE,
   SNS_PLATFORM_LABEL,
   SnsPlatformSchema,
-  type AspectRatio,
-  type ContentType,
-  type ImageStyle,
+  VIDEO_DURATION_RANGE,
+  VIDEO_MOOD_LABEL,
+  VideoMoodSchema,
+  type GenerationOptionsStored,
   type SdgGoal,
-  type SnsPlatform,
 } from '@/lib/enums'
 
 type State = { kind: 'idle' } | { kind: 'submitting' }
@@ -37,12 +50,188 @@ const PROGRESS_MESSAGES = [
   '마무리 중이에요 — 조금만 기다려 주세요',
 ]
 
+type GeneratableType = (typeof GENERATABLE_CONTENT_TYPES)[number]
+
+/** 옵션 enum 라벨 Record를 (값→라벨) 함수로. 미지 값은 그대로 표시(방어) */
+function fromRecord<K extends string>(
+  rec: Record<K, string>,
+): (v: string) => string {
+  return (v) => (rec as Record<string, string>)[v] ?? v
+}
+
 /**
- * 콘텐츠 생성 위젯 (#92→#104):
- * ① 홍보할 SDG 단일 선택 → ② 유형 선택 → ③ 세부 설정 → 생성하기.
+ * 콘텐츠 유형별 세부 설정 필드 정의 (#123) — "어떤 옵션을 그릴지"를 데이터로 선언하고,
+ * "어떻게 그릴지"는 renderField의 kind별 분기가 담당한다 (TS strict 마찰 최소화).
+ */
+type Field =
+  | {
+      kind: 'chips'
+      key: keyof GenerationOptionsStored
+      label: string
+      choices: readonly string[]
+      labelOf?: (v: string) => string
+      visibleWhen?: (o: GenerationOptionsStored) => boolean
+    }
+  | {
+      kind: 'num'
+      key: keyof GenerationOptionsStored
+      label: string
+      choices: readonly number[]
+      suffix: string
+      visibleWhen?: (o: GenerationOptionsStored) => boolean
+    }
+  | {
+      kind: 'toggle'
+      key: keyof GenerationOptionsStored
+      label: string
+      on: string
+      off: string
+      visibleWhen?: (o: GenerationOptionsStored) => boolean
+    }
+
+type ChipsField = Extract<Field, { kind: 'chips' }>
+
+// 여러 유형이 공유하는 필드 (비율·이미지 스타일)
+const ASPECT_FIELD: ChipsField = {
+  kind: 'chips',
+  key: 'aspectRatio',
+  label: '비율',
+  choices: AspectRatioSchema.options,
+}
+const IMAGE_STYLE_FIELD: ChipsField = {
+  kind: 'chips',
+  key: 'imageStyle',
+  label: '이미지 스타일',
+  choices: ImageStyleSchema.options,
+  labelOf: fromRecord(IMAGE_STYLE_LABEL),
+}
+
+/** 유형별 노출 필드 (추가 요청은 모든 유형 공통이라 별도로 렌더) */
+const FIELDS: Record<GeneratableType, Field[]> = {
+  SNS_POST: [
+    {
+      kind: 'chips',
+      key: 'platform',
+      label: '대상 SNS',
+      choices: SnsPlatformSchema.options,
+      labelOf: fromRecord(SNS_PLATFORM_LABEL),
+    },
+    {
+      kind: 'chips',
+      key: 'bodyLength',
+      label: '본문 길이',
+      choices: BodyLengthSchema.options,
+      labelOf: fromRecord(BODY_LENGTH_LABEL),
+    },
+    {
+      kind: 'chips',
+      key: 'tone',
+      label: '어조',
+      choices: PostToneSchema.options,
+      labelOf: fromRecord(POST_TONE_LABEL),
+    },
+    { kind: 'toggle', key: 'withImage', label: '곁들일 이미지', on: '포함', off: '없음' },
+    { ...ASPECT_FIELD, visibleWhen: (o) => o.withImage === true },
+    { ...IMAGE_STYLE_FIELD, visibleWhen: (o) => o.withImage === true },
+  ],
+  CARD_NEWS: [
+    { kind: 'num', key: 'slideCount', label: '카드 수', choices: SLIDE_COUNT_RANGE, suffix: '장' },
+    ASPECT_FIELD,
+    IMAGE_STYLE_FIELD,
+    {
+      kind: 'chips',
+      key: 'density',
+      label: '정보 밀도',
+      choices: CardDensitySchema.options,
+      labelOf: fromRecord(CARD_DENSITY_LABEL),
+    },
+    { kind: 'toggle', key: 'closingCard', label: '마무리 장(출처·문의)', on: '추가', off: '없음' },
+  ],
+  SHORT_VIDEO_SCRIPT: [
+    {
+      kind: 'chips',
+      key: 'platform',
+      label: '대상 SNS',
+      choices: SnsPlatformSchema.options,
+      labelOf: fromRecord(SNS_PLATFORM_LABEL),
+    },
+    ASPECT_FIELD,
+    { ...IMAGE_STYLE_FIELD, label: '영상 스타일' },
+    { kind: 'num', key: 'videoDuration', label: '영상 길이', choices: VIDEO_DURATION_RANGE, suffix: '초' },
+    { kind: 'num', key: 'sceneCount', label: '씬 수', choices: SCENE_COUNT_RANGE, suffix: '개' },
+    { kind: 'toggle', key: 'subtitles', label: '자막', on: '포함', off: '없음' },
+    {
+      kind: 'chips',
+      key: 'mood',
+      label: '영상 분위기',
+      choices: VideoMoodSchema.options,
+      labelOf: fromRecord(VIDEO_MOOD_LABEL),
+    },
+  ],
+  POSTER: [
+    ASPECT_FIELD,
+    IMAGE_STYLE_FIELD,
+    {
+      kind: 'chips',
+      key: 'usage',
+      label: '포스터 용도',
+      choices: PosterUsageSchema.options,
+      labelOf: fromRecord(POSTER_USAGE_LABEL),
+    },
+    {
+      kind: 'chips',
+      key: 'textAmount',
+      label: '텍스트 양',
+      choices: PosterTextAmountSchema.options,
+      labelOf: fromRecord(POSTER_TEXT_AMOUNT_LABEL),
+    },
+  ],
+}
+
+/** 유형 선택 시 통째로 교체할 기본 옵션 (추천 비율·기본값 반영) */
+const DEFAULT_OPTIONS: Record<GeneratableType, GenerationOptionsStored> = {
+  SNS_POST: {
+    platform: 'INSTAGRAM',
+    bodyLength: 'NORMAL',
+    tone: 'CASUAL',
+    withImage: false,
+    aspectRatio: DEFAULT_ASPECT_RATIO.SNS_POST,
+    imageStyle: 'ILLUSTRATION',
+    extraRequest: '',
+  },
+  CARD_NEWS: {
+    aspectRatio: DEFAULT_ASPECT_RATIO.CARD_NEWS,
+    imageStyle: 'ILLUSTRATION',
+    slideCount: DEFAULT_SLIDE_COUNT,
+    density: 'SUMMARY',
+    closingCard: true,
+    extraRequest: '',
+  },
+  SHORT_VIDEO_SCRIPT: {
+    platform: 'INSTAGRAM',
+    aspectRatio: DEFAULT_ASPECT_RATIO.SHORT_VIDEO_SCRIPT,
+    imageStyle: 'ILLUSTRATION',
+    videoDuration: DEFAULT_VIDEO_DURATION,
+    sceneCount: DEFAULT_SCENE_COUNT,
+    subtitles: true,
+    mood: 'BRIGHT',
+    extraRequest: '',
+  },
+  POSTER: {
+    aspectRatio: DEFAULT_ASPECT_RATIO.POSTER,
+    imageStyle: 'ILLUSTRATION',
+    usage: 'ONLINE',
+    textAmount: 'STANDARD',
+    extraRequest: '',
+  },
+}
+
+/**
+ * 콘텐츠 생성 위젯 (#92→#104→#123):
+ * ① 홍보할 SDG 단일 선택 → ② 유형 선택 → ③ 유형별 특화 세부 설정 → 생성하기.
  *
- * 세부 설정: 대상 SNS·비율·이미지 스타일(공통), 카드 수(카드뉴스),
- * 추가 요청(자유). 유형 선택 시 추천 비율이 자동 적용된다.
+ * 세부 설정은 유형마다 다르다 (FIELDS 레지스트리). 유형 선택 시 DEFAULT_OPTIONS로
+ * 옵션을 통째 리셋한다.
  */
 export function ContentGenerationButtons({
   analysisId,
@@ -58,12 +247,8 @@ export function ContentGenerationButtons({
   const [focusSdg, setFocusSdg] = useState<SdgGoal | null>(
     matches[0]?.sdg ?? null,
   )
-  const [type, setType] = useState<ContentType | null>(null)
-  const [platform, setPlatform] = useState<SnsPlatform>('INSTAGRAM')
-  const [aspectRatio, setAspectRatio] = useState<AspectRatio>('1:1')
-  const [imageStyle, setImageStyle] = useState<ImageStyle>('ILLUSTRATION')
-  const [slideCount, setSlideCount] = useState<number>(DEFAULT_SLIDE_COUNT)
-  const [extraRequest, setExtraRequest] = useState('')
+  const [type, setType] = useState<GeneratableType | null>(null)
+  const [options, setOptions] = useState<GenerationOptionsStored | null>(null)
 
   const submitting = state.kind === 'submitting'
 
@@ -74,28 +259,81 @@ export function ContentGenerationButtons({
     return () => clearInterval(id)
   }, [submitting])
 
-  function selectType(t: ContentType) {
+  function selectType(t: GeneratableType) {
     setType(t)
-    setAspectRatio(DEFAULT_ASPECT_RATIO[t]) // 유형별 추천 비율로 리셋
+    setOptions(DEFAULT_OPTIONS[t]) // 유형별 기본 옵션으로 통째 리셋
+  }
+
+  // 단일 setter — 컴퓨티드 키는 strict TS에서 좁히기 어려워 결과를 단언한다 (런타임 안전: 값은 해당 필드 선택지에서만 옴)
+  function setOpt(
+    key: keyof GenerationOptionsStored,
+    value: string | number | boolean,
+  ) {
+    setOptions((o) =>
+      o ? ({ ...o, [key]: value } as GenerationOptionsStored) : o,
+    )
+  }
+
+  function renderField(f: Field, o: GenerationOptionsStored) {
+    if (f.visibleWhen && !f.visibleWhen(o)) return null
+    switch (f.kind) {
+      case 'chips':
+        return (
+          <OptionRow key={f.key} label={f.label}>
+            {f.choices.map((c) => (
+              <Chip
+                key={c}
+                label={f.labelOf ? f.labelOf(c) : c}
+                active={o[f.key] === c}
+                disabled={submitting}
+                onClick={() => setOpt(f.key, c)}
+              />
+            ))}
+          </OptionRow>
+        )
+      case 'num':
+        return (
+          <OptionRow key={f.key} label={f.label}>
+            {f.choices.map((n) => (
+              <Chip
+                key={n}
+                label={`${n}${f.suffix}`}
+                active={o[f.key] === n}
+                disabled={submitting}
+                onClick={() => setOpt(f.key, n)}
+              />
+            ))}
+          </OptionRow>
+        )
+      case 'toggle':
+        return (
+          <OptionRow key={f.key} label={f.label}>
+            <Chip
+              label={f.on}
+              active={o[f.key] === true}
+              disabled={submitting}
+              onClick={() => setOpt(f.key, true)}
+            />
+            <Chip
+              label={f.off}
+              active={o[f.key] === false}
+              disabled={submitting}
+              onClick={() => setOpt(f.key, false)}
+            />
+          </OptionRow>
+        )
+    }
   }
 
   async function generate() {
-    if (!focusSdg || !type) return
+    if (!focusSdg || !type || !options) return
     setState({ kind: 'submitting' })
     setElapsed(0)
     try {
       const res = await fetch(`/api/sdg-analysis/${analysisId}/content`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type,
-          focusSdg,
-          platform,
-          aspectRatio,
-          imageStyle,
-          ...(type === 'CARD_NEWS' ? { slideCount } : {}),
-          ...(extraRequest.trim() ? { extraRequest: extraRequest.trim() } : {}),
-        }),
+        body: JSON.stringify({ type, focusSdg, ...options }),
       })
       const json = (await res.json()) as
         | { data: unknown }
@@ -198,63 +436,13 @@ export function ContentGenerationButtons({
         </div>
       </fieldset>
 
-      {type && (
+      {type && options && (
         <fieldset className="space-y-3 rounded-md border border-gray-200 bg-gray-50/60 p-3">
           <legend className="px-1 text-sm font-semibold text-gray-900">
             3. 세부 설정
           </legend>
 
-          <OptionRow label="대상 SNS">
-            {SnsPlatformSchema.options.map((p) => (
-              <Chip
-                key={p}
-                label={SNS_PLATFORM_LABEL[p]}
-                active={platform === p}
-                disabled={submitting}
-                onClick={() => setPlatform(p)}
-              />
-            ))}
-          </OptionRow>
-
-          <OptionRow label="비율">
-            {AspectRatioSchema.options.map((r) => (
-              <Chip
-                key={r}
-                label={
-                  r === DEFAULT_ASPECT_RATIO[type] ? `${r} (추천)` : r
-                }
-                active={aspectRatio === r}
-                disabled={submitting}
-                onClick={() => setAspectRatio(r)}
-              />
-            ))}
-          </OptionRow>
-
-          {type === 'CARD_NEWS' && (
-            <OptionRow label="카드 수">
-              {SLIDE_COUNT_RANGE.map((n) => (
-                <Chip
-                  key={n}
-                  label={`${n}장`}
-                  active={slideCount === n}
-                  disabled={submitting}
-                  onClick={() => setSlideCount(n)}
-                />
-              ))}
-            </OptionRow>
-          )}
-
-          <OptionRow label="이미지 스타일">
-            {ImageStyleSchema.options.map((st) => (
-              <Chip
-                key={st}
-                label={IMAGE_STYLE_LABEL[st]}
-                active={imageStyle === st}
-                disabled={submitting}
-                onClick={() => setImageStyle(st)}
-              />
-            ))}
-          </OptionRow>
+          {FIELDS[type].map((f) => renderField(f, options))}
 
           <div className="space-y-1">
             <label
@@ -267,8 +455,8 @@ export function ContentGenerationButtons({
               id="extra-request"
               type="text"
               maxLength={200}
-              value={extraRequest}
-              onChange={(e) => setExtraRequest(e.target.value)}
+              value={options.extraRequest ?? ''}
+              onChange={(e) => setOpt('extraRequest', e.target.value)}
               disabled={submitting}
               placeholder='예: "주말 클래스 일정을 강조해줘"'
               className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-sm disabled:opacity-60"
