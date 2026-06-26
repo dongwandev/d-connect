@@ -81,7 +81,7 @@ export const CONTENT_GENERATION_SYSTEM_PROMPT = `당신은 대전·세종·충�
 - **범용 일러스트 금지 — 활동의 실제 장면을 그려라**: [활동] 중 홍보 대상 SDG와 가장 맞는 활동 하나를 골라 그 현장을 구체적으로 묘사 (예: 부트캠프 교육이면 강의실에서 코드를 배우는 수강생과 멘토). 입력에 없는 사실(특정 인물 수, 실제 매장 외관 등)은 일반화해 표현.
 - **body와 한 몸**: imagePrompt는 body(헤드라인·서브카피·자막)가 말하는 메시지를 장면으로 번역한 것이어야 한다.
 - **한국 맥락 명시**: 인물·배경에 "Korean young adults", "in Daejeon, South Korea" 등 한국임을 반드시 명시 — 명시하지 않으면 이미지 모델이 서구권 인물·도시를 그린다. 기업의 지역 정보가 있으면 도시명을 포함.
-- **장면 묘사에 고유명사 금지**: 과정명·기업명·캠페인명을 장면 묘사에 따옴표로 넣지 말 것 — 이미지 모델이 의도치 않은 간판·현수막으로 그려 넣는다. 이름 없이 장면으로만 묘사하라 (예: "'데이터 탐험가 과정'" 대신 "a data analysis bootcamp class"). 렌더링할 문구는 오직 POSTER의 Typography layout 섹션에서만 정확히 인용한다 (SHORT_VIDEO_SCRIPT는 영상에 글자를 넣지 않는다 — 자막은 body가 담당).
+- **장면 묘사에 고유명사 금지**: 과정명·기업명·캠페인명을 장면 묘사에 따옴표로 넣지 말 것 — 이미지 모델이 의도치 않은 간판·현수막으로 그려 넣는다. 이름 없이 장면으로만 묘사하라 (예: "'데이터 탐험가 과정'" 대신 "a data analysis bootcamp class"). 렌더링할 문구는 POSTER의 Typography layout 섹션, 그리고 SHORT_VIDEO_SCRIPT의 자막(자막 포함 시 — [세부 설정] 참조)에서만 정확히 인용한다 — 그 외 우발적 간판·현수막 글자는 장면에 넣지 않는다.
 - **로고·실존 인물 묘사 금지**: 기업 로고를 그리라고 지시하지 말 것 — 이미지 모델은 실제 로고를 모르므로 가짜 로고를 만들어낸다. 실존 인물 묘사도 금지. 일반화된 장면·인물로만.
 - 과장된 연출("epic", "dramatic", "best")보다 따뜻하고 절제된 공공 캠페인 무드.
 
@@ -244,7 +244,7 @@ function buildOptionsBlock(
   }
   if (options.subtitles === true) {
     lines.push(
-      '- 자막: 포함 — 각 씬에 얹을 한국어 자막 문구를 body에 씬별로 제시하고, imagePrompt에 자막 영역 위치를 명시',
+      '- 자막: 포함 — 각 씬(Scene)마다 한 줄짜리 한국어 자막 문구를 정한다. **imagePrompt의 각 Scene 설명 안에** 그 한국어 문구를 따옴표로 정확히 인용하고, 화면 하단 중앙에 자막(caption)으로 렌더링하도록 지시한다 (예: ...with a bottom-center Korean subtitle caption that reads "수업이 시작됩니다"). imagePrompt 끝에 한글 가드 문장을 한 번 포함한다: "Render all Korean subtitle captions EXACTLY as written, character by character, with correct and complete Hangul glyphs; no other text anywhere." body에도 씬별 자막 문구를 "[씬 1]" 형식으로 목록화한다.',
     )
   } else if (options.subtitles === false) {
     lines.push(
